@@ -5,6 +5,16 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemHeader,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Separator } from "@/components/ui/separator";
 import { House } from "lucide-react";
 import Link from "next/link";
@@ -129,7 +139,7 @@ export default function Page() {
                         <TableCell className="w-1/4">Created</TableCell>
                         <TableCell className="w-3/4 text-wrap">
                           {user?.created_at
-                            ? format(user.created_at, "dd MMMM yyyy - HH:mm")
+                            ? format(user.created_at, "dd MMMM yyyy - HH:mm:ss")
                             : "-"}
                         </TableCell>
                       </TableRow>
@@ -147,23 +157,24 @@ export default function Page() {
               <CardContent>
                 <div className="space-y-3">
                   {user?.roles?.map((role) => (
-                    <div
-                      key={role.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-muted/50"
-                    >
-                      <div>
-                        <p className="font-medium capitalize">{role.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {role.description}
-                        </p>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className={`font-bold ${getRoleBadgeStyle(role.name)}`}
-                      >
-                        {role.name}
-                      </Badge>
-                    </div>
+                    <Item key={role.id} variant="outline">
+                      <ItemContent>
+                        <ItemTitle>
+                          <span className="capitalize">{role.name}</span>
+                        </ItemTitle>
+                        <ItemDescription>{role.description}</ItemDescription>
+                      </ItemContent>
+                      <ItemActions>
+                        <Badge
+                          variant="secondary"
+                          className={`font-bold ${getRoleBadgeStyle(
+                            role.name
+                          )}`}
+                        >
+                          {role.name}
+                        </Badge>
+                      </ItemActions>
+                    </Item>
                   ))}
                 </div>
               </CardContent>
