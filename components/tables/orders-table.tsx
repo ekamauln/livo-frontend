@@ -202,7 +202,6 @@ export default function OrdersTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     updated_at: false,
-    courier: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState<Pagination>({
@@ -437,8 +436,8 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Courier</div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center text-xs text-center">
-          <Truck className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center text-xs text-center justify-center">
+          <Truck className="h-4 w-4 text-muted-foreground mr-1" />
           <div>{row.getValue("courier") || "N/A"}</div>
         </div>
       ),

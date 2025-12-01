@@ -123,45 +123,45 @@ export default function AppNavbar() {
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div>
           <Menubar>
-            {/* Coordinator Menu - visible to superadmin, coordinator, admin */}
+            {/* Components - visible to superadmin, coordinator, admin */}
             {hasAnyRole(["superadmin", "coordinator"]) && (
               <MenubarMenu>
                 <MenubarTrigger className="cursor-pointer">
-                  Coordinator Menu
+                  Components
                 </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/boxes">
+                    <Link href="/components/boxes">
                       <PackageOpen className="h-4 w-4" />
                       Boxes
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/channels">
+                    <Link href="/components/channels">
                       <Tv className="h-4 w-4" />
                       Channels
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/expeditions">
+                    <Link href="/components/expeditions">
                       <Truck className="h-4 w-4" />
                       Expeditions
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/products">
+                    <Link href="/components/products">
                       <Package className="h-4 w-4" />
                       Products
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/stores">
+                    <Link href="/components/stores">
                       <Store className="h-4 w-4" />
                       Stores
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/coordinator/users">
+                    <Link href="/components/users">
                       <SquareUser className="h-4 w-4" />
                       Users
                     </Link>
@@ -463,7 +463,7 @@ export default function AppNavbar() {
                   <Badge
                     variant="secondary"
                     key={role.id || index}
-                    className={`text-xs font-bold hover:translate-y-[-4px] transition-all duration-300 ease-in-out ${getRoleBadgeStyle(
+                    className={`text-xs font-bold hover:translate-y-1 transition-all duration-300 ease-in-out ${getRoleBadgeStyle(
                       role.name
                     )}`}
                   >
