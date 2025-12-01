@@ -1,9 +1,9 @@
 export interface OrderDetail {
   id: number;
-  sku?: string;
+  sku: string;
   product_name: string;
   variant?: string;
-  quantity?: number;
+  quantity: number;
   product?: {
     id: number;
     sku: string;
@@ -20,16 +20,17 @@ export interface OrderDetail {
 export interface Order {
   id: number;
   order_ginee_id: string;
-  status: string;
-  channel?: string;
-  store?: string;
-  buyer?: string;
-  address?: string;
-  tracking?: string;
-  courier?: string;
-  sent_before?: string;
-  created_at?: string;
-  updated_at?: string;
+  processing_status: string;
+  event_status?: string;
+  channel: string;
+  store: string;
+  buyer: string;
+  address: string;
+  tracking: string;
+  courier: string;
+  sent_before: string;
+  created_at: string;
+  updated_at: string;
   picked_by?: string;
   picked_at?: string;
   pending_by?: string;
