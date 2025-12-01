@@ -25,7 +25,10 @@ import {
   Eye,
   Edit,
   KeyRound,
-  PackageOpen,
+  BookUser,
+  Zap,
+  ZapOff,
+  UserPlus,
 } from "lucide-react";
 import {
   Select,
@@ -48,21 +51,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Product } from "@/types/product";
-import { productApi } from "@/lib/api/productApi";
-import { ProductCreateDialog } from "@/components/dialogs/product-create-dialog";
-import { ProductDialog } from "@/components/dialogs/product-dialog";
+import { User, Role } from "@/types/auth";
+import { userManagerApi } from "@/lib/api/userManagerApi";
+import { UserCreateDialog } from "@/components/dialogs/user-manager-create-dialog";
+import { UserDialog } from "@/components/dialogs/user-manager-dialog";
 import React from "react";
-import Image from "next/image";
 
-export default function ProductsTable() {
-  const [data, setData] = useState<Product[]>([]);
+// Role-specific badge styling
+const getRoleBadgeStyle = (roleName: string) => {
+  const roleStyles: Record<string, string> = {
+    superadmin:
+      "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
+    coordinator: "bg-blue-600 text-white hover:bg-blue-700 border-blue-600",
+    admin: "bg-red-600 text-white hover:bg-red-700 border-red-600",
+    finance: "bg-green-600 text-white hover:bg-green-700 border-green-600",
+    picker: "bg-orange-500 text-white hover:bg-orange-600 border-orange-500",
+    outbound: "bg-cyan-500 text-white hover:bg-cyan-600 border-cyan-500",
+    "qc-ribbon":
+      "bg-indigo-500 text-white hover:bg-indigo-600 border-indigo-500",
+    "qc-online":
+      "bg-violet-500 text-white hover:bg-violet-600 border-violet-500",
+    "mb-ribbon": "bg-pink-500 text-white hover:bg-pink-600 border-pink-500",
+    "mb-online": "bg-rose-500 text-white hover:bg-rose-600 border-rose-500",
+    packing: "bg-amber-500 text-white hover:bg-amber-600 border-amber-500",
+    guest: "bg-gray-500 text-white hover:bg-gray-600 border-gray-500",
+  };
+
+  return (
+    roleStyles[roleName.toLowerCase()] ||
+    "bg-gray-500 text-white hover:bg-gray-600 border-gray-500"
+  );
+};
+
+export default function UsersManagerTable() {
+  const [data, setData] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     updated_at: false,
-    barcode: false,
-    location: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({
@@ -72,31 +98,29 @@ export default function ProductsTable() {
   });
 
   // Dialog State
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
-    null
-  );
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [dialogTab, setDialogTab] = useState<
-    "detail" | "profile" | "barcode2d"
+    "detail" | "profile" | "password" | "status" | "role"
   >("detail");
 
-  // Fetch products data
+  // Fetch users data
   const fetchData = useCallback(
     async (page: number = 1, search: string = "") => {
       try {
         setIsLoading(true);
-        const response = await productApi.getProducts(
+        const response = await userManagerApi.getUsers(
           page,
           pagination.limit,
           search
         );
-        // Extract products array from the response data
-        const products = response.data.products as Product[];
-        setData(products);
+        // Extract users array from the response data
+        const users = response.data.users as User[];
+        setData(users);
         setPagination(response.data.pagination);
       } catch {
-        toast.error("Failed to fetch products. Please try again.");
+        toast.error("Failed to fetch users. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -126,7 +150,7 @@ export default function ProductsTable() {
 
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
-  const columns: ColumnDef<Product>[] = [
+  const columns: ColumnDef<User>[] = [
     {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
@@ -137,111 +161,95 @@ export default function ProductsTable() {
       ),
     },
     {
-      accessorKey: "image",
+      accessorKey: "username",
       header: () => (
-        <div className="flex justify-center items-center">Image</div>
+        <div className="text-sm text-center font-semibold">Username</div>
       ),
       cell: ({ row }) => (
-        <div className="flex justify-center items-center">
-          <Image
-            width={32}
-            height={32}
-            src={row.getValue("image")}
-            alt={row.getValue("name")}
-            className="h-8 w-8 rounded"
-          />
+        <div className="text-sm text-center">{row.getValue("username")}</div>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Email</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-sm text-center">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "full_name",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Name</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-sm text-center">{row.getValue("full_name")}</div>
+      ),
+    },
+    {
+      accessorKey: "is_active",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Status</div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          {row.getValue("is_active") ? (
+            <Zap className="w-4 h-4 text-primary" />
+          ) : (
+            <ZapOff className="w-4 h-4 text-destructive" />
+          )}
         </div>
       ),
     },
     {
-      accessorKey: "sku",
-      header: () => (
-        <div className="text-sm text-center font-semibold">SKU</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("sku")}</div>
-      ),
-    },
-    {
-      accessorKey: "name",
-      header: () => (
-        <div className="text-sm text-center font-semibold min-w-[300px] max-w-[500px]">
-          Name
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm min-w-[300px] max-w-[500px] text-wrap">
-          {row.getValue("name")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "variant",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Variant</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          <Badge variant="secondary">{row.getValue("variant")}</Badge>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "location",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Location</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("location")}</div>
-      ),
-    },
-    {
-      accessorKey: "barcode",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Barcode</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("barcode")}</div>
-      ),
+      accessorKey: "roles",
+      header: () => <div className="text-center font-semibold">Roles</div>,
+      cell: ({ row }) => {
+        const roles = row.getValue("roles") as Role[];
+        return (
+          <div className="flex gap-1 flex-wrap text-wrap justify-center">
+            {roles.map((role) => (
+              <Badge
+                key={role.id}
+                variant="secondary"
+                className={`text-xs font-bold ${getRoleBadgeStyle(role.name)}`}
+              >
+                {role.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "created_at",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Created</div>
+      header: () => <div className="text-center font-semibold">Created</div>,
+      cell: ({ row }) => (
+        <div className="text-xs text-muted-foreground text-center">
+          {format(new Date(row.getValue("created_at")), "dd MMM yyyy")}
+          <br />
+          {format(new Date(row.getValue("created_at")), "HH:mm:ss")}
+        </div>
       ),
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("created_at"));
-        return (
-          <div className="text-xs text-muted-foreground text-center">
-            {format(date, "dd MMM yyyy")}
-            <br />
-            {format(date, "HH:mm:ss")}
-          </div>
-        );
-      },
     },
     {
       accessorKey: "updated_at",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Updated</div>
+      header: "Updated",
+      cell: ({ row }) => (
+        <div className="text-sm text-muted-foreground">
+          {format(new Date(row.getValue("updated_at")), "dd MMM yyyy")}
+          <br />
+          {format(new Date(row.getValue("updated_at")), "HH:mm:ss")}
+        </div>
       ),
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("updated_at"));
-        return (
-          <div className="text-xs text-muted-foreground text-center">
-            {format(date, "dd MMM yyyy")}
-            <br />
-            {format(date, "HH:mm:ss")}
-          </div>
-        );
-      },
     },
     {
       id: "actions",
       cell: ({ row }) => {
-        const product = row.original;
+        const user = row.original;
         return (
-          <div className="flex justify-end text-right">
+          <div className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
@@ -251,9 +259,9 @@ export default function ProductsTable() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedProductId(product.id);
+                    setSelectedUserId(user.id);
                     setDialogTab("detail");
-                    setProductDialogOpen(true);
+                    setUserDialogOpen(true);
                   }}
                 >
                   <Eye className="mr-2 h-4 w-4" />
@@ -262,23 +270,43 @@ export default function ProductsTable() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedProductId(product.id);
+                    setSelectedUserId(user.id);
                     setDialogTab("profile");
-                    setProductDialogOpen(true);
+                    setUserDialogOpen(true);
                   }}
                 >
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit Product
+                  Edit User
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedProductId(product.id);
-                    setDialogTab("barcode2d");
-                    setProductDialogOpen(true);
+                    setSelectedUserId(user.id);
+                    setDialogTab("password");
+                    setUserDialogOpen(true);
                   }}
                 >
                   <KeyRound className="mr-2 h-4 w-4" />
-                  Generate 2D Barcode
+                  Reset Password
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedUserId(user.id);
+                    setDialogTab("status");
+                    setUserDialogOpen(true);
+                  }}
+                >
+                  <Zap className="mr-2 h-4 w-4" />
+                  Status Change
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedUserId(user.id);
+                    setDialogTab("role");
+                    setUserDialogOpen(true);
+                  }}
+                >
+                  <BookUser className="mr-2 h-4 w-4" />
+                  Manage Roles
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -306,15 +334,15 @@ export default function ProductsTable() {
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex justify-start gap-2 items-center">
+        <div className="flex justify-start items-center gap-2">
           {/* Filters */}
-          <div className="flex justify-start gap-2 items-center">
+          <div className="flex justify-start items-center gap-2">
             <form
               onSubmit={handleSearch}
               className="flex flex-1 gap-2 items-center"
             >
               <Input
-                placeholder="Search products..."
+                placeholder="Search users..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="max-w-sm"
@@ -324,22 +352,21 @@ export default function ProductsTable() {
         </div>
 
         <div className="flex justify-start items-center gap-2">
-          {/* Create New Product Button */}
-          <div className="flex items-center justify-start gap-2">
+          {/* Create New User Button */}
+          <div className="flex justify-start items-center gap-2">
             <Button
               variant="default"
               className="cursor-pointer rounded-md"
               onClick={() => setCreateDialogOpen(true)}
             >
               <div className="flex items-center gap-2 justify-center">
-                <PackageOpen className="w-4 h-4" />{" "}
-                <span>Create New Product</span>
+                <UserPlus className="w-4 h-4" /> <span>Create New User</span>
               </div>
             </Button>
           </div>
 
           {/* Pagination limit */}
-          <div className="flex items-center justify-start gap-2">
+          <div className="flex justify-start items-center gap-2">
             <span className="text-sm text-muted-foreground">Show:</span>
             <Select
               value={pagination.limit.toString()}
@@ -359,7 +386,7 @@ export default function ProductsTable() {
           </div>
 
           {/* Column visibility */}
-          <div className="flex items-center justify-start gap-2">
+          <div className="flex justify-start items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
@@ -418,7 +445,7 @@ export default function ProductsTable() {
                 >
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Loading products...
+                    Loading users...
                   </div>
                 </TableCell>
               </TableRow>
@@ -443,7 +470,7 @@ export default function ProductsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No products found.
+                  No users found.
                 </TableCell>
               </TableRow>
             )}
@@ -456,14 +483,14 @@ export default function ProductsTable() {
         <div className="text-sm text-muted-foreground">
           Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
           {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} products
+          {pagination.total} users
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1 || isLoading}
-            className="cursor-pointer"
+            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
@@ -507,7 +534,7 @@ export default function ProductsTable() {
             variant="outline"
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= totalPages || isLoading}
-            className="cursor-pointer"
+            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
           >
             Next
             <ChevronRight className="h-4 w-4" />
@@ -515,26 +542,26 @@ export default function ProductsTable() {
         </div>
       </div>
 
-      {/* Product Dialog */}
-      <ProductDialog
-        productId={selectedProductId}
-        open={productDialogOpen}
-        onOpenChange={setProductDialogOpen}
+      {/* User Dialog */}
+      <UserDialog
+        userId={selectedUserId}
+        open={userDialogOpen}
+        onOpenChange={setUserDialogOpen}
         initialTab={dialogTab}
-        onProductUpdate={() => {
+        onUserUpdate={() => {
           // Refresh the data to show any updates
           fetchData(pagination.page, searchQuery);
         }}
       />
 
-      {/* Create Product Dialog */}
-      <ProductCreateDialog
+      {/* Create User Dialog */}
+      <UserCreateDialog
         isOpen={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onProductCreated={(product) => {
-          // Refresh the data to show the new product
+        onUserCreated={(user) => {
+          // Refresh the data to show the new user
           fetchData(pagination.page, searchQuery);
-          toast.success(`Product ${product.name} created successfully!`);
+          toast.success(`User ${user.username} created successfully!`);
         }}
       />
     </div>

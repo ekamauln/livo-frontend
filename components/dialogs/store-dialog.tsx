@@ -24,65 +24,65 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { channelApi } from "@/lib/api/channelApi";
-import { Channel } from "@/types/channel";
+import { storeApi } from "@/lib/api/storeApi";
+import { Store } from "@/types/store";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 // Form schemas
-const channelSchema = z.object({
-  code: z.string().min(1, "Channel code is required"),
-  name: z.string().min(1, "Channel name is required"),
+const storeSchema = z.object({
+  code: z.string().min(1, "Store code is required"),
+  name: z.string().min(1, "Store name is required"),
 });
 
-type ChannelFormData = z.infer<typeof channelSchema>;
+type StoreFormData = z.infer<typeof storeSchema>;
 
-interface ChannelDialogProps {
-  channelId: number | null;
+interface StoreDialogProps {
+  storeId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialTab?: "detail" | "profile";
-  onChannelUpdate?: () => void;
+  onStoreUpdate?: () => void;
 }
 
-export function ChannelDialog({
-  channelId,
+export function StoreDialog({
+  storeId,
   open,
   onOpenChange,
   initialTab = "detail",
-  onChannelUpdate,
-}: ChannelDialogProps) {
-  const [channel, setChannel] = useState<Channel | null>(null);
+  onStoreUpdate,
+}: StoreDialogProps) {
+  const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [updating, setUpdating] = useState(false);
 
-  // Channel form
-  const channelForm = useForm<ChannelFormData>({
-    resolver: zodResolver(channelSchema),
+  // Store form
+  const storeForm = useForm<StoreFormData>({
+    resolver: zodResolver(storeSchema),
     defaultValues: {
       code: "",
       name: "",
     },
   });
 
-  // Fetch channel details
-  const fetchChannelDetail = useCallback(
+  // Fetch store details
+  const fetchStoreDetail = useCallback(
     async (id: number) => {
       try {
         setLoading(true);
-        const response = await channelApi.getChannelById(id);
-        const channelData = response.data;
-        setChannel(channelData);
-        // Update channel form with data
-        channelForm.reset({
-          code: channelData.code,
-          name: channelData.name,
+        const response = await storeApi.getStoreById(id);
+        const storeData = response.data;
+        setStore(storeData);
+        // Update store form with data
+        storeForm.reset({
+          code: storeData.code,
+          name: storeData.name,
         });
       } catch (error) {
-        console.error("Error fetching channel details:", error);
-        toast.error("Failed to fetch channel details.", {
+        console.error("Error fetching store details:", error);
+        toast.error("Failed to fetch store details.", {
           description:
             error instanceof Error ? error.message : "Unknown error occurred",
         });
@@ -90,32 +90,32 @@ export function ChannelDialog({
         setLoading(false);
       }
     },
-    [channelForm]
+    [storeForm]
   );
 
-  // Update channel
-  const updateChannel = async (data: ChannelFormData) => {
-    if (!channelId) return;
+  // Update store
+  const updateStore = async (data: StoreFormData) => {
+    if (!storeId) return;
 
     try {
       setUpdating(true);
-      const response = await channelApi.updateChannel(channelId, {
+      const response = await storeApi.updateStore(storeId, {
         code: data.code,
         name: data.name,
       });
 
-      toast.success("Channel updated successfully");
-      // Update local channel state with the returned data
-      setChannel(response.data);
+      toast.success("Store updated successfully");
+      // Update local store state with the returned data
+      setStore(response.data);
       // Also update the form with the new data
-      channelForm.reset({
+      storeForm.reset({
         code: response.data.code,
         name: response.data.name,
       });
-      onChannelUpdate?.();
+      onStoreUpdate?.();
     } catch (error) {
-      console.error("Error updating channel:", error);
-      toast.error("Failed to update channel", {
+      console.error("Error updating store:", error);
+      toast.error("Failed to update store", {
         description:
           error instanceof Error ? error.message : "Unknown error occurred",
       });
@@ -126,27 +126,27 @@ export function ChannelDialog({
 
   // Effects
   useEffect(() => {
-    if (open && channelId) {
-      fetchChannelDetail(channelId);
+    if (open && storeId) {
+      fetchStoreDetail(storeId);
       setActiveTab(initialTab);
     } else {
-      setChannel(null);
-      channelForm.reset({
+      setStore(null);
+      storeForm.reset({
         code: "",
         name: "",
       });
     }
-  }, [open, channelId, initialTab, fetchChannelDetail, channelForm]);
+  }, [open, storeId, initialTab, fetchStoreDetail, storeForm]);
 
-  // Update form when channel data changes
+  // Update form when store data changes
   useEffect(() => {
-    if (channel) {
-      channelForm.reset({
-        code: channel.code,
-        name: channel.name,
+    if (store) {
+      storeForm.reset({
+        code: store.code,
+        name: store.name,
       });
     }
-  }, [channel, channelForm]);
+  }, [store, storeForm]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -154,25 +154,21 @@ export function ChannelDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 truncate">
             <Package className="h-5 w-5" />
-            {loading
-              ? "Loading..."
-              : channel
-              ? `${channel.name}`
-              : "Channel Details"}
+            {loading ? "Loading..." : store ? `${store.name}` : "Store Details"}
           </DialogTitle>
           <DialogDescription>
-            {channel
-              ? `Manage channel details for ${channel.code}.`
-              : "View and manage channel information"}
+            {store
+              ? `Manage store details for ${store.code}.`
+              : "View and manage store information"}
           </DialogDescription>
         </DialogHeader>
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            Loading channel details...
+            Loading store details...
           </div>
-        ) : channel ? (
+        ) : store ? (
           <Tabs
             value={activeTab}
             onValueChange={(value) =>
@@ -187,13 +183,13 @@ export function ChannelDialog({
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                Edit Channel
+                Edit Store
               </TabsTrigger>
             </TabsList>
 
             <div>
               <div className="flex-1 overflow-y-auto">
-                {/* Channel Details Tab */}
+                {/* Store Details Tab */}
                 <TabsContent value="detail" className="space-y-6">
                   <Card className="grid gap-6 rounded-md border mt-4">
                     <CardHeader>
@@ -211,23 +207,21 @@ export function ChannelDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">
-                                Channel ID
-                              </TableCell>
+                              <TableCell className="w-1/4">Store ID</TableCell>
                               <TableCell className="font-mono">
-                                {channel.id}
+                                {store.id}
                               </TableCell>
                             </TableRow>
                             <TableRow>
                               <TableCell className="w-1/4">Code</TableCell>
                               <TableCell className="font-mono">
-                                {channel.code}
+                                {store.code}
                               </TableCell>
                             </TableRow>
                             <TableRow>
                               <TableCell className="w-1/4">Name</TableCell>
                               <TableCell className="text-wrap">
-                                {channel.name}
+                                {store.name}
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -237,13 +231,13 @@ export function ChannelDialog({
                   </Card>
                 </TabsContent>
 
-                {/* Edit Channel Tab */}
+                {/* Edit Store Tab */}
                 <TabsContent value="profile">
                   <Card className="grid gap-6 rounded-md border mt-4">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 truncate">
                         <Settings className="h-5 w-5" />
-                        Edit Channel Information
+                        Edit Store Information
                       </CardTitle>
                       <Separator
                         orientation="horizontal"
@@ -251,20 +245,20 @@ export function ChannelDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <Form {...channelForm}>
+                      <Form {...storeForm}>
                         <form
-                          onSubmit={channelForm.handleSubmit(updateChannel)}
+                          onSubmit={storeForm.handleSubmit(updateStore)}
                           className="space-y-6"
                         >
                           <FormField
-                            control={channelForm.control}
+                            control={storeForm.control}
                             name="code"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Channel Code</FormLabel>
+                                <FormLabel>Store Code</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter channel code"
+                                    placeholder="Enter store code"
                                     {...field}
                                   />
                                 </FormControl>
@@ -274,14 +268,14 @@ export function ChannelDialog({
                           />
 
                           <FormField
-                            control={channelForm.control}
+                            control={storeForm.control}
                             name="name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Channel Name</FormLabel>
+                                <FormLabel>Store Name</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter channel name"
+                                    placeholder="Enter store name"
                                     {...field}
                                   />
                                 </FormControl>
@@ -307,7 +301,7 @@ export function ChannelDialog({
                               {updating && (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               )}
-                              Update Channel
+                              Update Store
                             </Button>
                           </div>
                         </form>
@@ -320,7 +314,7 @@ export function ChannelDialog({
           </Tabs>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            No channel selected or channel not found.
+            No store selected or store not found.
           </div>
         )}
       </DialogContent>

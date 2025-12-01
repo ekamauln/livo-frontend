@@ -122,6 +122,7 @@ export default function OrdersBulkImport() {
           /^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}:\d{2})$/
         );
         if (dateMatch) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const [_, day, month, year, time] = dateMatch;
           return `${year}-${month}-${day} ${time}`;
         }
@@ -129,7 +130,7 @@ export default function OrdersBulkImport() {
       }
 
       // Force order_id and tracking to remain as strings (to avoid precision loss with large numbers)
-      if (fieldName === "order_id" || fieldName === "tracking") {
+      if (fieldName === "order_id" || fieldName === "tracking" || fieldName === "order_ginee_id") {
         return originalTrimmed;
       }
 
@@ -351,7 +352,25 @@ export default function OrdersBulkImport() {
         }
       });
 
-      order.order_details = details as unknown as JsonValue;
+      // Merge order details with the same SKU and sum quantities
+      const mergedDetails: { [key: string]: OrderDetail } = {};
+      
+      details.forEach((detail) => {
+        const sku = detail.sku || "no-sku";
+        
+        if (mergedDetails[sku]) {
+          // SKU already exists, sum the quantities
+          const existingQty = mergedDetails[sku].quantity || 0;
+          const newQty = detail.quantity || 0;
+          mergedDetails[sku].quantity = existingQty + newQty;
+        } else {
+          // New SKU, add to merged details
+          mergedDetails[sku] = { ...detail };
+        }
+      });
+
+      // Convert merged details object back to array
+      order.order_details = Object.values(mergedDetails) as unknown as JsonValue;
       orders.push(order as unknown as Order);
     });
 
@@ -577,7 +596,7 @@ export default function OrdersBulkImport() {
           </div>
 
           <div className="bg-muted/50 p-4 rounded-lg max-h-96 overflow-auto border">
-            <pre className="text-sm whitespace-pre-wrap break-words">
+            <pre className="text-sm whitespace-pre-wrap wrap-break-word">
               {outputJson}
             </pre>
           </div>

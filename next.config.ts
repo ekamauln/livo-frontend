@@ -6,19 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cf.shopee.co.id",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "images.tokopedia.net",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "ecs7.tokopedia.net",
+        hostname: "*",
         port: "",
         pathname: "/**",
       },

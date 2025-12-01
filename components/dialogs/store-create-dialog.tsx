@@ -18,39 +18,39 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, PackagePlus } from "lucide-react";
+import { Loader2, Store as StoreIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Box } from "@/types/box";
-import { boxApi } from "@/lib/api/boxApi";
+import { Store } from "@/types/store";
+import { storeApi } from "@/lib/api/storeApi";
 import { Separator } from "@/components/ui/separator";
 
 // Zod form schema
-const boxCreateSchema = z.object({
-  code: z.string().min(1, "Box code is required"),
-  name: z.string().min(1, "Box name is required"),
+const storeCreateSchema = z.object({
+  code: z.string().min(1, "Store code is required"),
+  name: z.string().min(1, "Store name is required"),
 });
 
-type BoxCreateFormData = z.infer<typeof boxCreateSchema>;
+type StoreCreateFormData = z.infer<typeof storeCreateSchema>;
 
-interface BoxCreateDialogProps {
+interface StoreCreateDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onBoxCreated: (box: Box) => void;
+  onStoreCreated: (store: Store) => void;
 }
 
-export function BoxCreateDialog({
+export function StoreCreateDialog({
   isOpen,
   onOpenChange,
-  onBoxCreated,
-}: BoxCreateDialogProps) {
+  onStoreCreated,
+}: StoreCreateDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // Create box form
-  const boxCreateForm = useForm<BoxCreateFormData>({
-    resolver: zodResolver(boxCreateSchema),
+  // Create store form
+  const storeCreateForm = useForm<StoreCreateFormData>({
+    resolver: zodResolver(storeCreateSchema),
     defaultValues: {
       code: "",
       name: "",
@@ -58,17 +58,17 @@ export function BoxCreateDialog({
   });
 
   // Handle form submission
-  const onSubmit = async (data: BoxCreateFormData) => {
+  const onSubmit = async (data: StoreCreateFormData) => {
     setIsLoading(true);
     try {
-      const response = await boxApi.createBox(data);
-      const box = response.data as Box;
-      onBoxCreated(box);
-      toast.success("Box created successfully");
-      boxCreateForm.reset();
+      const response = await storeApi.createStore(data);
+      const store = response.data as Store;
+      onStoreCreated(store);
+      toast.success("Store created successfully");
+      storeCreateForm.reset();
       onOpenChange(false);
     } catch {
-      toast.error("Failed to create box. Please try again.");
+      toast.error("Failed to create store. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -79,10 +79,10 @@ export function BoxCreateDialog({
       <DialogContent className="min-w-[700px] max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <PackagePlus className="h-5 w-5" /> Create New Box
+            <StoreIcon className="h-5 w-5" /> Create New Store
           </DialogTitle>
           <DialogDescription>
-            Create a new box by filling out the form below.
+            Create a new store by filling out the form below.
           </DialogDescription>
           <Separator
             orientation="horizontal"
@@ -91,19 +91,19 @@ export function BoxCreateDialog({
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
-          <Form {...boxCreateForm}>
+          <Form {...storeCreateForm}>
             <form
-              onSubmit={boxCreateForm.handleSubmit(onSubmit)}
+              onSubmit={storeCreateForm.handleSubmit(onSubmit)}
               className="space-y-6"
             >
               <FormField
-                control={boxCreateForm.control}
+                control={storeCreateForm.control}
                 name="code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Box Code</FormLabel>
+                    <FormLabel>Store Code</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter box code" {...field} />
+                      <Input placeholder="Enter store code" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,13 +111,13 @@ export function BoxCreateDialog({
               />
 
               <FormField
-                control={boxCreateForm.control}
+                control={storeCreateForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Box Name</FormLabel>
+                    <FormLabel>Store Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter box name" {...field} />
+                      <Input placeholder="Enter store name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -142,9 +142,9 @@ export function BoxCreateDialog({
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <PackagePlus className="mr-2 h-4 w-4" />
+                    <StoreIcon className="mr-2 h-4 w-4" />
                   )}
-                  Create New Box
+                  Create New Store
                 </Button>
               </div>
             </form>

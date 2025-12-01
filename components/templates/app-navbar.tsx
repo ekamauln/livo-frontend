@@ -161,9 +161,9 @@ export default function AppNavbar() {
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/components/users">
+                    <Link href="/components/users-manager">
                       <SquareUser className="h-4 w-4" />
-                      Users
+                      Users Manager
                     </Link>
                   </MenubarItem>
                 </MenubarContent>
