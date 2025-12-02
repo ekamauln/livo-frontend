@@ -26,111 +26,13 @@ export const orderApi = {
     return apiRequest<ApiResponse<Order>>(`/orders/${id}`);
   },
 
-  getOrderDetails: async (
-    id: number
-  ): Promise<ApiResponse<{ order_details: OrderDetail[] }>> => {
-    return apiRequest<ApiResponse<{ order_details: OrderDetail[] }>>(
-      `/orders/${id}/details`
-    );
-  },
-
-  createOrderDetail: async (
-    orderId: number,
-    detailData: {
-      product_name: string;
-      quantity: number;
-      sku: string;
-      variant?: string;
-    }
-  ): Promise<ApiResponse<OrderDetail>> => {
-    return apiRequest<ApiResponse<OrderDetail>>(`/orders/${orderId}/details`, {
-      method: "POST",
-      body: JSON.stringify(detailData),
-    });
-  },
-
-  updateOrderDetail: async (
-    orderId: number,
-    detailId: number,
-    detailData: {
-      product_name: string;
-      quantity: number;
-      sku: string;
-      variant?: string;
-    }
-  ): Promise<ApiResponse<OrderDetail>> => {
-    return apiRequest<ApiResponse<OrderDetail>>(
-      `/orders/${orderId}/details/${detailId}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(detailData),
-      }
-    );
-  },
-
-  deleteOrderDetail: async (
-    orderId: number,
-    detailId: number
-  ): Promise<ApiResponse<void>> => {
-    return apiRequest<ApiResponse<void>>(
-      `/orders/${orderId}/details/${detailId}`,
-      {
-        method: "DELETE",
-      }
-    );
-  },
-
-  createOrder: async (orderData: {
-    order_ginee_id: string;
-    status: string;
-    channel?: string;
-    store?: string;
-    buyer?: string;
-    address?: string;
-    tracking?: string;
-    courier?: string;
-    sent_before?: string;
-    order_details: Array<{
-      sku?: string;
-      product_name: string;
-      variant?: string;
-      quantity?: number;
-    }>;
-  }): Promise<ApiResponse<Order>> => {
-    return apiRequest<ApiResponse<Order>>("/orders", {
-      method: "POST",
-      body: JSON.stringify(orderData),
-    });
-  },
-
-  updateOrder: async (
-    id: number,
-    orderData: {
-      status?: string;
-      channel?: string;
-      store?: string;
-      buyer?: string;
-      address?: string;
-      tracking?: string;
-      courier?: string;
-      sent_before?: string;
-      picked_by?: string;
-      picked_at?: string;
-      pending_by?: string;
-      pending_at?: string;
-      cancelled_by?: string;
-      cancelled_at?: string;
-    }
-  ): Promise<ApiResponse<Order>> => {
-    return apiRequest<ApiResponse<Order>>(`/orders/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(orderData),
-    });
+  getOrderDetails: async (id: number): Promise<ApiResponse<Order>> => {
+    return apiRequest<ApiResponse<Order>>(`/orders/${id}`);
   },
 
   bulkImportOrders: async (ordersData: {
     orders: Array<{
-      order_id: string;
+      order_ginee_id: string;
       status: string;
       channel?: string;
       store?: string;
@@ -180,4 +82,69 @@ export const orderApi = {
       body: JSON.stringify(ordersData),
     });
   },
+
+  updateOrder: async (
+    id: number,
+    orderData: {
+      event_status?: string;
+      channel: string;
+      store: string;
+      buyer: string;
+      address: string;
+      courier: string;
+      tracking: string;
+      sent_before: string;
+      order_details: Array<{
+        id?: number;
+        sku: string;
+        product_name: string;
+        variant?: string;
+        quantity: number;
+      }>;
+    }
+  ): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(orderData),
+    }),
+
+  createOrderDetail: async (
+    orderId: number,
+    detailData: {
+      sku: string;
+      product_name: string;
+      variant?: string;
+      quantity: number;
+    }
+  ): Promise<ApiResponse<OrderDetail>> =>
+    apiRequest<ApiResponse<OrderDetail>>(`/orders/${orderId}/details`, {
+      method: "POST",
+      body: JSON.stringify(detailData),
+    }),
+
+  updateOrderDetail: async (
+    orderId: number,
+    detailId: number,
+    detailData: {
+      sku: string;
+      product_name: string;
+      variant?: string;
+      quantity: number;
+    }
+  ): Promise<ApiResponse<OrderDetail>> =>
+    apiRequest<ApiResponse<OrderDetail>>(
+      `/orders/${orderId}/details/${detailId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(detailData),
+      }
+    ),
+
+  deleteOrderDetail: async (
+    orderId: number,
+    detailId: number
+  ): Promise<ApiResponse<void>> =>
+    apiRequest<ApiResponse<void>>(`/orders/${orderId}/details/${detailId}`, {
+      method: "DELETE",
+    }),
 };

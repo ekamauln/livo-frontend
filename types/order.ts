@@ -31,8 +31,12 @@ export interface Order {
   sent_before: string;
   created_at: string;
   updated_at: string;
+  assigned_by?: string;
+  assigned_at?: string;
   picked_by?: string;
   picked_at?: string;
+  changed_by?: string;
+  changed_at?: string;
   pending_by?: string;
   pending_at?: string;
   cancelled_by?: string;

@@ -40,12 +40,14 @@ interface OrderDetail {
 interface Order {
   id?: number;
   order_id: string;
-  status: string;
+  operational_status: string;
   channel?: string;
   store?: string;
   buyer?: string;
+  address?: string;
   tracking?: string;
   courier?: string;
+  sent_before?: string;
   created_at?: string;
   updated_at?: string;
   picked_by?: string;
@@ -62,7 +64,7 @@ interface OrdersData {
 const ORDER_COLUMN_MAPPING: { [key: string]: string } = {
   "No.": "No.",
   "ID Pesanan": "order_ginee_id",
-  Status: "status",
+  Status: "operational_status",
   Channel: "channel",
   "Nama Toko": "store",
   "Nama Penerima": "buyer",
@@ -130,7 +132,11 @@ export default function OrdersBulkImport() {
       }
 
       // Force order_id and tracking to remain as strings (to avoid precision loss with large numbers)
-      if (fieldName === "order_id" || fieldName === "tracking" || fieldName === "order_ginee_id") {
+      if (
+        fieldName === "order_id" ||
+        fieldName === "tracking" ||
+        fieldName === "order_ginee_id"
+      ) {
         return originalTrimmed;
       }
 
@@ -316,7 +322,7 @@ export default function OrdersBulkImport() {
         const value = firstRow[col];
         const jsonField = ORDER_COLUMN_MAPPING[col];
 
-        if (jsonField === "status") {
+        if (jsonField === "operational_status") {
           order[jsonField] = "ready to pick"; // Force status as per Python code
         } else {
           order[jsonField] = convertToJsonSerializable(value, jsonField);
@@ -354,10 +360,10 @@ export default function OrdersBulkImport() {
 
       // Merge order details with the same SKU and sum quantities
       const mergedDetails: { [key: string]: OrderDetail } = {};
-      
+
       details.forEach((detail) => {
         const sku = detail.sku || "no-sku";
-        
+
         if (mergedDetails[sku]) {
           // SKU already exists, sum the quantities
           const existingQty = mergedDetails[sku].quantity || 0;
@@ -370,7 +376,9 @@ export default function OrdersBulkImport() {
       });
 
       // Convert merged details object back to array
-      order.order_details = Object.values(mergedDetails) as unknown as JsonValue;
+      order.order_details = Object.values(
+        mergedDetails
+      ) as unknown as JsonValue;
       orders.push(order as unknown as Order);
     });
 

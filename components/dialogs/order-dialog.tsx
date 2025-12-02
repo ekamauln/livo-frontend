@@ -51,7 +51,7 @@ import {
 import { cn } from "@/lib/utils";
 import { orderApi } from "@/lib/api/orderApi";
 import { productApi } from "@/lib/api/productApi";
-import type { OrderDetail } from "@/types/order";
+import type { Order, OrderDetail } from "@/types/order";
 import type { Product } from "@/types/product";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -101,6 +101,7 @@ export function OrderDialog({
   initialTab = "details",
   onOrderUpdate,
 }: OrderDialogProps) {
+  const [orderData, setOrderData] = useState<Order | null>(null);
   const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
   const [orderStatus, setOrderStatus] = useState<string>("");
   const [orderIdString, setOrderIdString] = useState<string>("");
@@ -143,35 +144,20 @@ export function OrderDialog({
     },
   });
 
-  // Fetch order information
-  const fetchOrder = useCallback(async (id: number) => {
-    try {
-      const response = await orderApi.getOrderById(id);
-      setOrderStatus(response.data.processing_status);
-      setOrderIdString(response.data.order_ginee_id);
-    } catch (error) {
-      console.error("Error fetching order:", error);
-      toast.error("Failed to fetch order", {
-        description:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      });
-    }
-  }, []);
-
   // Fetch order details
   const fetchOrderDetails = useCallback(
     async (id: number) => {
       try {
         setLoading(true);
 
-        // Fetch both order info and order details
-        await Promise.all([
-          fetchOrder(id),
-          (async () => {
-            const response = await orderApi.getOrderDetails(id);
-            setOrderDetails(response.data.order_details);
-          })(),
-        ]);
+        // Fetch order with details
+        const response = await orderApi.getOrderById(id);
+        const order = response.data;
+        
+        setOrderData(order);
+        setOrderStatus(order.processing_status);
+        setOrderIdString(order.order_ginee_id);
+        setOrderDetails(order.order_details || []);
       } catch (error) {
         console.error("Error fetching order details:", error);
         toast.error("Failed to fetch order details", {
@@ -182,7 +168,7 @@ export function OrderDialog({
         setLoading(false);
       }
     },
-    [fetchOrder]
+    []
   );
 
   // Search products
@@ -215,7 +201,7 @@ export function OrderDialog({
 
   // Add new order detail
   const addOrderDetail = async (data: OrderDetailFormData) => {
-    if (!orderId) return;
+    if (!orderId || !orderData) return;
 
     // Check if operation is allowed
     if (!isOperationAllowed()) {
@@ -225,11 +211,29 @@ export function OrderDialog({
 
     try {
       setUpdating(true);
-      await orderApi.createOrderDetail(orderId, {
-        product_name: data.product_name,
-        quantity: data.quantity,
-        sku: data.sku,
-        variant: data.variant || undefined,
+      
+      // Add new detail to existing order_details array
+      const updatedOrderDetails = [
+        ...orderDetails,
+        {
+          sku: data.sku,
+          product_name: data.product_name,
+          variant: data.variant || "-",
+          quantity: data.quantity,
+        },
+      ];
+
+      // Update order with complete data
+      await orderApi.updateOrder(orderId, {
+        channel: orderData.channel,
+        store: orderData.store,
+        buyer: orderData.buyer,
+        address: orderData.address,
+        courier: orderData.courier,
+        tracking: orderData.tracking,
+        sent_before: orderData.sent_before,
+        event_status: "data changed",
+        order_details: updatedOrderDetails,
       });
 
       toast.success("Order detail added successfully");
@@ -253,7 +257,7 @@ export function OrderDialog({
     detailId: number,
     data: OrderDetailFormData
   ) => {
-    if (!orderId) return;
+    if (!orderId || !orderData) return;
 
     // Check if operation is allowed
     if (!isOperationAllowed()) {
@@ -263,11 +267,37 @@ export function OrderDialog({
 
     try {
       setUpdating(true);
-      await orderApi.updateOrderDetail(orderId, detailId, {
-        product_name: data.product_name,
-        quantity: data.quantity,
-        sku: data.sku,
-        variant: data.variant || undefined,
+      
+      // Update the specific detail in the array
+      const updatedOrderDetails = orderDetails.map((detail) =>
+        detail.id === detailId
+          ? {
+              id: detail.id,
+              sku: data.sku,
+              product_name: data.product_name,
+              variant: data.variant || "-",
+              quantity: data.quantity,
+            }
+          : {
+              id: detail.id,
+              sku: detail.sku,
+              product_name: detail.product_name,
+              variant: detail.variant || "-",
+              quantity: detail.quantity,
+            }
+      );
+
+      // Update order with complete data
+      await orderApi.updateOrder(orderId, {
+        channel: orderData.channel,
+        store: orderData.store,
+        buyer: orderData.buyer,
+        address: orderData.address,
+        courier: orderData.courier,
+        tracking: orderData.tracking,
+        sent_before: orderData.sent_before,
+        event_status: "data changed",
+        order_details: updatedOrderDetails,
       });
 
       toast.success("Order detail updated successfully");
@@ -313,13 +343,35 @@ export function OrderDialog({
 
   // Delete order detail
   const deleteOrderDetail = async (detailId: number) => {
-    if (!orderId) return;
+    if (!orderId || !orderData) return;
 
     try {
       setUpdating(true);
       setDeleteConfirmingId(null); // Reset confirmation state
 
-      await orderApi.deleteOrderDetail(orderId, detailId);
+      // Remove the detail from the array
+      const updatedOrderDetails = orderDetails
+        .filter((detail) => detail.id !== detailId)
+        .map((detail) => ({
+          id: detail.id,
+          sku: detail.sku,
+          product_name: detail.product_name,
+          variant: detail.variant || "-",
+          quantity: detail.quantity,
+        }));
+
+      // Update order with complete data
+      await orderApi.updateOrder(orderId, {
+        channel: orderData.channel,
+        store: orderData.store,
+        buyer: orderData.buyer,
+        address: orderData.address,
+        courier: orderData.courier,
+        tracking: orderData.tracking,
+        sent_before: orderData.sent_before,
+        event_status: "data changed",
+        order_details: updatedOrderDetails,
+      });
 
       toast.success("Order detail deleted successfully");
       await fetchOrderDetails(orderId);
@@ -384,6 +436,7 @@ export function OrderDialog({
       fetchOrderDetails(orderId);
       setActiveTab(initialTab);
     } else {
+      setOrderData(null);
       setOrderDetails([]);
       setOrderStatus("");
       setOrderIdString("");

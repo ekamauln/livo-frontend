@@ -72,30 +72,36 @@ const getStatusBadgeStyle = (status: string) => {
   }
 };
 
-// Helper function to format picked date safely
-const formatPickedDate = (pickedAt?: string): string => {
-  if (!pickedAt || pickedAt === "-" || pickedAt === "Not picked yet") {
-    return "Not picked yet";
+// Helper function to format date at safely
+const formatDateAt = (
+  pickedAt?: string,
+  pendingAt?: string,
+  changedAt?: string,
+  cancelledAt?: string,
+  assignedAt?: string
+): string => {
+  if (
+    pickedAt === "-" ||
+    pendingAt === "-" ||
+    changedAt === "-" ||
+    cancelledAt === "-" ||
+    assignedAt === "-"
+  ) {
+    return "-";
   }
 
   try {
-    const date = new Date(pickedAt);
+    const date = new Date(
+      pickedAt || pendingAt || changedAt || cancelledAt || assignedAt || ""
+    );
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      return "Not picked yet";
+      return "-";
     }
-    return format(date, "dd MMM yyyy, HH:mm");
+    return format(date, "dd MMM yyyy, HH:mm:ss");
   } catch {
-    return "Not picked yet";
+    return "-";
   }
-};
-
-// Helper function to format picked by safely
-const formatPickedBy = (pickedBy?: string): string => {
-  if (!pickedBy || pickedBy === "-" || pickedBy === "Not picked yet") {
-    return "Not picked yet";
-  }
-  return pickedBy;
 };
 
 // Render expanded row content
@@ -183,12 +189,60 @@ const renderExpandedContent = (order: Order) => {
           <div className="flex items-center gap-2">
             <Package className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="text-sm font-medium">Picked By:</span>
-            <span className="text-sm">{formatPickedBy(order.picked_by)}</span>
+            <span className="text-sm">{order.picked_by}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="text-sm font-medium">Picked At:</span>
-            <span className="text-sm">{formatPickedDate(order.picked_at)}</span>
+            <span className="text-sm">{formatDateAt(order.picked_at)}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Assigned By:</span>
+            <span className="text-sm">{order.assigned_by}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Assigned At:</span>
+            <span className="text-sm">{formatDateAt(order.assigned_at)}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Changed By:</span>
+            <span className="text-sm">{order.changed_by}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Changed At:</span>
+            <span className="text-sm">{formatDateAt(order.changed_at)}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Pending By:</span>
+            <span className="text-sm">{order.pending_by}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Pending At:</span>
+            <span className="text-sm">{formatDateAt(order.pending_at)}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Cancelled By:</span>
+            <span className="text-sm">{order.cancelled_by}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm font-medium">Cancelled At:</span>
+            <span className="text-sm">{formatDateAt(order.cancelled_at)}</span>
           </div>
         </div>
       </div>
@@ -202,6 +256,7 @@ export default function OrdersTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     updated_at: false,
+    event_status: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState<Pagination>({
@@ -339,6 +394,7 @@ export default function OrdersTable() {
   const columns: ColumnDef<Order>[] = [
     {
       id: "expand",
+      enableHiding: false,
       header: () => (
         <div className="text-sm text-center font-semibold w-12"></div>
       ),
@@ -454,6 +510,22 @@ export default function OrdersTable() {
       ),
     },
     {
+      accessorKey: "sent_before",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Sent Before</div>
+      ),
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("sent_before"));
+        return (
+          <div className="text-xs text-muted-foreground text-center">
+            {format(date, "dd MMM yyyy")}
+            <br />
+            {format(date, "HH:mm:ss")}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "created_at",
       header: () => (
         <div className="text-sm text-center font-semibold">Created</div>
@@ -498,6 +570,7 @@ export default function OrdersTable() {
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const order = row.original;
         return (
