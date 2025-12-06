@@ -66,8 +66,14 @@ const getStatusBadgeStyle = (status: string) => {
       return "bg-green-500 text-white hover:bg-green-600";
     case "picking process":
       return "bg-blue-500 text-white hover:bg-blue-600";
-    case "picking complete":
-      return "bg-red-500 text-white hover:bg-red-600";
+    case "picking completed":
+      return "bg-violet-500 text-white hover:bg-violet-600";
+    case "pending picking":
+      return "bg-orange-500 text-white hover:bg-orange-600";
+    case "qc process":
+      return "bg-cyan-500 text-white hover:bg-cyan-600";
+    case "qc completed":
+      return "bg-emerald-500 text-white hover:bg-emerald-600";
     default:
       return "bg-gray-500 text-white hover:bg-gray-600";
   }
@@ -121,21 +127,28 @@ const renderExpandedContent = (order: Order) => {
             className="border rounded-lg p-4 bg-background overflow-hidden w-full"
           >
             <div className="flex gap-4">
-              {/* Product Image */}
-              {detail.product?.image && (
-                <div className="shrink-0">
-                  <Image
-                    src={detail.product.image}
-                    alt={detail.product_name || "Product"}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 object-cover rounded-md border"
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholder.png";
-                    }}
-                  />
-                </div>
-              )}
+              <div className="flex flex-col items-center space-y-2">
+                {/* Product Image */}
+                {detail.product?.image && (
+                  <div className="shrink-0">
+                    <Image
+                      src={detail.product.image}
+                      alt={detail.product_name || "Product"}
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 object-cover rounded-md border"
+                      onError={(e) => {
+                        e.currentTarget.src = "/images/placeholder.png";
+                      }}
+                    />
+                  </div>
+                )}
+                {detail.quantity && detail.quantity !== 0 && (
+                  <Badge variant="outline" className="mt-1 text-xs">
+                    Qty: {detail.quantity}
+                  </Badge>
+                )}
+              </div>
 
               {/* Product Details */}
               <div className="flex justify-between items-start space-y-2">
@@ -161,11 +174,6 @@ const renderExpandedContent = (order: Order) => {
                         Location: {detail.product.location}
                       </div>
                     )}
-                  {detail.quantity && detail.quantity !== 0 && (
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      Qty: {detail.quantity}
-                    </Badge>
-                  )}
                 </div>
               </div>
             </div>

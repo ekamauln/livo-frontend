@@ -41,7 +41,9 @@ import { qcRibbonApi } from "@/lib/api/qcRibbonApi";
 import { ApiError } from "@/lib/api/types";
 import React from "react";
 import { Separator } from "../ui/separator";
-import { QcRibbonForm } from "@/components/forms/qc-ribbon-form";
+import { QcRibbonTrackingSearch } from "@/components/forms/qc-ribbon-tracking-search";
+import { QcRibbonCreateDialog } from "@/components/dialogs/qc-ribbon-create-dialog";
+import type { Order } from "@/types/order";
 // import { QcRibbonStatus } from "@/components/status/qc-ribbon-status";
 
 export default function QcRibbonsTable() {
@@ -59,6 +61,8 @@ export default function QcRibbonsTable() {
     total: 0,
   });
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   // Toggle row expansion
   const toggleRowExpansion = (rowId: number) => {
@@ -125,6 +129,16 @@ export default function QcRibbonsTable() {
   const handleQcRibbonCreated = () => {
     // Refresh the data after creating a new qc-ribbon
     fetchData(pagination.page, searchQuery);
+  };
+
+  const handleOrderFound = (order: Order) => {
+    setSelectedOrder(order);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedOrder(null);
   };
 
   useEffect(() => {
@@ -365,9 +379,9 @@ export default function QcRibbonsTable() {
     <div className="w-full space-y-4">
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-2 flex flex-col border p-4 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">Create QC-Ribbon</h3>
+          <h3 className="text-lg font-semibold mb-4">Search Order</h3>
           <Separator className="mt-0 mb-6" />
-          <QcRibbonForm onQcRibbonCreated={handleQcRibbonCreated} />
+          <QcRibbonTrackingSearch onOrderFound={handleOrderFound} />
         </div>
         <div className="col-span-2 flex flex-col border p-4 rounded-md">
           <h3 className="text-lg font-semibold mb-4">QC-Ribbon Status</h3>
@@ -584,6 +598,14 @@ export default function QcRibbonsTable() {
           </Button>
         </div>
       </div>
+
+      {/* QC Ribbon Dialog */}
+      <QcRibbonCreateDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogClose}
+        order={selectedOrder}
+        onSuccess={handleQcRibbonCreated}
+      />
     </div>
   );
 }

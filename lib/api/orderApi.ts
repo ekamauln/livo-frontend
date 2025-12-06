@@ -152,4 +152,14 @@ export const orderApi = {
     apiRequest<ApiResponse<Order>>(`/orders/${id}/cancel`, {
       method: "PUT",
     }),
+
+  updateOrderToQcProcess: async (id: number): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}/qc-process`, {
+      method: "PUT",
+    }),
+
+  updateOrderToPickingCompleted: async (id: number): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}/picking-completed`, {
+      method: "PUT",
+    }),
 };
