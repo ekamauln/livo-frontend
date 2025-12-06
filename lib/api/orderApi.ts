@@ -147,4 +147,9 @@ export const orderApi = {
     apiRequest<ApiResponse<void>>(`/orders/${orderId}/details/${detailId}`, {
       method: "DELETE",
     }),
+
+  cancelOrder: async (id: number): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}/cancel`, {
+      method: "PUT",
+    }),
 };

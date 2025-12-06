@@ -1,10 +1,3 @@
-import axios, {
-  AxiosInstance,
-  AxiosError,
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-} from "axios";
-
 // Common API types and utilities
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -15,14 +8,6 @@ export class ApiError extends Error {
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.31.147:8040/api";
-
-// Create axios instance
-const axiosInstance: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // Token refresh management
 let isRefreshing = false;
@@ -46,157 +31,37 @@ const processQueue = (
   failedQueue = [];
 };
 
-// Request interceptor to add token
-axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Helper function to refresh token
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
   }
-);
 
-// Response interceptor to handle token refresh
-axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
 
-    // If error is 401 and we haven't retried yet
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      originalRequest.url !== "/auth/refresh"
-    ) {
-      if (isRefreshing) {
-        // If already refreshing, queue this request
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            const newToken = localStorage.getItem("access_token");
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            }
-            return axiosInstance(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        // Call refresh endpoint
-        const refreshResponse = await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          { refresh_token: refreshToken },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const {
-          access_token,
-          refresh_token: newRefreshToken,
-          user,
-        } = refreshResponse.data.data;
-
-        // Update stored tokens
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", newRefreshToken);
-        localStorage.setItem("user_data", JSON.stringify(user));
-
-        // Process queued requests
-        processQueue(null, access_token);
-
-        // Retry original request with new token
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
-        }
-
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed, clear tokens and redirect to login
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user_data");
-
-        // Process queued requests with error
-        const err =
-          refreshError instanceof Error
-            ? refreshError
-            : new Error("Token refresh failed");
-        processQueue(err, null);
-
-        // Redirect to login page
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
-        }
-
-        return Promise.reject(
-          new ApiError(401, "Session expired. Please login again.")
-        );
-      } finally {
-        isRefreshing = false;
-      }
-    }
-
-    // Handle other errors
-    if (error.response) {
-      // Try to extract error message from various possible response structures
-      const responseData = error.response.data as {
-        success?: boolean;
-        message?: string;
-        error?: string;
-        errors?: string[] | Record<string, string[]>;
-      };
-      let errorMessage = "Request failed";
-
-      if (typeof responseData === "string") {
-        errorMessage = responseData as string;
-      } else if (responseData?.error) {
-        // Prioritize 'error' field as it often contains more detailed information
-        errorMessage = responseData.error;
-      } else if (responseData?.message) {
-        errorMessage = responseData.message;
-      } else if (responseData?.errors) {
-        // Handle validation errors (array or object)
-        if (Array.isArray(responseData.errors)) {
-          errorMessage = responseData.errors.join(", ");
-        } else if (typeof responseData.errors === "object") {
-          errorMessage = Object.values(responseData.errors).flat().join(", ");
-        }
-      }
-
-      throw new ApiError(error.response.status, errorMessage);
-    } else if (error.request) {
-      throw new ApiError(0, "Network error");
-    } else {
-      throw new ApiError(0, error.message || "Unknown error");
-    }
+  if (!response.ok) {
+    throw new Error("Token refresh failed");
   }
-);
 
-// Export the apiRequest function that uses axios
+  const result = await response.json();
+  const { access_token, refresh_token: newRefreshToken, user } = result.data;
+
+  // Update stored tokens
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem("refresh_token", newRefreshToken);
+  localStorage.setItem("user_data", JSON.stringify(user));
+
+  return access_token;
+}
+
+// Main API request function using fetch
 export async function apiRequest<T>(
   endpoint: string,
   options: {
@@ -205,24 +70,144 @@ export async function apiRequest<T>(
     headers?: Record<string, string>;
   } = {}
 ): Promise<T> {
+  const { method = "GET", body, headers = {} } = options;
+  const token = localStorage.getItem("access_token");
+
+  const fetchOptions: RequestInit = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...headers,
+    },
+    ...(body && { body }),
+  };
+
   try {
-    const { method = "GET", body, headers = {} } = options;
+    let response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
 
-    const response = await axiosInstance.request({
-      url: endpoint,
-      method,
-      data: body ? JSON.parse(body) : undefined,
-      headers,
-    });
+    // Handle 401 - Token expired
+    if (response.status === 401 && endpoint !== "/auth/refresh") {
+      if (isRefreshing) {
+        // Wait for token refresh
+        const newToken = await new Promise<string | null>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        });
 
-    return response.data;
+        if (!newToken) {
+          throw new ApiError(401, "Session expired. Please login again.");
+        }
+
+        // Retry with new token
+        fetchOptions.headers = {
+          ...fetchOptions.headers,
+          Authorization: `Bearer ${newToken}`,
+        };
+        response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+      } else {
+        isRefreshing = true;
+
+        try {
+          const newToken = await refreshAccessToken();
+          processQueue(null, newToken);
+
+          // Retry original request with new token
+          fetchOptions.headers = {
+            ...fetchOptions.headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+          response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+        } catch (refreshError) {
+          // Refresh failed, clear tokens and redirect
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          localStorage.removeItem("user_data");
+
+          const err =
+            refreshError instanceof Error
+              ? refreshError
+              : new Error("Token refresh failed");
+          processQueue(err, null);
+
+          if (typeof window !== "undefined") {
+            window.location.href = "/auth/login";
+          }
+
+          throw new ApiError(401, "Session expired. Please login again.");
+        } finally {
+          isRefreshing = false;
+        }
+      }
+    }
+
+    // Handle non-OK responses
+    if (!response.ok) {
+      let errorMessage = "Request failed";
+
+      try {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+
+          // Extract error message from response
+          if (typeof errorData === "string") {
+            errorMessage = errorData;
+          } else if (errorData.error && typeof errorData.error === "string") {
+            errorMessage = errorData.error;
+          } else if (
+            errorData.message &&
+            typeof errorData.message === "string"
+          ) {
+            errorMessage = errorData.message;
+          } else if (errorData.errors) {
+            if (Array.isArray(errorData.errors)) {
+              errorMessage = errorData.errors.join(", ");
+            } else if (typeof errorData.errors === "object") {
+              const errorMessages = Object.values(errorData.errors)
+                .flat()
+                .filter((msg): msg is string => typeof msg === "string");
+              errorMessage = errorMessages.join(", ");
+            }
+          }
+        } else {
+          errorMessage = await response.text();
+        }
+      } catch (parseError) {
+        console.error("Error parsing error response:", parseError);
+        errorMessage = `Request failed with status ${response.status}`;
+      }
+
+      throw new ApiError(response.status, errorMessage);
+    }
+
+    // Parse successful response
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    }
+
+    // For non-JSON responses (like DELETE with no content)
+    return {} as T;
   } catch (error) {
+    // Re-throw ApiError as-is
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(0, "Network error");
+
+    // Handle network errors
+    if (error instanceof TypeError) {
+      console.error("Network error:", error);
+      throw new ApiError(
+        0,
+        "Network error: Unable to connect to the server. Please check your connection."
+      );
+    }
+
+    // Handle unexpected errors
+    console.error("Unexpected error in apiRequest:", error);
+    throw new ApiError(
+      0,
+      error instanceof Error ? error.message : "An unexpected error occurred"
+    );
   }
 }
-
-// Export axios instance for direct use if needed
-export { axiosInstance };

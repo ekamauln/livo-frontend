@@ -47,6 +47,7 @@ import {
   Loader2,
   Check,
   ChevronsUpDown,
+  XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { orderApi } from "@/lib/api/orderApi";
@@ -77,7 +78,7 @@ interface OrderDialogProps {
   orderId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "details" | "edit" | "add";
+  initialTab?: "details" | "edit" | "add" | "cancel";
   onOrderUpdate?: () => void;
 }
 
@@ -109,6 +110,7 @@ export function OrderDialog({
   const [updating, setUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [editingDetailId, setEditingDetailId] = useState<number | null>(null);
+  const [cancelConfirming, setCancelConfirming] = useState(false);
 
   // Delete confirmation states
   const [deleteConfirmingId, setDeleteConfirmingId] = useState<number | null>(
@@ -145,31 +147,28 @@ export function OrderDialog({
   });
 
   // Fetch order details
-  const fetchOrderDetails = useCallback(
-    async (id: number) => {
-      try {
-        setLoading(true);
+  const fetchOrderDetails = useCallback(async (id: number) => {
+    try {
+      setLoading(true);
 
-        // Fetch order with details
-        const response = await orderApi.getOrderById(id);
-        const order = response.data;
-        
-        setOrderData(order);
-        setOrderStatus(order.processing_status);
-        setOrderIdString(order.order_ginee_id);
-        setOrderDetails(order.order_details || []);
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-        toast.error("Failed to fetch order details", {
-          description:
-            error instanceof Error ? error.message : "Unknown error occurred",
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      // Fetch order with details
+      const response = await orderApi.getOrderById(id);
+      const order = response.data;
+
+      setOrderData(order);
+      setOrderStatus(order.processing_status);
+      setOrderIdString(order.order_ginee_id);
+      setOrderDetails(order.order_details || []);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      toast.error("Failed to fetch order details", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Search products
   const searchProducts = useCallback(async (query: string) => {
@@ -211,7 +210,7 @@ export function OrderDialog({
 
     try {
       setUpdating(true);
-      
+
       // Add new detail to existing order_details array
       const updatedOrderDetails = [
         ...orderDetails,
@@ -267,7 +266,7 @@ export function OrderDialog({
 
     try {
       setUpdating(true);
-      
+
       // Update the specific detail in the array
       const updatedOrderDetails = orderDetails.map((detail) =>
         detail.id === detailId
@@ -387,6 +386,31 @@ export function OrderDialog({
     }
   };
 
+  // Cancel order
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+
+    try {
+      setUpdating(true);
+      setCancelConfirming(false);
+
+      await orderApi.cancelOrder(orderId);
+
+      toast.success("Order cancelled successfully");
+      await fetchOrderDetails(orderId);
+      onOrderUpdate?.();
+      setActiveTab("details");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   // Handle product selection
   const handleProductSelect = (product: Product) => {
     form.setValue("product_name", product.name);
@@ -442,6 +466,7 @@ export function OrderDialog({
       setOrderIdString("");
       setEditingDetailId(null);
       setDeleteConfirmingId(null);
+      setCancelConfirming(false);
       form.reset();
       setProducts([]);
       setProductSearch("");
@@ -477,8 +502,8 @@ export function OrderDialog({
                 {orderStatus &&
                   orderStatus.toLowerCase() !== "ready to pick" && (
                     <span className="text-orange-600 dark:text-orange-400 text-sm block mt-2">
-                      ⚠️ Modifications are only allowed when order status is
-                      &quot;ready to pick&quot;
+                      ⚠️ Modifications are only allowed when order status is not
+                      &quot;picking process&quot; or &quot;qc process&quot;
                     </span>
                   )}
               </>
@@ -498,11 +523,11 @@ export function OrderDialog({
             <Tabs
               value={activeTab}
               onValueChange={(value) =>
-                setActiveTab(value as "details" | "edit" | "add")
+                setActiveTab(value as "details" | "edit" | "add" | "cancel")
               }
               className="flex-1 flex flex-col"
             >
-              <TabsList className="grid w-full grid-cols-3 shrink-0">
+              <TabsList className="grid w-full grid-cols-4 shrink-0">
                 <TabsTrigger
                   value="details"
                   className="flex items-center gap-2"
@@ -517,6 +542,10 @@ export function OrderDialog({
                 <TabsTrigger value="edit" className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
                   {isEditing ? "Edit Detail" : "Edit Mode"}
+                </TabsTrigger>
+                <TabsTrigger value="cancel" className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4" />
+                  Cancel Order
                 </TabsTrigger>
               </TabsList>
 
@@ -955,6 +984,134 @@ export function OrderDialog({
                           Select an order detail to edit from the Details tab.
                         </div>
                       )}
+                    </div>
+                  </TabsContent>
+
+                  {/* Cancel Order Tab */}
+                  <TabsContent value="cancel" className="h-full m-0">
+                    <div className="h-full overflow-y-auto">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            Cancel Order
+                          </CardTitle>
+                          <Separator
+                            orientation="horizontal"
+                            className="mt-2 data-[orientation=horizontal]"
+                          />
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          {/* Order Information */}
+                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Order ID:
+                              </span>
+                              <span className="text-sm">
+                                {orderIdString || orderId}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Status:
+                              </span>
+                              <Badge className={getStatusBadgeStyle(orderStatus)}>
+                                {orderStatus}
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Store:
+                              </span>
+                              <span className="text-sm">
+                                {orderData?.store || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Buyer:
+                              </span>
+                              <span className="text-sm">
+                                {orderData?.buyer || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Total Items:
+                              </span>
+                              <span className="text-sm">
+                                {orderDetails.length}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Warning Message */}
+                          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                            <div className="flex gap-3">
+                              <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                              <div className="space-y-1">
+                                <h4 className="font-semibold text-red-900 dark:text-red-100">
+                                  Warning: This action cannot be undone
+                                </h4>
+                                <p className="text-sm text-red-800 dark:text-red-200">
+                                  Cancelling this order will permanently mark it as
+                                  cancelled. The order will no longer be available
+                                  for processing or modification.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Confirmation Section */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id="cancel-confirm"
+                                checked={cancelConfirming}
+                                onChange={(e) =>
+                                  setCancelConfirming(e.target.checked)
+                                }
+                                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                              />
+                              <label
+                                htmlFor="cancel-confirm"
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                I understand this action cannot be undone
+                              </label>
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setCancelConfirming(false);
+                                  setActiveTab("details");
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Go Back
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={handleCancelOrder}
+                                disabled={!cancelConfirming || updating}
+                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {updating && (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Cancel Order
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   </TabsContent>
                 </div>

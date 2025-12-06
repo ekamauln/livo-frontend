@@ -30,6 +30,7 @@ import {
   MoreHorizontal,
   Eye,
   Edit,
+  XCircle,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -274,7 +275,7 @@ export default function OrdersTable() {
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [orderDialogTab, setOrderDialogTab] = useState<
-    "details" | "edit" | "add"
+    "details" | "edit" | "add" | "cancel"
   >("details");
 
   // Toggle row expansion
@@ -295,9 +296,15 @@ export default function OrdersTable() {
     setOrderDialogOpen(true);
   };
 
-  const handleEditDetails = (orderId: number) => {
+  const handleAddDetails = (orderId: number) => {
     setSelectedOrderId(orderId);
-    setOrderDialogTab("edit");
+    setOrderDialogTab("add");
+    setOrderDialogOpen(true);
+  };
+
+  const handleCancelOrder = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDialogTab("cancel");
     setOrderDialogOpen(true);
   };
 
@@ -442,16 +449,27 @@ export default function OrdersTable() {
           Processing Status
         </div>
       ),
-      cell: ({ row }) => (
-        <div className="flex justify-center items-center flex-wrap text-center text-xs">
-          <Badge
-            variant="default"
-            className={getStatusBadgeStyle(row.getValue("processing_status"))}
-          >
-            {row.getValue("processing_status")}
-          </Badge>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const eventStatus = row.original.event_status?.toLowerCase();
+        const isCancelled = eventStatus === "cancelled";
+        const processingStatus = row.getValue("processing_status") as string;
+        const displayStatus = isCancelled ? "cancelled" : processingStatus;
+
+        return (
+          <div className="flex justify-center items-center flex-wrap text-center text-xs">
+            <Badge
+              variant="default"
+              className={
+                isCancelled
+                  ? "bg-destructive text-white hover:bg-destructive/90"
+                  : getStatusBadgeStyle(processingStatus)
+              }
+            >
+              {displayStatus}
+            </Badge>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "event_status",
@@ -591,11 +609,18 @@ export default function OrdersTable() {
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => handleEditDetails(order.id)}
+                  onClick={() => handleAddDetails(order.id)}
                   className="cursor-pointer"
                 >
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit Details
+                  Add Details
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCancelOrder(order.id)}
+                  className="cursor-pointer"
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Cancel Order
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
