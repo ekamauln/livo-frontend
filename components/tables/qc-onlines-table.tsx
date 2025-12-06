@@ -36,19 +36,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { QcRibbon } from "@/types/qc-ribbon";
-import { qcRibbonApi } from "@/lib/api/qcRibbonApi";
+import { QcOnline } from "@/types/qc-online";
+import { qcOnlineApi } from "@/lib/api/qcOnlineApi";
 import { ApiError } from "@/lib/api/types";
 import React from "react";
 import { Separator } from "../ui/separator";
-import { QcRibbonTrackingSearch } from "@/components/forms/qc-ribbon-tracking-search";
-import { QcRibbonCreateDialog } from "@/components/dialogs/qc-ribbon-create-dialog";
+import { QcOnlineTrackingSearch } from "@/components/forms/qc-online-tracking-search";
+import { QcOnlineCreateDialog } from "@/components/dialogs/qc-online-create-dialog";
 import type { Order } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
-import { QcOperatorPerformance } from "@/components/analytics/qc-ribbon-operator-performance";
+import { QcOperatorPerformance } from "@/components/analytics/qc-online-operator-performance";
 
-export default function QcRibbonsTable() {
-  const [data, setData] = useState<QcRibbon[]>([]);
+export default function QcOnlinesTable() {
+  const [data, setData] = useState<QcOnline[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
@@ -76,38 +76,38 @@ export default function QcRibbonsTable() {
     setExpandedRows(newExpandedRows);
   };
 
-  // Fetch qc-ribbons data
+  // Fetch qc-onlines data
   const fetchData = useCallback(
     async (page: number = 1, search: string = "") => {
       try {
         setIsLoading(true);
-        const response = await qcRibbonApi.getQcRibbons(
+        const response = await qcOnlineApi.getQcOnlines(
           page,
           pagination.limit,
           search
         );
-        // Extract qc-ribbons array from the response data
-        const qcRibbons = response.data.qc_ribbons as QcRibbon[];
-        setData(qcRibbons);
+        // Extract qc-onlines array from the response data
+        const qcOnlines = response.data.qc_onlines as QcOnline[];
+        setData(qcOnlines);
         setPagination(response.data.pagination);
       } catch (error) {
         // Only log unexpected errors to console to reduce noise
         if (error instanceof ApiError) {
           if (error.status >= 500 || error.status === 0) {
-            console.error("Server/Network error fetching qc-ribbons:", error);
+            console.error("Server/Network error fetching qc-onlines:", error);
           } else {
             console.debug(
-              "Client error fetching qc-ribbons:",
+              "Client error fetching qc-onlines:",
               error.message,
               "Status:",
               error.status
             );
           }
         } else {
-          console.error("Unexpected error fetching qc-ribbons:", error);
+          console.error("Unexpected error fetching qc-onlines:", error);
         }
 
-        let errorMessage = "Failed to fetch qc-ribbons. Please try again.";
+        let errorMessage = "Failed to fetch qc-onlines. Please try again.";
 
         if (error instanceof ApiError) {
           if (error.status === 401) {
@@ -127,8 +127,8 @@ export default function QcRibbonsTable() {
     [pagination.limit]
   );
 
-  const handleQcRibbonCreated = () => {
-    // Refresh the data after creating a new qc-ribbon
+  const handleQcOnlineCreated = () => {
+    // Refresh the data after creating a new qc-online
     fetchData(pagination.page, searchQuery);
   };
 
@@ -165,19 +165,19 @@ export default function QcRibbonsTable() {
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
   // Render expanded row content
-  const renderExpandedContent = (qcRibbon: QcRibbon) => {
+  const renderExpandedContent = (qcOnline: QcOnline) => {
     if (
-      !qcRibbon.qc_ribbon_details ||
-      qcRibbon.qc_ribbon_details.length === 0
+      !qcOnline.qc_online_details ||
+      qcOnline.qc_online_details.length === 0
     ) {
       return null;
     }
 
     return (
       <div className="p-4 bg-muted/30">
-        <h4 className="text-sm font-semibold mb-3">QC Ribbon Details</h4>
+        <h4 className="text-sm font-semibold mb-3">QC Online Details</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {qcRibbon.qc_ribbon_details.map((detail) => (
+          {qcOnline.qc_online_details.map((detail) => (
             <div
               key={detail.id}
               className="border rounded-lg p-3 bg-background"
@@ -201,32 +201,32 @@ export default function QcRibbonsTable() {
             </div>
           ))}
         </div>
-        {qcRibbon.qc_ribbon_details.length > 0 && (
+        {qcOnline.qc_online_details.length > 0 && (
           <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
             Total items:{" "}
-            {qcRibbon.qc_ribbon_details.reduce(
+            {qcOnline.qc_online_details.reduce(
               (sum, detail) => sum + detail.quantity,
               0
             )}{" "}
-            in {qcRibbon.qc_ribbon_details.length} box
-            {qcRibbon.qc_ribbon_details.length === 1 ? "" : "es"}
+            in {qcOnline.qc_online_details.length} box
+            {qcOnline.qc_online_details.length === 1 ? "" : "es"}
           </div>
         )}
       </div>
     );
   };
 
-  const columns: ColumnDef<QcRibbon>[] = [
+  const columns: ColumnDef<QcOnline>[] = [
     {
       id: "expand",
       header: () => (
         <div className="text-sm text-center font-semibold w-12"></div>
       ),
       cell: ({ row }) => {
-        const qcRibbon = row.original;
+        const qcOnline = row.original;
         const hasDetails =
-          qcRibbon.qc_ribbon_details && qcRibbon.qc_ribbon_details.length > 0;
-        const isExpanded = expandedRows.has(qcRibbon.id);
+          qcOnline.qc_online_details && qcOnline.qc_online_details.length > 0;
+        const isExpanded = expandedRows.has(qcOnline.id);
 
         if (!hasDetails) {
           return <div className="w-12"></div>;
@@ -236,7 +236,7 @@ export default function QcRibbonsTable() {
           <div className="flex justify-start">
             <Button
               variant="default"
-              onClick={() => toggleRowExpansion(qcRibbon.id)}
+              onClick={() => toggleRowExpansion(qcOnline.id)}
               className="h-8 w-8 p-0"
             >
               {isExpanded ? (
@@ -390,11 +390,11 @@ export default function QcRibbonsTable() {
         <div className="col-span-2 flex flex-col border p-4 rounded-md">
           <h3 className="text-lg font-semibold mb-4">Search Order</h3>
           <Separator className="mt-0 mb-6" />
-          <QcRibbonTrackingSearch onOrderFound={handleOrderFound} />
+          <QcOnlineTrackingSearch onOrderFound={handleOrderFound} />
         </div>
 
         <div className="col-span-2 flex flex-col rounded-md">
-          <QcOperatorPerformance qcRibbons={data} />
+          <QcOperatorPerformance qcOnlines={data} />
         </div>
       </div>
 
@@ -408,7 +408,7 @@ export default function QcRibbonsTable() {
               className="flex flex-1 gap-2 items-center"
             >
               <Input
-                placeholder="Search qc-ribbons..."
+                placeholder="Search qc-onlines..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="max-w-sm"
@@ -498,14 +498,14 @@ export default function QcRibbonsTable() {
                 >
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Loading qc-ribbons...
+                    Loading qc-onlines...
                   </div>
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const qcRibbon = row.original;
-                const isExpanded = expandedRows.has(qcRibbon.id);
+                const qcOnline = row.original;
+                const isExpanded = expandedRows.has(qcOnline.id);
 
                 return (
                   <React.Fragment key={row.id}>
@@ -522,7 +522,7 @@ export default function QcRibbonsTable() {
                     {isExpanded && (
                       <TableRow>
                         <TableCell colSpan={columns.length} className="p-0">
-                          {renderExpandedContent(qcRibbon)}
+                          {renderExpandedContent(qcOnline)}
                         </TableCell>
                       </TableRow>
                     )}
@@ -535,7 +535,7 @@ export default function QcRibbonsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No qc-ribbons found.
+                  No qc-onlines found.
                 </TableCell>
               </TableRow>
             )}
@@ -548,7 +548,7 @@ export default function QcRibbonsTable() {
         <div className="text-sm text-muted-foreground">
           Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
           {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} qc-ribbons
+          {pagination.total} qc-onlines
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -607,12 +607,12 @@ export default function QcRibbonsTable() {
         </div>
       </div>
 
-      {/* QC Ribbon Dialog */}
-      <QcRibbonCreateDialog
+      {/* QC Online Dialog */}
+      <QcOnlineCreateDialog
         open={dialogOpen}
         onOpenChange={handleDialogClose}
         order={selectedOrder}
-        onSuccess={handleQcRibbonCreated}
+        onSuccess={handleQcOnlineCreated}
       />
     </div>
   );

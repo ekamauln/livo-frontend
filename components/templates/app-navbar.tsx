@@ -221,7 +221,7 @@ export default function AppNavbar() {
                     "superadmin",
                     "coordinator",
                     "admin",
-                    "admin-retur",
+                    "retur",
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/ribbons/ribbon-flows">
@@ -239,37 +239,19 @@ export default function AppNavbar() {
               "superadmin",
               "coordinator",
               "admin",
-              "admin-retur",
-              "mb-online",
+              "retur",
               "qc-online",
-              "packing",
             ]) && (
               <MenubarMenu>
                 <MenubarTrigger className="cursor-pointer">
                   Online
                 </MenubarTrigger>
                 <MenubarContent>
-                  {hasAnyRole(["superadmin", "coordinator", "mb-online"]) && (
-                    <MenubarItem asChild className="cursor-pointer">
-                      <Link href="/onlines/mb-onlines">
-                        <Globe className="h-4 w-4" />
-                        MB Onlines
-                      </Link>
-                    </MenubarItem>
-                  )}
                   {hasAnyRole(["superadmin", "coordinator", "qc-online"]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/onlines/qc-onlines">
                         <Globe className="h-4 w-4" />
                         QC Onlines
-                      </Link>
-                    </MenubarItem>
-                  )}
-                  {hasAnyRole(["superadmin", "coordinator", "packing"]) && (
-                    <MenubarItem asChild className="cursor-pointer">
-                      <Link href="/onlines/pc-onlines">
-                        <Globe className="h-4 w-4" />
-                        PC Onlines
                       </Link>
                     </MenubarItem>
                   )}
@@ -280,7 +262,7 @@ export default function AppNavbar() {
                     "superadmin",
                     "coordinator",
                     "admin",
-                    "admin-retur",
+                    "retur",
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/onlines/online-flows">
@@ -298,7 +280,7 @@ export default function AppNavbar() {
               "superadmin",
               "coordinator",
               "admin",
-              "admin-retur",
+              "retur",
               "outbound",
             ]) && (
               <MenubarMenu>
@@ -321,7 +303,7 @@ export default function AppNavbar() {
                     "superadmin",
                     "coordinator",
                     "admin",
-                    "admin-retur",
+                    "retur",
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/outbounds/handout-outbounds">
@@ -339,7 +321,7 @@ export default function AppNavbar() {
               "superadmin",
               "coordinator",
               "admin",
-              "admin-retur",
+              "retur",
               "finance",
             ]) && (
               <MenubarMenu>
@@ -390,7 +372,7 @@ export default function AppNavbar() {
               "superadmin",
               "coordinator",
               "admin",
-              "admin-retur",
+              "retur",
               "finance",
             ]) && (
               <MenubarMenu>
