@@ -193,13 +193,12 @@ export default function AppNavbar() {
               </MenubarMenu>
             )}
 
-            {/* Ribbons menu - visible to superadmin, coordinator, admin, mb-ribbon, qc-ribbon */}
+            {/* Ribbons menu - visible to superadmin, coordinator, admin, retur, qc-ribbon */}
             {hasAnyRole([
               "superadmin",
               "coordinator",
               "admin",
-              "admin-retur",
-              "mb-ribbon",
+              "retur",
               "qc-ribbon",
             ]) && (
               <MenubarMenu>
@@ -207,14 +206,6 @@ export default function AppNavbar() {
                   Ribbons
                 </MenubarTrigger>
                 <MenubarContent>
-                  {hasAnyRole(["superadmin", "coordinator", "mb-ribbon"]) && (
-                    <MenubarItem asChild className="cursor-pointer">
-                      <Link href="/ribbons/mb-ribbons">
-                        <Ribbon className="h-4 w-4" />
-                        MB Ribbons
-                      </Link>
-                    </MenubarItem>
-                  )}
                   {hasAnyRole(["superadmin", "coordinator", "qc-ribbon"]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/ribbons/qc-ribbons">

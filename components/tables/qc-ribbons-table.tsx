@@ -44,7 +44,8 @@ import { Separator } from "../ui/separator";
 import { QcRibbonTrackingSearch } from "@/components/forms/qc-ribbon-tracking-search";
 import { QcRibbonCreateDialog } from "@/components/dialogs/qc-ribbon-create-dialog";
 import type { Order } from "@/types/order";
-// import { QcRibbonStatus } from "@/components/status/qc-ribbon-status";
+import { Badge } from "@/components/ui/badge";
+import { QcOperatorPerformance } from "@/components/analytics/qc-operator-performance";
 
 export default function QcRibbonsTable() {
   const [data, setData] = useState<QcRibbon[]>([]);
@@ -165,7 +166,10 @@ export default function QcRibbonsTable() {
 
   // Render expanded row content
   const renderExpandedContent = (qcRibbon: QcRibbon) => {
-    if (!qcRibbon.details || qcRibbon.details.length === 0) {
+    if (
+      !qcRibbon.qc_ribbon_details ||
+      qcRibbon.qc_ribbon_details.length === 0
+    ) {
       return null;
     }
 
@@ -173,7 +177,7 @@ export default function QcRibbonsTable() {
       <div className="p-4 bg-muted/30">
         <h4 className="text-sm font-semibold mb-3">QC Ribbon Details</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {qcRibbon.details.map((detail) => (
+          {qcRibbon.qc_ribbon_details.map((detail) => (
             <div
               key={detail.id}
               className="border rounded-lg p-3 bg-background"
@@ -197,12 +201,15 @@ export default function QcRibbonsTable() {
             </div>
           ))}
         </div>
-        {qcRibbon.details.length > 0 && (
+        {qcRibbon.qc_ribbon_details.length > 0 && (
           <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
             Total items:{" "}
-            {qcRibbon.details.reduce((sum, detail) => sum + detail.quantity, 0)}{" "}
-            in {qcRibbon.details.length} box
-            {qcRibbon.details.length === 1 ? "" : "es"}
+            {qcRibbon.qc_ribbon_details.reduce(
+              (sum, detail) => sum + detail.quantity,
+              0
+            )}{" "}
+            in {qcRibbon.qc_ribbon_details.length} box
+            {qcRibbon.qc_ribbon_details.length === 1 ? "" : "es"}
           </div>
         )}
       </div>
@@ -217,7 +224,8 @@ export default function QcRibbonsTable() {
       ),
       cell: ({ row }) => {
         const qcRibbon = row.original;
-        const hasDetails = qcRibbon.details && qcRibbon.details.length > 0;
+        const hasDetails =
+          qcRibbon.qc_ribbon_details && qcRibbon.qc_ribbon_details.length > 0;
         const isExpanded = expandedRows.has(qcRibbon.id);
 
         if (!hasDetails) {
@@ -227,6 +235,7 @@ export default function QcRibbonsTable() {
         return (
           <div className="flex justify-start">
             <Button
+              variant="default"
               onClick={() => toggleRowExpansion(qcRibbon.id)}
               className="h-8 w-8 p-0"
             >
@@ -270,11 +279,11 @@ export default function QcRibbonsTable() {
         return (
           <div className="text-sm text-center">
             {order ? (
-              <div>
-                <div className="font-mono text-xs">{order.order_id}</div>
-                <div className="text-xs text-muted-foreground">
-                  {order.status}
-                </div>
+              <div className="space-y-1">
+                <div className="font-mono text-xs">{order.order_ginee_id}</div>
+                <Badge className="bg-green-500 text-white hover:bg-green-600">
+                  {order.processing_status}
+                </Badge>
                 <div className="text-xs text-muted-foreground">
                   {order.store}
                 </div>
@@ -287,23 +296,23 @@ export default function QcRibbonsTable() {
       },
     },
     {
-      accessorKey: "user",
+      accessorKey: "qc_by",
       header: () => (
-        <div className="text-sm text-center font-semibold">User</div>
+        <div className="text-sm text-center font-semibold">QC Operator</div>
       ),
       cell: ({ row }) => {
-        const user = row.original.user;
+        const qcOperator = row.original.qc_operator;
         return (
           <div className="text-sm text-center">
-            {user ? (
+            {qcOperator ? (
               <div>
-                <div className="font-medium">{user.full_name}</div>
+                <div className="font-medium">{qcOperator.full_name}</div>
                 <div className="text-xs text-muted-foreground">
-                  @{user.username}
+                  @{qcOperator.username}
                 </div>
               </div>
             ) : (
-              <span className="text-muted-foreground">No user</span>
+              <span className="text-muted-foreground">No QC Operator</span>
             )}
           </div>
         );
@@ -383,13 +392,12 @@ export default function QcRibbonsTable() {
           <Separator className="mt-0 mb-6" />
           <QcRibbonTrackingSearch onOrderFound={handleOrderFound} />
         </div>
-        <div className="col-span-2 flex flex-col border p-4 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">QC-Ribbon Status</h3>
-          <Separator className="mt-0 mb-6" />
-          {/* <QcRibbonStatus totalRecords={pagination.total} target={3000} /> */}
-          <span>Status</span>
+
+        <div className="col-span-2 flex flex-col rounded-md">
+          <QcOperatorPerformance qcRibbons={data} />
         </div>
       </div>
+
       <Separator className="mt-0" />
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="flex justify-start items-center gap-2">

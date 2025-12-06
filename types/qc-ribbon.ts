@@ -17,20 +17,23 @@ export interface QcRibbonDetail {
 export interface QcRibbon {
   id: number;
   tracking: string;
-  user_id: number;
+  qc_by: number;
   created_at: string;
   updated_at: string;
   complained: boolean;
-  details: QcRibbonDetail[];
+  qc_ribbon_details: QcRibbonDetail[];
   order?: {
     id: number;
-    order_id: string;
-    status: string;
+    order_ginee_id: string;
+    processing_status: string;
+    event_status: string | null;
     channel: string;
     store: string;
     buyer: string;
+    address: string;
     courier: string;
     tracking: string;
+    sent_before: string;
     complained: boolean;
     picked_by: string;
     picked_at: string;
@@ -44,7 +47,7 @@ export interface QcRibbon {
       quantity: number;
     }>;
   };
-  user?: {
+  qc_operator?: {
     id: number;
     username: string;
     email: string;
