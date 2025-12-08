@@ -244,7 +244,7 @@ export default function AppNavbar() {
             ]) && (
               <MenubarMenu>
                 <MenubarTrigger className="cursor-pointer">
-                  Online
+                  Onlines
                 </MenubarTrigger>
                 <MenubarContent>
                   {hasAnyRole(["superadmin", "coordinator", "qc-online"]) && (
