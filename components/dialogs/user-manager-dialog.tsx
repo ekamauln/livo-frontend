@@ -649,7 +649,7 @@ export function UserDialog({
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                               className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
                             >
                               Cancel
@@ -780,7 +780,7 @@ export function UserDialog({
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                               className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
                             >
                               Cancel
