@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, PackageOpen } from "lucide-react";
+import { Loader2, PackageOpen, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { Product } from "@/types/product";
 import { productApi } from "@/lib/api/productApi";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import { FormDescription } from "@/components/ui/form";
 
 // Zod form schema
 const productCreateSchema = z.object({
@@ -51,6 +53,7 @@ export function ProductCreateDialog({
   onProductCreated,
 }: ProductCreateDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // Create product form
   const productCreateForm = useForm<ProductCreateFormData>({
@@ -79,6 +82,46 @@ export function ProductCreateDialog({
       toast.error("Failed to create product. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update the form with the new image URL
+        productCreateForm.setValue("image", result.url);
+        toast.success("Image uploaded successfully");
+      } else {
+        throw new Error(result.error || "Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload image", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUploading(false);
+      // Clear the input so the same file can be selected again if needed
+      event.target.value = "";
     }
   };
 
@@ -139,8 +182,60 @@ export function ProductCreateDialog({
                   <FormItem>
                     <FormLabel>Image</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter image URL" {...field} />
+                      <div className="space-y-4">
+                        <Input
+                          type="text"
+                          placeholder="Enter image URL or upload a file below"
+                          {...field}
+                        />
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            or
+                          </span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={uploading}
+                            onClick={() =>
+                              document
+                                .getElementById("file-upload-create")
+                                ?.click()
+                            }
+                            className="cursor-pointer hover:bg-accent/60 dark:hover:bg-accent/90 all duration-300 ease-in-out"
+                          >
+                            {uploading ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Upload className="h-4 w-4 mr-2" />
+                            )}
+                            {uploading ? "Uploading..." : "Upload Image"}
+                          </Button>
+                          <input
+                            id="file-upload-create"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                        </div>
+                        {field.value && (
+                          <div className="mt-2">
+                            <Image
+                              src={field.value}
+                              alt="Product preview"
+                              width={100}
+                              height={100}
+                              className="rounded-md"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
+                    <FormDescription className="text-xs text-yellow-500">
+                      * Enter a direct image URL or upload an image file.
+                      Uploaded images will be saved to /images/products/.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

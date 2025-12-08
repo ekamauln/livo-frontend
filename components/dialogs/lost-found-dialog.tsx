@@ -43,7 +43,7 @@ interface LostFoundDialogProps {
   lostFoundId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "detail" | "profile";
+  initialTab?: "detail" | "profile" | "delete";
   onLostFoundUpdate?: () => void;
 }
 
@@ -129,6 +129,26 @@ export function LostFoundDialog({
     }
   };
 
+  // Delete lost found
+  const deleteLostFound = async () => {
+    if (!lostFoundId) return;
+    try {
+      setUpdating(true);
+      await lostFoundApi.deleteLostFound(lostFoundId);
+      toast.success("Lost found deleted successfully");
+      onLostFoundUpdate?.();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting lost found:", error);
+      toast.error("Failed to delete lost found", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   // Effects
   useEffect(() => {
     if (open && lostFoundId) {
@@ -183,11 +203,11 @@ export function LostFoundDialog({
           <Tabs
             value={activeTab}
             onValueChange={(value) =>
-              setActiveTab(value as "detail" | "profile")
+              setActiveTab(value as "detail" | "profile" | "delete")
             }
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="detail" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Details
@@ -195,6 +215,10 @@ export function LostFoundDialog({
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Edit Lost Found
+              </TabsTrigger>
+              <TabsTrigger value="delete" className="flex items-center gap-2">
+                <PackageOpen className="h-4 w-4 text-destructive" />
+                <span className="text-destructive">Delete Lost Found</span>
               </TabsTrigger>
             </TabsList>
 
@@ -327,7 +351,7 @@ export function LostFoundDialog({
                               type="button"
                               variant="outline"
                               className="cursor-pointer"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                             >
                               Cancel
                             </Button>
@@ -344,6 +368,52 @@ export function LostFoundDialog({
                           </div>
                         </form>
                       </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Delete Lost Found Tab */}
+                <TabsContent value="delete">
+                  <Card className="grid gap-6 rounded-md border mt-4">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 truncate">
+                        <PackageOpen className="h-5 w-5 text-destructive" />
+                        <span className="text-destructive">
+                          Delete Lost Found
+                        </span>
+                      </CardTitle>
+                      <Separator
+                        orientation="horizontal"
+                        className="mt-2 data-[orientation=horizontal]"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        Are you sure you want to delete this lost found? This
+                        action cannot be undone.
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          className="cursor-pointer"
+                          onClick={deleteLostFound}
+                          disabled={updating}
+                        >
+                          {updating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Delete Lost Found
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>

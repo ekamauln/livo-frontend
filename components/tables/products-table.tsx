@@ -26,6 +26,7 @@ import {
   Edit,
   KeyRound,
   PackageOpen,
+  Trash2,
 } from "lucide-react";
 import {
   Select,
@@ -78,7 +79,7 @@ export default function ProductsTable() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [dialogTab, setDialogTab] = useState<
-    "detail" | "profile" | "barcode2d"
+    "detail" | "profile" | "barcode2d" | "delete"
   >("detail");
 
   // Fetch products data
@@ -144,11 +145,11 @@ export default function ProductsTable() {
       cell: ({ row }) => (
         <div className="flex justify-center items-center">
           <Image
-            width={32}
-            height={32}
+            width={48}
+            height={48}
             src={row.getValue("image")}
             alt={row.getValue("name")}
-            className="h-8 w-8 rounded"
+            className="h-12 w-12 rounded"
           />
         </div>
       ),
@@ -259,7 +260,6 @@ export default function ProductsTable() {
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedProductId(product.id);
@@ -279,6 +279,17 @@ export default function ProductsTable() {
                 >
                   <KeyRound className="mr-2 h-4 w-4" />
                   Generate 2D Barcode
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedProductId(product.id);
+                    setDialogTab("delete");
+                    setProductDialogOpen(true);
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Product</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -391,13 +402,16 @@ export default function ProductsTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

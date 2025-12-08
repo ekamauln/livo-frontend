@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Package, Settings, PackageOpen } from "lucide-react";
+import { Loader2, Package, Settings, PackageOpen, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +56,7 @@ interface ExpeditionDialogProps {
   expeditionId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "detail" | "profile";
+  initialTab?: "detail" | "profile" | "delete";
   onExpeditionUpdate?: () => void;
 }
 
@@ -174,6 +174,26 @@ export function ExpeditionDialog({
     }
   }, [expedition, expeditionForm]);
 
+  // Delete expedition
+  const deleteExpedition = async () => {
+    if (!expeditionId) return;
+    try {
+      setUpdating(true);
+      await expeditionApi.deleteExpedition(expeditionId);
+      toast.success("Expedition deleted successfully");
+      onOpenChange(false);
+      onExpeditionUpdate?.();
+    } catch (error) {
+      console.error("Error deleting expedition:", error);
+      toast.error("Failed to delete expedition", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-w-[700px] max-w-4xl max-h-[90vh] flex flex-col overflow-y-auto">
@@ -202,11 +222,11 @@ export function ExpeditionDialog({
           <Tabs
             value={activeTab}
             onValueChange={(value) =>
-              setActiveTab(value as "detail" | "profile")
+              setActiveTab(value as "detail" | "profile" | "delete")
             }
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="detail" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Details
@@ -214,6 +234,10 @@ export function ExpeditionDialog({
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Edit Expedition
+              </TabsTrigger>
+              <TabsTrigger value="delete" className="flex items-center gap-2">
+                <Trash className="h-4 w-4 text-destructive" />
+                <span className="text-destructive">Delete Expedition</span>
               </TabsTrigger>
             </TabsList>
 
@@ -460,7 +484,7 @@ export function ExpeditionDialog({
                               type="button"
                               variant="outline"
                               className="cursor-pointer"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                             >
                               Cancel
                             </Button>
@@ -477,6 +501,52 @@ export function ExpeditionDialog({
                           </div>
                         </form>
                       </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Delete Expedition Tab */}
+                <TabsContent value="delete">
+                  <Card className="grid gap-6 rounded-md border mt-4">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 truncate">
+                        <Trash className="h-5 w-5 text-destructive" />
+                        <span className="text-destructive">
+                          Delete Expedition
+                        </span>
+                      </CardTitle>
+                      <Separator
+                        orientation="horizontal"
+                        className="mt-2 data-[orientation=horizontal]"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        Are you sure you want to delete this channel? This
+                        action cannot be undone.
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={deleteExpedition}
+                          disabled={updating}
+                          className="cursor-pointer"
+                        >
+                          {updating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Delete Expedition
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>

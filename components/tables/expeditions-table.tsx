@@ -25,6 +25,7 @@ import {
   Eye,
   Edit,
   BusFront,
+  Trash,
 } from "lucide-react";
 import {
   Select,
@@ -72,7 +73,9 @@ export default function ExpeditionsTable() {
   >(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [expeditionDialogOpen, setExpeditionDialogOpen] = useState(false);
-  const [dialogTab, setDialogTab] = useState<"detail" | "profile">("detail");
+  const [dialogTab, setDialogTab] = useState<"detail" | "profile" | "delete">(
+    "detail"
+  );
 
   // Fetch expeditions data
   const fetchData = useCallback(
@@ -236,7 +239,6 @@ export default function ExpeditionsTable() {
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedExpeditionId(expedition.id);
@@ -246,6 +248,18 @@ export default function ExpeditionsTable() {
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Expedition
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => {
+                    setSelectedExpeditionId(expedition.id);
+                    setDialogTab("delete");
+                    setExpeditionDialogOpen(true);
+                  }}
+                >
+                  <Trash className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Expedition</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -358,13 +372,16 @@ export default function ExpeditionsTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

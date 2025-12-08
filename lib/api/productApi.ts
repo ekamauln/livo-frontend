@@ -45,4 +45,10 @@ export const productApi = {
       body: JSON.stringify(productData),
     });
   },
+
+  deleteProduct: async (id: number): Promise<ApiResponse<Product>> => {
+    return apiRequest<ApiResponse<Product>>(`/products/${id}`, {
+      method: "DELETE",
+    });
+  },
 };

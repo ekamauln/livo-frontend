@@ -270,6 +270,17 @@ export default function LostFoundsTable() {
       ),
     },
     {
+      accessorKey: "quantity",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Quantity</div>
+      ),
+      cell: ({ row }) => (
+        <div className="font-mono text-center text-sm">
+          {row.getValue("quantity")}
+        </div>
+      ),
+    },
+    {
       accessorKey: "created_at",
       header: () => (
         <div className="text-sm text-center font-semibold">Created</div>
@@ -322,7 +333,6 @@ export default function LostFoundsTable() {
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedLostFoundId(lostFound.id);
@@ -333,6 +343,7 @@ export default function LostFoundsTable() {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Lost Found
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedLostFoundId(lostFound.id);
@@ -340,8 +351,8 @@ export default function LostFoundsTable() {
                     setLostFoundDialogOpen(true);
                   }}
                 >
-                  <Trash className="mr-2 h-4 w-4" />
-                  Delete Lost Found
+                  <Trash className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Lost Found</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -454,13 +465,16 @@ export default function LostFoundsTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

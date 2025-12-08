@@ -178,6 +178,12 @@ export default function AppNavbar() {
                 </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
+                    <Link href="/orders/lost-founds">
+                      <ScrollText className="h-4 w-4" />
+                      Lost Founds
+                    </Link>
+                  </MenubarItem>
+                  <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/orders">
                       <ScrollText className="h-4 w-4" />
                       Orders

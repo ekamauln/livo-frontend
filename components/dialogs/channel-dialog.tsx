@@ -319,7 +319,7 @@ export function ChannelDialog({
                               type="button"
                               variant="outline"
                               className="cursor-pointer"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                             >
                               Cancel
                             </Button>

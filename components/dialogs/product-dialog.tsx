@@ -71,7 +71,7 @@ interface ProductDialogProps {
   productId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "detail" | "profile" | "barcode2d";
+  initialTab?: "detail" | "profile" | "barcode2d" | "delete";
   onProductUpdate?: () => void;
 }
 
@@ -170,10 +170,10 @@ export function ProductDialog({
 
       // Generate Data Matrix barcode
       bwipjs.toCanvas(barcodeCanvas, {
-        bcid: "datamatrix",
+        bcid: "datamatrix", // Barcode type
         text: sku,
         scale: 3,
-        height: 10,
+        height: 12,
         includetext: false,
         textxalign: "center",
       });
@@ -225,6 +225,26 @@ export function ProductDialog({
     link.click();
     document.body.removeChild(link);
     toast.success(`${filename} downloaded successfully`);
+  };
+
+  // Delete product
+  const deleteProduct = async () => {
+    if (!productId) return;
+    try {
+      setUpdating(true);
+      await productApi.deleteProduct(productId);
+      toast.success("Product deleted successfully");
+      onOpenChange(false);
+      onProductUpdate?.();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   // Handle file upload
@@ -344,11 +364,13 @@ export function ProductDialog({
           <Tabs
             value={activeTab}
             onValueChange={(value) =>
-              setActiveTab(value as "detail" | "profile" | "barcode2d")
+              setActiveTab(
+                value as "detail" | "profile" | "barcode2d" | "delete"
+              )
             }
             className="flex-1 flex flex-col min-h-0"
           >
-            <TabsList className="grid w-full grid-cols-3 shrink-0">
+            <TabsList className="grid w-full grid-cols-4 shrink-0">
               <TabsTrigger value="detail" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Details
@@ -363,6 +385,10 @@ export function ProductDialog({
               >
                 <ScanQrCode className="h-4 w-4" />
                 2D Barcode
+              </TabsTrigger>
+              <TabsTrigger value="delete" className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-destructive" />
+                <span className="text-destructive">Delete Product</span>
               </TabsTrigger>
             </TabsList>
 
@@ -596,7 +622,7 @@ export function ProductDialog({
                               type="button"
                               variant="outline"
                               className="cursor-pointer"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                             >
                               Cancel
                             </Button>
@@ -665,6 +691,50 @@ export function ProductDialog({
                             </p>
                           </div>
                         )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Delete Product Tab */}
+                <TabsContent value="delete" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Package className="h-5 w-5 shrink-0 text-destructive" />
+                        <span className="text-destructive">Delete Product</span>
+                      </CardTitle>
+                      <Separator
+                        orientation="horizontal"
+                        className="mt-2 data-[orientation=horizontal]"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        Deleting a product is irreversible. Please ensure that
+                        this product is not associated with any active orders or
+                        inventory records before proceeding.
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="cursor-pointer"
+                          disabled={updating}
+                          onClick={deleteProduct}
+                        >
+                          {updating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Delete Product
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
