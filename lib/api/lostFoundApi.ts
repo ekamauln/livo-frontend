@@ -3,48 +3,48 @@ import { ApiResponse, PaginatedResponse } from "@/types/auth";
 import { apiRequest } from "@/lib/api/types";
 
 export const lostFoundApi = {
-  getLostFoundItems: async (
+  getLostFounds: async (
     page: number = 1,
     limit: number = 10,
     search?: string
   ): Promise<PaginatedResponse<LostFound>> => {
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
     return apiRequest<PaginatedResponse<LostFound>>(
-      `/lostfound?page=${page}&limit=${limit}${searchParam}`
+      `/lost-founds?page=${page}&limit=${limit}${searchParam}`
     );
   },
 
-  getLostFoundItemById: async (id: number): Promise<ApiResponse<LostFound>> => {
-    return apiRequest<ApiResponse<LostFound>>(`/lostfound/${id}`);
+  getLostFoundById: async (id: number): Promise<ApiResponse<LostFound>> => {
+    return apiRequest<ApiResponse<LostFound>>(`/lost-founds/${id}`);
   },
 
-  createLostFoundItem: async (itemData: {
+  createLostFound: async (lostFoundData: {
     product_sku: string;
     quantity: number;
     reason: string;
   }): Promise<ApiResponse<LostFound>> => {
-    return apiRequest<ApiResponse<LostFound>>("/lostfound", {
+    return apiRequest<ApiResponse<LostFound>>("/lost-founds", {
       method: "POST",
-      body: JSON.stringify(itemData),
+      body: JSON.stringify(lostFoundData),
     });
   },
 
-  updateLostFoundItem: async (
+  updateLostFound: async (
     id: number,
-    itemData: {
+    lostFoundData: {
       product_sku: string;
       quantity: number;
       reason: string;
     }
   ): Promise<ApiResponse<LostFound>> => {
-    return apiRequest<ApiResponse<LostFound>>(`/lostfound/${id}`, {
+    return apiRequest<ApiResponse<LostFound>>(`/lost-founds/${id}`, {
       method: "PUT",
-      body: JSON.stringify(itemData),
+      body: JSON.stringify(lostFoundData),
     });
   },
 
-  deleteLostFoundItem: async (id: number): Promise<ApiResponse<LostFound>> => {
-    return apiRequest<ApiResponse<LostFound>>(`/lostfound/${id}`, {
+  deleteLostFound: async (id: number): Promise<ApiResponse<LostFound>> => {
+    return apiRequest<ApiResponse<LostFound>>(`/lost-founds/${id}`, {
       method: "DELETE",
     });
   },

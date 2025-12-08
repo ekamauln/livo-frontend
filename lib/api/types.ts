@@ -6,8 +6,7 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.31.147:8040/api";
+export const API_BASE_URL = "/api/proxy";
 
 // Token refresh management
 let isRefreshing = false;
@@ -72,6 +71,9 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { method = "GET", body, headers = {} } = options;
   const token = localStorage.getItem("access_token");
+
+  console.log(`API Request: ${method} ${API_BASE_URL}${endpoint}`);
+  console.log("Token:", token ? `${token.substring(0, 20)}...` : "NO TOKEN");
 
   const fetchOptions: RequestInit = {
     method,

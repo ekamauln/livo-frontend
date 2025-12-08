@@ -6,7 +6,7 @@ export interface LostFound {
   created_by: number;
   created_at: string;
   updated_at: string;
-  user?: {
+  create_operator?: {
     id: number;
     username: string;
     email: string;
