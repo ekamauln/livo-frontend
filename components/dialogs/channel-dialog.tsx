@@ -42,7 +42,7 @@ interface ChannelDialogProps {
   channelId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "detail" | "profile";
+  initialTab?: "detail" | "profile" | "delete";
   onChannelUpdate?: () => void;
 }
 
@@ -124,6 +124,26 @@ export function ChannelDialog({
     }
   };
 
+  // Delete channel
+  const deleteChannel = async () => {
+    if (!channelId) return;
+    try {
+      setUpdating(true);
+      await channelApi.deleteChannel(channelId);
+      toast.success("Channel deleted successfully");
+      onChannelUpdate?.();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting channel:", error);
+      toast.error("Failed to delete channel", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   // Effects
   useEffect(() => {
     if (open && channelId) {
@@ -176,11 +196,11 @@ export function ChannelDialog({
           <Tabs
             value={activeTab}
             onValueChange={(value) =>
-              setActiveTab(value as "detail" | "profile")
+              setActiveTab(value as "detail" | "profile" | "delete")
             }
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="detail" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Details
@@ -188,6 +208,10 @@ export function ChannelDialog({
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Edit Channel
+              </TabsTrigger>
+              <TabsTrigger value="delete" className="flex items-center gap-2">
+                <PackageOpen className="h-4 w-4 text-destructive" />
+                <span className="text-destructive">Delete Channel</span>
               </TabsTrigger>
             </TabsList>
 
@@ -312,6 +336,50 @@ export function ChannelDialog({
                           </div>
                         </form>
                       </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Delete Channel Tab */}
+                <TabsContent value="delete">
+                  <Card className="grid gap-6 rounded-md border mt-4">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 truncate">
+                        <PackageOpen className="h-5 w-5 text-destructive" />
+                        <span className="text-destructive">Delete Channel</span>
+                      </CardTitle>
+                      <Separator
+                        orientation="horizontal"
+                        className="mt-2 data-[orientation=horizontal]"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        Are you sure you want to delete this channel? This
+                        action cannot be undone.
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          disabled={updating}
+                          className="cursor-pointer"
+                          onClick={deleteChannel}
+                        >
+                          {updating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Delete Channel
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>

@@ -72,7 +72,9 @@ export default function ChannelsTable() {
   );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [channelDialogOpen, setChannelDialogOpen] = useState(false);
-  const [dialogTab, setDialogTab] = useState<"detail" | "profile">("detail");
+  const [dialogTab, setDialogTab] = useState<"detail" | "profile" | "delete">(
+    "detail"
+  );
 
   // Fetch channels data
   const fetchData = useCallback(
@@ -204,7 +206,6 @@ export default function ChannelsTable() {
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedChannelId(channel.id);
@@ -214,6 +215,17 @@ export default function ChannelsTable() {
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Channel
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedChannelId(channel.id);
+                    setDialogTab("delete");
+                    setChannelDialogOpen(true);
+                  }}
+                >
+                  <Tv className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Channel</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

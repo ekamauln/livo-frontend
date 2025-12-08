@@ -25,6 +25,7 @@ import {
   Eye,
   Edit,
   PackagePlus,
+  Trash,
 } from "lucide-react";
 import {
   Select,
@@ -70,7 +71,9 @@ export default function BoxesTable() {
   const [selectedBoxId, setSelectedBoxId] = useState<number | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [boxDialogOpen, setBoxDialogOpen] = useState(false);
-  const [dialogTab, setDialogTab] = useState<"detail" | "profile">("detail");
+  const [dialogTab, setDialogTab] = useState<"detail" | "profile" | "delete">(
+    "detail"
+  );
 
   // Fetch boxes data
   const fetchData = useCallback(
@@ -198,7 +201,6 @@ export default function BoxesTable() {
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setSelectedBoxId(box.id);
@@ -208,6 +210,17 @@ export default function BoxesTable() {
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Box
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedBoxId(box.id);
+                    setDialogTab("delete");
+                    setBoxDialogOpen(true);
+                  }}
+                >
+                  <Trash className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Box</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -319,13 +332,16 @@ export default function BoxesTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

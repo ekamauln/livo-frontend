@@ -27,6 +27,7 @@ import {
   BusFront,
   ChevronDown,
   ChevronUp,
+  Trash,
 } from "lucide-react";
 import {
   Select,
@@ -75,7 +76,9 @@ export default function LostFoundsTable() {
   );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [lostFoundDialogOpen, setLostFoundDialogOpen] = useState(false);
-  const [dialogTab, setDialogTab] = useState<"detail" | "profile">("detail");
+  const [dialogTab, setDialogTab] = useState<"detail" | "profile" | "delete">(
+    "detail"
+  );
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Fetch lost founds data
@@ -329,6 +332,16 @@ export default function LostFoundsTable() {
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Lost Found
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedLostFoundId(lostFound.id);
+                    setDialogTab("delete");
+                    setLostFoundDialogOpen(true);
+                  }}
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  Delete Lost Found
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

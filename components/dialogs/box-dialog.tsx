@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Package, Settings, PackageOpen } from "lucide-react";
+import { Loader2, Package, Settings, PackageOpen, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -42,7 +42,7 @@ interface BoxDialogProps {
   boxId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "detail" | "profile";
+  initialTab?: "detail" | "profile" | "delete";
   onBoxUpdate?: () => void;
 }
 
@@ -113,9 +113,30 @@ export function BoxDialog({
         name: response.data.name,
       });
       onBoxUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating box:", error);
       toast.error("Failed to update box", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Delete box
+  const deleteBox = async () => {
+    if (!boxId) return;
+    try {
+      setUpdating(true);
+      await boxApi.deleteBox(boxId);
+      toast.success("Box deleted successfully");
+      onBoxUpdate?.();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting box:", error);
+      toast.error("Failed to delete box", {
         description:
           error instanceof Error ? error.message : "Unknown error occurred",
       });
@@ -176,7 +197,7 @@ export function BoxDialog({
             }
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="detail" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 Details
@@ -184,6 +205,10 @@ export function BoxDialog({
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Edit Box
+              </TabsTrigger>
+              <TabsTrigger value="delete" className="flex items-center gap-2">
+                <Trash className="h-4 w-4 text-destructive" />
+                <span className="text-destructive">Delete Box</span>
               </TabsTrigger>
             </TabsList>
 
@@ -289,7 +314,7 @@ export function BoxDialog({
                               type="button"
                               variant="outline"
                               className="cursor-pointer"
-                              onClick={() => setActiveTab("detail")}
+                              onClick={() => onOpenChange(false)}
                             >
                               Cancel
                             </Button>
@@ -306,6 +331,48 @@ export function BoxDialog({
                           </div>
                         </form>
                       </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Delete Box Tab */}
+                <TabsContent value="delete">
+                  <Card className="grid gap-6 rounded-md border mt-4">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 truncate">
+                        <Trash className="h-5 w-5 text-destructive" />
+                        <span className="text-destructive">Delete Box</span>
+                      </CardTitle>
+                      <Separator
+                        orientation="horizontal"
+                        className="mt-2 data-[orientation=horizontal]"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        Are you sure you want to delete this box? This action
+                        cannot be undone.
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          className="cursor-pointer"
+                          onClick={() => {
+                            deleteBox();
+                          }}
+                        >
+                          Delete Box
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>

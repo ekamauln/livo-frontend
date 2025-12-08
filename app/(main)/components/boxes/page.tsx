@@ -34,7 +34,7 @@ export default function Boxes() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Components</BreadcrumbLink>
+                  <BreadcrumbLink href="">Components</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="hidden md:block">
