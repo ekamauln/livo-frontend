@@ -4,6 +4,7 @@ export interface OrderDetail {
   product_name: string;
   variant?: string;
   quantity: number;
+  price: number;
   product?: {
     id: number;
     sku: string;

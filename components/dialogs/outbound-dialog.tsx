@@ -340,11 +340,15 @@ export function OutboundDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">User</TableCell>
+                              <TableCell className="w-1/4">
+                                Outbound By
+                              </TableCell>
                               <TableCell>
-                                <span>{outbound.user?.full_name}</span>{" "}
+                                <span>
+                                  {outbound.outbound_operator?.full_name}
+                                </span>{" "}
                                 <span className="text-muted-foreground">
-                                  (@{outbound.user?.username})
+                                  (@{outbound.outbound_operator?.username})
                                 </span>
                               </TableCell>
                             </TableRow>

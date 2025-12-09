@@ -71,6 +71,7 @@ const orderDetailSchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1"),
   sku: z.string().min(1, "SKU is required"),
   variant: z.string().optional(),
+  price: z.number().min(0, "Price must be at least 0").optional(),
 });
 
 type OrderDetailFormData = z.infer<typeof orderDetailSchema>;
@@ -143,6 +144,7 @@ export function OrderDialog({
     defaultValues: {
       product_name: "",
       quantity: 1,
+      price: 0,
       sku: "",
       variant: "",
     },
@@ -221,6 +223,7 @@ export function OrderDialog({
           product_name: data.product_name,
           variant: data.variant || "-",
           quantity: data.quantity,
+          price: data.price,
         },
       ];
 
@@ -278,6 +281,7 @@ export function OrderDialog({
               product_name: data.product_name,
               variant: data.variant || "-",
               quantity: data.quantity,
+              price: data.price,
             }
           : {
               id: detail.id,
@@ -285,6 +289,7 @@ export function OrderDialog({
               product_name: detail.product_name,
               variant: detail.variant || "-",
               quantity: detail.quantity,
+              price: detail.price,
             }
       );
 
@@ -359,6 +364,7 @@ export function OrderDialog({
           product_name: detail.product_name,
           variant: detail.variant || "-",
           quantity: detail.quantity,
+          price: detail.price,
         }));
 
       // Update order with complete data
@@ -467,6 +473,7 @@ export function OrderDialog({
       quantity: detail.quantity || 1,
       sku: detail.sku || "",
       variant: detail.variant || "",
+      price: detail.price || 0,
     });
     setEditingDetailId(detail.id);
     setActiveTab("edit");
@@ -655,6 +662,9 @@ export function OrderDialog({
                                         <TableHead className="text-center font-mono">
                                           Variant
                                         </TableHead>
+                                        <TableHead className="text-center font-mono">
+                                          Price
+                                        </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -669,6 +679,9 @@ export function OrderDialog({
                                         </TableCell>
                                         <TableCell className="text-center">
                                           {detail.variant || "N/A"}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                          {detail.price.toLocaleString() || 0}
                                         </TableCell>
                                       </TableRow>
                                     </TableBody>
@@ -777,7 +790,7 @@ export function OrderDialog({
                                 </Popover>
                               </div>
 
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-3 gap-4">
                                 <FormField
                                   control={form.control}
                                   name="sku"
@@ -816,6 +829,24 @@ export function OrderDialog({
 
                                 <FormField
                                   control={form.control}
+                                  name="variant"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Variant (Optional)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="e.g., Red - Size M"
+                                          {...field}
+                                          readOnly
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={form.control}
                                   name="quantity"
                                   render={({ field }) => (
                                     <FormItem>
@@ -840,15 +871,21 @@ export function OrderDialog({
 
                                 <FormField
                                   control={form.control}
-                                  name="variant"
+                                  name="price"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Variant (Optional)</FormLabel>
+                                      <FormLabel>Price</FormLabel>
                                       <FormControl>
                                         <Input
-                                          placeholder="e.g., Red - Size M"
+                                          type="number"
+                                          min="1"
+                                          placeholder="Enter price"
                                           {...field}
-                                          readOnly
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseInt(e.target.value) || 1
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -905,7 +942,7 @@ export function OrderDialog({
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="space-y-6"
                               >
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-3 gap-4">
                                   <FormField
                                     control={form.control}
                                     name="product_name"
@@ -944,6 +981,26 @@ export function OrderDialog({
 
                                   <FormField
                                     control={form.control}
+                                    name="variant"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          Variant (Optional)
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="e.g., Red - Size M"
+                                            {...field}
+                                            readOnly
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    control={form.control}
                                     name="quantity"
                                     render={({ field }) => (
                                       <FormItem>
@@ -968,17 +1025,21 @@ export function OrderDialog({
 
                                   <FormField
                                     control={form.control}
-                                    name="variant"
+                                    name="price"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>
-                                          Variant (Optional)
-                                        </FormLabel>
+                                        <FormLabel>Price</FormLabel>
                                         <FormControl>
                                           <Input
-                                            placeholder="e.g., Red - Size M"
+                                            type="number"
+                                            min="1"
+                                            placeholder="Enter price"
                                             {...field}
-                                            readOnly
+                                            onChange={(e) =>
+                                              field.onChange(
+                                                parseInt(e.target.value) || 1
+                                              )
+                                            }
                                           />
                                         </FormControl>
                                         <FormMessage />

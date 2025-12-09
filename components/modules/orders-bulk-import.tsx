@@ -79,6 +79,7 @@ const DETAIL_COLUMN_MAPPING: { [key: string]: string } = {
   "Variant Produk": "variant",
   MSKU: "sku",
   Jumlah: "quantity",
+  "Harga Promosi": "price",
 };
 
 export default function OrdersBulkImport() {

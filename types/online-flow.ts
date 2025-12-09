@@ -1,16 +1,16 @@
-export interface OnlineFlowUser {
+export interface OnlineFlowOperator {
   id: number;
   username: string;
   full_name: string;
 }
 
-export interface OnlineFlowProcessStep {
-  user: OnlineFlowUser;
+export interface OnlineFlowQcOnline {
+  operator: OnlineFlowOperator;
   created_at: string;
 }
 
 export interface OnlineFlowOutbound {
-  user: OnlineFlowUser;
+  operator: OnlineFlowOperator;
   expedition: string;
   expedition_color: string;
   created_at: string;
@@ -18,6 +18,7 @@ export interface OnlineFlowOutbound {
 
 export interface OnlineFlowOrder {
   tracking: string;
+  processing_status: string;
   order_ginee_id: string;
   complained: boolean;
   created_at: string;
@@ -25,7 +26,7 @@ export interface OnlineFlowOrder {
 
 export interface OnlineFlow {
   tracking: string;
-  qc_online?: OnlineFlowProcessStep;
+  qc_online?: OnlineFlowQcOnline;
   outbound?: OnlineFlowOutbound;
   order: OnlineFlowOrder;
 }

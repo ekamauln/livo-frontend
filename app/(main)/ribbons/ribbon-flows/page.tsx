@@ -11,9 +11,9 @@ import { House } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { ProtectedRoute } from "@/contexts/protected-route";
-import QcRibbonsTable from "@/components/tables/qc-ribbons-table";
+import RibbonFlowsTable from "@/components/tables/ribbon-flows-table";
 
-export default function QcRibbons() {
+export default function RibbonFlows() {
   return (
     <ProtectedRoute requiredRoles={["superadmin", "coordinator", "qc-ribbon"]}>
       <div>
@@ -38,7 +38,7 @@ export default function QcRibbons() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="hidden md:block">
-                  QC Ribbons
+                  Ribbon Flows
                 </BreadcrumbPage>
               </BreadcrumbList>
             </Breadcrumb>
@@ -47,9 +47,9 @@ export default function QcRibbons() {
 
         <div className="w-full p-4 pt-0">
           <Card className="p-6 space-y-2">
-            <h1 className="text-2xl font-semibold">QC Ribbons Data List</h1>
+            <h1 className="text-2xl font-semibold">Ribbon Flows Data List</h1>
             <Separator className="mt-0" />
-            <QcRibbonsTable />
+            <RibbonFlowsTable />
           </Card>
         </div>
       </div>

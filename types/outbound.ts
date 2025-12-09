@@ -10,12 +10,15 @@ export interface Outbound {
   updated_at: string;
   order?: {
     id: number;
-    order_id: string;
-    status: string;
+    order_ginee_id: string;
+    processing_status: string;
+    event_status: string;
     channel: string;
     store: string;
     buyer: string;
+    address: string;
     courier: string;
+    sent_before: string;
     tracking: string;
     complained: boolean;
     picked_by: string;
@@ -30,7 +33,7 @@ export interface Outbound {
       quantity: number;
     }>;
   };
-  user?: {
+  outbound_operator?: {
     id: number;
     username: string;
     email: string;

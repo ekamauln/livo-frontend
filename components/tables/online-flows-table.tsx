@@ -23,7 +23,6 @@ import {
   ChevronRight,
   MoreHorizontal,
   Eye,
-  Edit,
 } from "lucide-react";
 import {
   Select,
@@ -37,32 +36,45 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateRangePicker } from "@/components/custom-ui/date-range-picker";
+import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { Outbound } from "@/types/outbound";
-import { outboundApi } from "@/lib/api/outboundApi";
-import { ApiError } from "@/lib/api/types";
-import { OutboundForm } from "@/components/forms/outbound-form";
-// import { OutboundStatus } from "@/components/status/outbound-status";
-import { OutboundDialog } from "@/components/dialogs/outbound-dialog";
-import { OutboundOperatorPerformance } from "@/components/analytics/outbound-operator-performance";
-import React from "react";
-import { Separator } from "@/components/ui/separator";
+import { OnlineFlow } from "@/types/online-flow";
+import { onlineFlowApi } from "@/lib/api/onlineFlowApi";
 import { Badge } from "@/components/ui/badge";
+import { OnlineFlowDialog } from "@/components/dialogs/online-flow-dialog";
+import React from "react";
 
-export default function OutboundsTable() {
-  const [data, setData] = useState<Outbound[]>([]);
+// Helper function to format date safely (like in orders table)
+const formatDateSafely = (dateString?: string): string => {
+  if (!dateString || dateString === "") {
+    return "Not processed";
+  }
+
+  try {
+    const date = new Date(dateString);
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Not processed";
+    }
+    return format(date, "dd MMM yyyy - HH:mm:ss");
+  } catch {
+    return "Not processed";
+  }
+};
+
+export default function OnlineFlowsTable() {
+  const [data, setData] = useState<OnlineFlow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    updated_at: false,
-    complained: false,
+    order_complained: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({
@@ -70,189 +82,216 @@ export default function OutboundsTable() {
     limit: 10,
     total: 0,
   });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of current month
+    to: new Date(), // Today
+  });
 
-  // Outbound dialog state
-  const [selectedOutboundId, setSelectedOutboundId] = useState<number | null>(
-    null
-  );
-  const [outboundDialogOpen, setOutboundDialogOpen] = useState(false);
+  // Dialog state
+  const [selectedTracking, setSelectedTracking] = useState<string | null>(null);
+  const [onlineFlowDialogOpen, setOnlineFlowDialogOpen] = useState(false);
 
-  // Fetch outbounds data
-  const fetchData = useCallback(
-    async (page: number = 1, search: string = "") => {
+  // Define query params interface like orders table
+  interface OnlineFlowQueryParams {
+    page?: number;
+    limit?: number;
+    start_date?: string;
+    end_date?: string;
+  }
+
+  // Fetch online flows data (updated to match orders table structure)
+  const fetchOnlineFlows = useCallback(
+    async (params: OnlineFlowQueryParams = {}, search: string = "") => {
       try {
         setIsLoading(true);
-        const response = await outboundApi.getOutbounds(
-          page,
-          pagination.limit,
-          search
+
+        const response = await onlineFlowApi.getOnlineFlows(
+          params.page || 1,
+          params.limit || 10,
+          search.trim() || undefined,
+          params.start_date,
+          params.end_date
         );
-        // Extract outbounds array from the response data
-        const outbounds = response.data.outbounds as Outbound[];
-        setData(outbounds);
+
+        // Extract online flows array from the response data
+        const onlineFlows = response.data.online_flows as OnlineFlow[];
+        setData(onlineFlows || []); // Ensure we always set an array
         setPagination(response.data.pagination);
       } catch (error) {
-        // Only log unexpected errors to console to reduce noise
-        if (error instanceof ApiError) {
-          if (error.status >= 500 || error.status === 0) {
-            console.error("Server/Network error fetching outbounds:", error);
-          } else {
-            console.debug(
-              "Client error fetching outbounds:",
-              error.message,
-              "Status:",
-              error.status
-            );
-          }
-        } else {
-          console.error("Unexpected error fetching outbounds:", error);
-        }
-
-        let errorMessage = "Failed to fetch outbounds. Please try again.";
-
-        if (error instanceof ApiError) {
-          if (error.status === 401) {
-            errorMessage = "Session expired. Please login again.";
-          } else if (error.status >= 500) {
-            errorMessage = "Server error. Please try again later.";
-          } else if (error.status === 0) {
-            errorMessage = "Network error. Please check your connection.";
-          }
-        }
-
-        toast.error(errorMessage);
+        console.error("Error fetching online flows:", error);
+        toast.error("Failed to fetch online flows", {
+          description:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        });
+        setData([]); // Ensure data is always an array even on error
       } finally {
         setIsLoading(false);
       }
     },
-    [pagination.limit]
+    []
   );
 
-  const handleOutboundCreated = () => {
-    // Refresh the data after creating a new outbound
-    fetchData(pagination.page, searchQuery);
-  };
-
-  const handleOutboundUpdated = () => {
-    // Refresh the data after updating an outbound
-    fetchData(pagination.page, searchQuery);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
+  // Handle search form submission (like orders table)
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchData(1, searchQuery);
+    // Reset to page 1 when searching
+    setPagination((prev) => ({ ...prev, page: 1 }));
+
+    const params: OnlineFlowQueryParams = {
+      page: 1,
+      limit: pagination.limit,
+    };
+
+    if (dateRange?.from) {
+      params.start_date = format(dateRange.from, "yyyy-MM-dd");
+    }
+    if (dateRange?.to) {
+      params.end_date = format(dateRange.to, "yyyy-MM-dd");
+    }
+
+    fetchOnlineFlows(params, searchQuery);
   };
 
+  // Initial load and date range changes (like orders table)
+  useEffect(() => {
+    const params: OnlineFlowQueryParams = {
+      page: 1,
+      limit: pagination.limit,
+    };
+
+    if (dateRange?.from) {
+      params.start_date = format(dateRange.from, "yyyy-MM-dd");
+    }
+    if (dateRange?.to) {
+      params.end_date = format(dateRange.to, "yyyy-MM-dd");
+    }
+
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    setSearchQuery(""); // Reset search query on date/limit changes
+    fetchOnlineFlows(params, ""); // Reset search on date/limit changes
+  }, [dateRange, pagination.limit, fetchOnlineFlows]);
+
+  // Pagination handlers (like orders table)
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
-    fetchData(newPage, searchQuery);
+
+    const params: OnlineFlowQueryParams = {
+      page: newPage,
+      limit: pagination.limit,
+    };
+
+    if (dateRange?.from) {
+      params.start_date = format(dateRange.from, "yyyy-MM-dd");
+    }
+    if (dateRange?.to) {
+      params.end_date = format(dateRange.to, "yyyy-MM-dd");
+    }
+
+    fetchOnlineFlows(params, searchQuery);
   };
 
   const handleLimitChange = (newLimit: string) => {
     const newLimitValue = parseInt(newLimit);
     setPagination((prev) => ({ ...prev, limit: newLimitValue, page: 1 }));
-    fetchData(1, searchQuery);
+
+    const params: OnlineFlowQueryParams = {
+      page: 1,
+      limit: newLimitValue,
+    };
+
+    if (dateRange?.from) {
+      params.start_date = format(dateRange.from, "yyyy-MM-dd");
+    }
+    if (dateRange?.to) {
+      params.end_date = format(dateRange.to, "yyyy-MM-dd");
+    }
+
+    fetchOnlineFlows(params, searchQuery);
+  };
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+    // Note: The useEffect will handle the actual data fetching when dateRange changes
   };
 
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
-  const columns: ColumnDef<Outbound>[] = [
-    {
-      accessorKey: "id",
-      header: () => <div className="text-sm text-center font-semibold">ID</div>,
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
-      ),
-    },
+  const columns: ColumnDef<OnlineFlow>[] = [
     {
       accessorKey: "tracking",
       header: () => (
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("tracking")}
+        <div className="space-y-1">
+          <div className="font-mono text-sm text-center">
+            {row.getValue("tracking")}
+          </div>
+          <div className="font-mono text-sm text-center">
+            <Badge className="bg-green-600 text-white hover:bg-green-700">
+              {row.original.order.processing_status}
+            </Badge>
+          </div>
         </div>
       ),
     },
     {
-      accessorKey: "order",
+      accessorKey: "order.order_ginee_id",
       header: () => (
-        <div className="text-sm text-center font-semibold">Order Info</div>
+        <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => {
-        const order = row.original.order;
+        const onlineFlow = row.original;
+        return (
+          <div className="font-mono text-sm text-center">
+            {onlineFlow.order.order_ginee_id}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "order.complained",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Complained</div>
+      ),
+      cell: ({ row }) => {
+        const onlineFlow = row.original;
+        return (
+          <div className="text-center">
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                onlineFlow.order.complained
+                  ? "bg-red-100 text-red-800"
+                  : "bg-green-100 text-green-800"
+              }`}
+            >
+              {onlineFlow.order.complained ? "Yes" : "No"}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "qc_online",
+      header: () => (
+        <div className="text-sm text-center font-semibold">QC Online</div>
+      ),
+      cell: ({ row }) => {
+        const onlineFlow = row.original;
         return (
           <div className="text-sm text-center">
-            {order ? (
+            {onlineFlow.qc_online ? (
               <div className="space-y-1">
-                <div className="font-mono text-xs">{order.order_ginee_id}</div>
-                <Badge className="bg-green-500 text-white hover:bg-green-600">
-                  {order.processing_status}
-                </Badge>
+                <div className="font-medium text-xs">
+                  {onlineFlow.qc_online.operator?.full_name}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  {order.store}
+                  {formatDateSafely(onlineFlow.qc_online.created_at)}
                 </div>
               </div>
             ) : (
-              <span className="text-muted-foreground">No order</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "expedition",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Expedition Info</div>
-      ),
-      cell: ({ row }) => {
-        const outbound = row.original;
-        return (
-          <div className="text-sm text-center">
-            {outbound.expedition ? (
-              <div>
-                <Badge
-                  style={{
-                    backgroundColor: outbound.expedition_color,
-                    color: "white",
-                  }}
-                >
-                  <div className="font-mono text-xs">{outbound.expedition}</div>
-                </Badge>
-              </div>
-            ) : (
-              <span className="text-muted-foreground">NA</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "user",
-      header: () => (
-        <div className="text-sm text-center font-semibold">User</div>
-      ),
-      cell: ({ row }) => {
-        const outbound_operator = row.original.outbound_operator;
-        return (
-          <div className="text-sm text-center">
-            {outbound_operator ? (
-              <div>
-                <div className="font-medium">{outbound_operator.full_name}</div>
-                <div className="text-xs text-muted-foreground">
-                  @{outbound_operator.username}
-                </div>
-              </div>
-            ) : (
-              <span className="text-muted-foreground">
-                No outbound operator
+              <span className="text-muted-foreground text-xs">
+                Not processed
               </span>
             )}
           </div>
@@ -260,50 +299,38 @@ export default function OutboundsTable() {
       },
     },
     {
-      accessorKey: "complained",
+      accessorKey: "outbound",
       header: () => (
-        <div className="text-sm text-center font-semibold">Complained</div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-center">
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              row.getValue("complained")
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
-            }`}
-          >
-            {row.getValue("complained") ? "Yes" : "No"}
-          </span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "created_at",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Created</div>
+        <div className="text-sm text-center font-semibold">Outbound</div>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.getValue("created_at"));
+        const onlineFlow = row.original;
         return (
-          <div className="text-xs text-muted-foreground text-center">
-            {format(date, "dd MMM yyyy")}
-            <br />
-            {format(date, "HH:mm:ss")}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "updated_at",
-      header: () => <div className="text-sm font-semibold">Updated</div>,
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("updated_at"));
-        return (
-          <div className="text-xs text-muted-foreground text-center">
-            {format(date, "dd MMM yyyy")}
-            <br />
-            {format(date, "HH:mm:ss")}
+          <div className="text-sm text-center">
+            {onlineFlow.outbound ? (
+              <div className="space-y-1">
+                <div className="font-medium text-xs">
+                  {onlineFlow.outbound.operator?.full_name}
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Badge
+                    className="text-xs font-medium text-white"
+                    style={{
+                      backgroundColor: onlineFlow.outbound.expedition_color,
+                    }}
+                  >
+                    {onlineFlow.outbound.expedition}
+                  </Badge>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatDateSafely(onlineFlow.outbound.created_at)}
+                </div>
+              </div>
+            ) : (
+              <span className="text-muted-foreground text-xs">
+                Not processed
+              </span>
+            )}
           </div>
         );
       },
@@ -311,7 +338,7 @@ export default function OutboundsTable() {
     {
       id: "actions",
       cell: ({ row }) => {
-        const outbound = row.original;
+        const onlineFlow = row.original;
         return (
           <div className="flex justify-end text-right">
             <DropdownMenu>
@@ -323,27 +350,13 @@ export default function OutboundsTable() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedOutboundId(outbound.id);
-                    setOutboundDialogOpen(true);
+                    setSelectedTracking(onlineFlow.tracking);
+                    setOnlineFlowDialogOpen(true);
                   }}
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                {outbound.tracking.startsWith("TKP0") && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedOutboundId(outbound.id);
-                        setOutboundDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Expedition
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -369,37 +382,29 @@ export default function OutboundsTable() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-2 flex flex-col border p-4 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">Create Outbound</h3>
-          <Separator className="mt-0 mb-6" />
-          <OutboundForm onOutboundCreated={handleOutboundCreated} />
-        </div>
-
-        <div className="col-span-2 flex flex-col rounded-md">
-          <OutboundOperatorPerformance outbounds={data} />
-        </div>
-      </div>
-      <Separator className="mt-0" />
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex justify-start items-center gap-2">
+        <div className="flex justify-start gap-2 items-center">
           {/* Filters */}
-          <div className="flex justify-start items-center gap-2">
-            <form
-              onSubmit={handleSearch}
-              className="flex flex-1 gap-2 items-center"
-            >
+          <div className="flex justify-start gap-2 items-center">
+            <form onSubmit={handleSearch} className="flex gap-2 items-center">
               <Input
-                placeholder="Search outbounds..."
+                placeholder="Search online flows..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="max-w-sm"
               />
             </form>
           </div>
+          <div className="flex justify-start gap-2 items-center">
+            <DateRangePicker
+              date={dateRange}
+              onDateChange={handleDateRangeChange}
+              className="max-w-sm"
+            />
+          </div>
         </div>
 
-        <div className="flex justify-start items-center gap-2">
+        <div className="flex justify-start gap-2 items-center">
           {/* Pagination limit */}
           <div className="flex justify-start items-center gap-2">
             <span className="text-sm text-muted-foreground">Show:</span>
@@ -480,12 +485,15 @@ export default function OutboundsTable() {
                 >
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Loading outbounds...
+                    Loading online flows...
                   </div>
                 </TableCell>
               </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            ) : (() => {
+                const rows = table.getRowModel()?.rows;
+                return rows && Array.isArray(rows) && rows.length > 0;
+              })() ? (
+              table.getRowModel().rows!.map((row) => (
                 <React.Fragment key={row.id}>
                   <TableRow data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell) => (
@@ -505,7 +513,7 @@ export default function OutboundsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No outbounds found.
+                  No online flows found.
                 </TableCell>
               </TableRow>
             )}
@@ -518,7 +526,7 @@ export default function OutboundsTable() {
         <div className="text-sm text-muted-foreground">
           Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
           {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} outbounds
+          {pagination.total} online flows
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -577,12 +585,11 @@ export default function OutboundsTable() {
         </div>
       </div>
 
-      {/* Outbound Details Dialog */}
-      <OutboundDialog
-        outboundId={selectedOutboundId}
-        open={outboundDialogOpen}
-        onOpenChange={setOutboundDialogOpen}
-        onOutboundUpdate={handleOutboundUpdated}
+      {/* Online Flow Dialog */}
+      <OnlineFlowDialog
+        tracking={selectedTracking}
+        open={onlineFlowDialogOpen}
+        onOpenChange={setOnlineFlowDialogOpen}
       />
     </div>
   );

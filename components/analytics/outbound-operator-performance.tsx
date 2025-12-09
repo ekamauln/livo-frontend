@@ -31,8 +31,8 @@ export function OutboundOperatorPerformance({
 
     // Group outbounds by operator
     outbounds.forEach((outbound) => {
-      if (outbound.user) {
-        const operatorId = outbound.user.id;
+      if (outbound.outbound_operator) {
+        const operatorId = outbound.outbound_operator.id;
         if (!operatorMap.has(operatorId)) {
           operatorMap.set(operatorId, []);
         }
@@ -44,7 +44,7 @@ export function OutboundOperatorPerformance({
     const stats: OperatorStats[] = [];
 
     operatorMap.forEach((outbounds, operatorId) => {
-      const operator = outbounds[0].user!;
+      const operator = outbounds[0].outbound_operator!;
       // Sort outbounds by creation date
       const sortedOutbounds = [...outbounds].sort(
         (a, b) =>
@@ -119,7 +119,7 @@ export function OutboundOperatorPerformance({
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 {/* Total Outbounds */}
                 <div className="space-y-1">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">

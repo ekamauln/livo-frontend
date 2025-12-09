@@ -24,9 +24,7 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronRight as ChevronRightIcon,
-  Package,
   Truck,
-  Clock,
   MoreHorizontal,
   Eye,
   Edit,
@@ -59,6 +57,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { orderApi } from "@/lib/api/orderApi";
 import { OrderDialog } from "@/components/dialogs/order-dialog";
+import { Separator } from "../ui/separator";
 
 // Status badge color mapping
 const getStatusBadgeStyle = (status: string) => {
@@ -157,6 +156,10 @@ const renderExpandedContent = (order: Order) => {
                   <div className="font-medium text-sm text-wrap">
                     {detail.product_name}
                   </div>
+                  <Separator className="mb-2 mt-2" />
+                  <div className="text-xs text-muted-foreground font-mono">
+                    Price: {detail.price?.toLocaleString()}
+                  </div>
                   {detail.sku && (
                     <div className="text-xs text-muted-foreground font-mono">
                       SKU: {detail.sku}
@@ -165,13 +168,13 @@ const renderExpandedContent = (order: Order) => {
                   {detail.variant &&
                     detail.variant !== "-" &&
                     detail.variant !== "" && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground font-mono">
                         Variant: {detail.variant}
                       </div>
                     )}
                   {detail.product?.location &&
                     detail.product.location !== "" && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground font-mono">
                         Location: {detail.product.location}
                       </div>
                     )}
@@ -196,63 +199,67 @@ const renderExpandedContent = (order: Order) => {
       {/* Picked Information - Always show */}
       <div className="mt-3 pt-3 border-t">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Picked By:</span>
-            <span className="text-sm">{order.picked_by}</span>
+          <div className="border rounded-md">
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Assigned By</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{order.assigned_by}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Picked By</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{order.picked_by}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Changed By</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{order.changed_by}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Pending By</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{order.pending_by}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Cancelled By</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{order.cancelled_by}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Picked At:</span>
-            <span className="text-sm">{formatDateAt(order.picked_at)}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Assigned By:</span>
-            <span className="text-sm">{order.assigned_by}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Assigned At:</span>
-            <span className="text-sm">{formatDateAt(order.assigned_at)}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Changed By:</span>
-            <span className="text-sm">{order.changed_by}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Changed At:</span>
-            <span className="text-sm">{formatDateAt(order.changed_at)}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Pending By:</span>
-            <span className="text-sm">{order.pending_by}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Pending At:</span>
-            <span className="text-sm">{formatDateAt(order.pending_at)}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Cancelled By:</span>
-            <span className="text-sm">{order.cancelled_by}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm font-medium">Cancelled At:</span>
-            <span className="text-sm">{formatDateAt(order.cancelled_at)}</span>
+          <div className="border rounded-md">
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Assigned At</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{formatDateAt(order.assigned_at)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Picked At</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{formatDateAt(order.picked_at)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Changed At</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{formatDateAt(order.changed_at)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Pending At</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{formatDateAt(order.pending_at)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium w-10">Cancelled At</TableCell>
+                  <TableCell className="font-medium w-2">:</TableCell>
+                  <TableCell>{formatDateAt(order.cancelled_at)}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

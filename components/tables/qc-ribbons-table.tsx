@@ -235,7 +235,7 @@ export default function QcRibbonsTable() {
         return (
           <div className="flex justify-start">
             <Button
-              variant="default"
+              variant="ghost"
               onClick={() => toggleRowExpansion(qcRibbon.id)}
               className="h-8 w-8 p-0"
             >

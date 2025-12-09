@@ -11,11 +11,11 @@ import { House } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { ProtectedRoute } from "@/contexts/protected-route";
-import QcRibbonsTable from "@/components/tables/qc-ribbons-table";
+import OnlineFlowsTable from "@/components/tables/online-flows-table";
 
-export default function QcRibbons() {
+export default function OnlineFlows() {
   return (
-    <ProtectedRoute requiredRoles={["superadmin", "coordinator", "qc-ribbon"]}>
+    <ProtectedRoute requiredRoles={["superadmin", "coordinator", "qc-online"]}>
       <div>
         <header className="flex h-16 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
@@ -34,11 +34,11 @@ export default function QcRibbons() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="">Ribbons</BreadcrumbLink>
+                  <BreadcrumbLink href="">Onlines</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="hidden md:block">
-                  QC Ribbons
+                  Online Flows
                 </BreadcrumbPage>
               </BreadcrumbList>
             </Breadcrumb>
@@ -47,9 +47,9 @@ export default function QcRibbons() {
 
         <div className="w-full p-4 pt-0">
           <Card className="p-6 space-y-2">
-            <h1 className="text-2xl font-semibold">QC Ribbons Data List</h1>
+            <h1 className="text-2xl font-semibold">Online Flows Data List</h1>
             <Separator className="mt-0" />
-            <QcRibbonsTable />
+            <OnlineFlowsTable />
           </Card>
         </div>
       </div>
