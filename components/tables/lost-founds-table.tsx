@@ -26,7 +26,6 @@ import {
   Edit,
   BusFront,
   ChevronDown,
-  ChevronUp,
   Trash,
 } from "lucide-react";
 import {
@@ -223,9 +222,9 @@ export default function LostFoundsTable() {
             onClick={() => toggleRowExpansion(row.original.id)}
           >
             {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
               <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
             )}
           </Button>
         );

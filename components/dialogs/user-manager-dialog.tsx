@@ -215,6 +215,7 @@ export function UserDialog({
             full_name: updatedUser.full_name || "",
           });
           onUserUpdate?.();
+          onOpenChange(false);
         } else {
           throw new Error("Updated user data not found in response");
         }
@@ -288,6 +289,7 @@ export function UserDialog({
         // Update local user state
         setUser((prev) => (prev ? { ...prev, is_active: isActive } : null));
         onUserUpdate?.();
+        onOpenChange(false);
       } else {
         throw new Error(result.message || "Failed to change user status");
       }

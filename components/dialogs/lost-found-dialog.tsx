@@ -118,6 +118,7 @@ export function LostFoundDialog({
         quantity: response.data.quantity,
       });
       onLostFoundUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating lost found:", error);
       toast.error("Failed to update lost found", {

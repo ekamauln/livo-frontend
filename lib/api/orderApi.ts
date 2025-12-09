@@ -158,8 +158,15 @@ export const orderApi = {
       method: "PUT",
     }),
 
-  updateOrderToPickingCompleted: async (id: number): Promise<ApiResponse<Order>> =>
+  updateOrderToPickingCompleted: async (
+    id: number
+  ): Promise<ApiResponse<Order>> =>
     apiRequest<ApiResponse<Order>>(`/orders/${id}/picking-completed`, {
       method: "PUT",
+    }),
+
+  duplicateOrder: async (id: number): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}/duplicate`, {
+      method: "POST",
     }),
 };

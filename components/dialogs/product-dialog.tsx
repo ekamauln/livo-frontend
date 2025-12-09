@@ -151,6 +151,7 @@ export function ProductDialog({
         image: response.data.image,
       });
       onProductUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating product:", error);
       toast.error("Failed to update product", {
@@ -234,8 +235,8 @@ export function ProductDialog({
       setUpdating(true);
       await productApi.deleteProduct(productId);
       toast.success("Product deleted successfully");
-      onOpenChange(false);
       onProductUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error deleting product:", error);
       toast.error("Failed to delete product", {

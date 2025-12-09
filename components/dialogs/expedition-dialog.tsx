@@ -135,6 +135,7 @@ export function ExpeditionDialog({
         color: response.data.color,
       });
       onExpeditionUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating expedition:", error);
       toast.error("Failed to update expedition", {
@@ -181,8 +182,8 @@ export function ExpeditionDialog({
       setUpdating(true);
       await expeditionApi.deleteExpedition(expeditionId);
       toast.success("Expedition deleted successfully");
-      onOpenChange(false);
       onExpeditionUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error deleting expedition:", error);
       toast.error("Failed to delete expedition", {

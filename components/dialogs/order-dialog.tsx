@@ -48,6 +48,7 @@ import {
   Check,
   ChevronsUpDown,
   XCircle,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { orderApi } from "@/lib/api/orderApi";
@@ -78,7 +79,7 @@ interface OrderDialogProps {
   orderId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialTab?: "details" | "edit" | "add" | "cancel";
+  initialTab?: "details" | "edit" | "add" | "duplicate" | "cancel";
   onOrderUpdate?: () => void;
 }
 
@@ -111,6 +112,7 @@ export function OrderDialog({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [editingDetailId, setEditingDetailId] = useState<number | null>(null);
   const [cancelConfirming, setCancelConfirming] = useState(false);
+  const [duplicateConfirming, setDuplicateConfirming] = useState(false);
 
   // Delete confirmation states
   const [deleteConfirmingId, setDeleteConfirmingId] = useState<number | null>(
@@ -386,6 +388,31 @@ export function OrderDialog({
     }
   };
 
+  // Duplicate order
+  const handleDuplicateOrder = async () => {
+    if (!orderId) return;
+
+    try {
+      setUpdating(true);
+      setDuplicateConfirming(false);
+
+      await orderApi.duplicateOrder(orderId);
+
+      toast.success("Order duplicated successfully");
+      await fetchOrderDetails(orderId);
+      onOrderUpdate?.();
+      setActiveTab("details");
+    } catch (error) {
+      console.error("Error duplicating order:", error);
+      toast.error("Failed to duplicate order", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   // Cancel order
   const handleCancelOrder = async () => {
     if (!orderId) return;
@@ -523,11 +550,13 @@ export function OrderDialog({
             <Tabs
               value={activeTab}
               onValueChange={(value) =>
-                setActiveTab(value as "details" | "edit" | "add" | "cancel")
+                setActiveTab(
+                  value as "details" | "edit" | "add" | "duplicate" | "cancel"
+                )
               }
               className="flex-1 flex flex-col"
             >
-              <TabsList className="grid w-full grid-cols-4 shrink-0">
+              <TabsList className="grid w-full grid-cols-5 shrink-0">
                 <TabsTrigger
                   value="details"
                   className="flex items-center gap-2"
@@ -543,9 +572,16 @@ export function OrderDialog({
                   <Edit className="h-4 w-4" />
                   {isEditing ? "Edit Detail" : "Edit Mode"}
                 </TabsTrigger>
+                <TabsTrigger
+                  value="duplicate"
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4 text-yellow-600" />
+                  <span className="text-yellow-600">Duplicate Order</span>
+                </TabsTrigger>
                 <TabsTrigger value="cancel" className="flex items-center gap-2">
-                  <XCircle className="h-4 w-4" />
-                  Cancel Order
+                  <XCircle className="h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Cancel Order</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -987,14 +1023,16 @@ export function OrderDialog({
                     </div>
                   </TabsContent>
 
-                  {/* Cancel Order Tab */}
-                  <TabsContent value="cancel" className="h-full m-0">
+                  {/* Duplicate Order Tab */}
+                  <TabsContent value="duplicate" className="h-full m-0">
                     <div className="h-full overflow-y-auto">
                       <Card>
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
-                            <XCircle className="h-5 w-5 text-red-500" />
-                            Cancel Order
+                            <Copy className="h-5 w-5 text-yellow-600" />
+                            <span className="text-yellow-600">
+                              Duplicate Order
+                            </span>
                           </CardTitle>
                           <Separator
                             orientation="horizontal"
@@ -1016,7 +1054,142 @@ export function OrderDialog({
                               <span className="text-sm font-medium">
                                 Status:
                               </span>
-                              <Badge className={getStatusBadgeStyle(orderStatus)}>
+                              <Badge
+                                className={getStatusBadgeStyle(orderStatus)}
+                              >
+                                {orderStatus}
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Store:
+                              </span>
+                              <span className="text-sm">
+                                {orderData?.store || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Buyer:
+                              </span>
+                              <span className="text-sm">
+                                {orderData?.buyer || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Total Items:
+                              </span>
+                              <span className="text-sm">
+                                {orderDetails.length}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Warning Message */}
+                          <div className="bg-yellow-50 dark:bg-red-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                            <div className="flex gap-3">
+                              <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+                              <div className="space-y-1">
+                                <h4 className="font-semibold text-yellow-900 dark:text-red-100">
+                                  Warning: This action cannot be undone
+                                </h4>
+                                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                  Duplicating this order will permanently change
+                                  tracking and order details and duplicating to
+                                  new order. The old order will no longer be
+                                  available for processing or modification.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Confirmation Section */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id="duplicate-confirm"
+                                checked={duplicateConfirming}
+                                onChange={(e) =>
+                                  setDuplicateConfirming(e.target.checked)
+                                }
+                                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                              />
+                              <label
+                                htmlFor="duplicate-confirm"
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                I understand this action cannot be undone
+                              </label>
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setCancelConfirming(false);
+                                  setActiveTab("details");
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Go Back
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="default"
+                                onClick={handleDuplicateOrder}
+                                disabled={!duplicateConfirming || updating}
+                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700"
+                              >
+                                {updating && (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Duplicate Order
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  {/* Cancel Order Tab */}
+                  <TabsContent value="cancel" className="h-full m-0">
+                    <div className="h-full overflow-y-auto">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <XCircle className="h-5 w-5 text-destructive" />
+                            <span className="text-destructive">
+                              Cancel Order
+                            </span>
+                          </CardTitle>
+                          <Separator
+                            orientation="horizontal"
+                            className="mt-2 data-[orientation=horizontal]"
+                          />
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          {/* Order Information */}
+                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Order ID:
+                              </span>
+                              <span className="text-sm">
+                                {orderIdString || orderId}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                Status:
+                              </span>
+                              <Badge
+                                className={getStatusBadgeStyle(orderStatus)}
+                              >
                                 {orderStatus}
                               </Badge>
                             </div>
@@ -1055,9 +1228,9 @@ export function OrderDialog({
                                   Warning: This action cannot be undone
                                 </h4>
                                 <p className="text-sm text-red-800 dark:text-red-200">
-                                  Cancelling this order will permanently mark it as
-                                  cancelled. The order will no longer be available
-                                  for processing or modification.
+                                  Cancelling this order will permanently mark it
+                                  as cancelled. The order will no longer be
+                                  available for processing or modification.
                                 </p>
                               </div>
                             </div>

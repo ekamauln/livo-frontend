@@ -113,6 +113,7 @@ export function ChannelDialog({
         name: response.data.name,
       });
       onChannelUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating channel:", error);
       toast.error("Failed to update channel", {

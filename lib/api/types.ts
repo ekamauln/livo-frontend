@@ -185,11 +185,23 @@ export async function apiRequest<T>(
     // Parse successful response
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return await response.json();
+      const text = await response.text();
+      // Handle empty response body
+      if (!text || text.trim() === "") {
+        return { success: true, message: "Operation successful", data: null } as T;
+      }
+      
+      try {
+        return JSON.parse(text);
+      } catch (parseError) {
+        console.error("Error parsing JSON response:", parseError);
+        console.error("Response text:", text);
+        throw new ApiError(0, "Failed to parse server response");
+      }
     }
 
     // For non-JSON responses (like DELETE with no content)
-    return {} as T;
+    return { success: true, message: "Operation successful", data: null } as T;
   } catch (error) {
     // Re-throw ApiError as-is
     if (error instanceof ApiError) {

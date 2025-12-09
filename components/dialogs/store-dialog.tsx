@@ -113,6 +113,7 @@ export function StoreDialog({
         name: response.data.name,
       });
       onStoreUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error updating store:", error);
       toast.error("Failed to update store", {
@@ -131,8 +132,8 @@ export function StoreDialog({
       setLoading(true);
       await storeApi.deleteStore(storeId);
       toast.success("Store deleted successfully");
-      onOpenChange(false);
       onStoreUpdate?.();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error deleting store:", error);
       toast.error("Failed to delete store", {

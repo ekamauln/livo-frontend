@@ -31,6 +31,7 @@ import {
   Eye,
   Edit,
   XCircle,
+  Copy,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -283,7 +284,7 @@ export default function OrdersTable() {
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [orderDialogTab, setOrderDialogTab] = useState<
-    "details" | "edit" | "add" | "cancel"
+    "details" | "edit" | "add" | "duplicate" | "cancel"
   >("details");
 
   // Toggle row expansion
@@ -307,6 +308,12 @@ export default function OrdersTable() {
   const handleAddDetails = (orderId: number) => {
     setSelectedOrderId(orderId);
     setOrderDialogTab("add");
+    setOrderDialogOpen(true);
+  };
+
+  const handleDuplicateOrder = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDialogTab("duplicate");
     setOrderDialogOpen(true);
   };
 
@@ -426,6 +433,7 @@ export default function OrdersTable() {
         return (
           <div className="flex justify-start">
             <Button
+              variant="ghost"
               onClick={() => toggleRowExpansion(order.id)}
               className="h-8 w-8 p-0"
             >
@@ -460,8 +468,13 @@ export default function OrdersTable() {
       cell: ({ row }) => {
         const eventStatus = row.original.event_status?.toLowerCase();
         const isCancelled = eventStatus === "cancelled";
+        const isOldDuplicated = eventStatus === "old duplicated";
         const processingStatus = row.getValue("processing_status") as string;
-        const displayStatus = isCancelled ? "cancelled" : processingStatus;
+        const displayStatus = isCancelled
+          ? "cancelled"
+          : isOldDuplicated
+          ? "old duplicated"
+          : processingStatus;
 
         return (
           <div className="flex justify-center items-center flex-wrap text-center text-xs">
@@ -469,6 +482,8 @@ export default function OrdersTable() {
               variant="default"
               className={
                 isCancelled
+                  ? "bg-destructive text-white hover:bg-destructive/90"
+                  : isOldDuplicated
                   ? "bg-destructive text-white hover:bg-destructive/90"
                   : getStatusBadgeStyle(processingStatus)
               }
@@ -624,11 +639,18 @@ export default function OrdersTable() {
                   Add Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  onClick={() => handleDuplicateOrder(order.id)}
+                  className="cursor-pointer"
+                >
+                  <Copy className="mr-2 h-4 w-4 text-yellow-600" />
+                  <span className="text-yellow-600">Duplicate Order</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => handleCancelOrder(order.id)}
                   className="cursor-pointer"
                 >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Cancel Order
+                  <XCircle className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Cancel Order</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -775,13 +797,16 @@ export default function OrdersTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

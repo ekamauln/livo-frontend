@@ -108,6 +108,7 @@ export async function DELETE(
   const url = `${API_BASE_URL}/${path}`;
 
   const token = request.headers.get("authorization");
+  const body = await request.text();
 
   try {
     const response = await fetch(url, {
@@ -116,9 +117,19 @@ export async function DELETE(
         "Content-Type": "application/json",
         ...(token && { Authorization: token }),
       },
+      ...(body && { body }),
     });
 
-    const data = await response.json();
+    // Handle empty response body
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return NextResponse.json(
+        { success: true, message: "Operation successful", data: null },
+        { status: response.status }
+      );
+    }
+
+    const data = JSON.parse(text);
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error("Proxy error:", error);

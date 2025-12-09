@@ -12,6 +12,7 @@ import {
   BookCheck,
   BookOpenCheck,
   FileCheck,
+  FolderSearch,
   FolderUp,
   Globe,
   LogOut,
@@ -179,7 +180,7 @@ export default function AppNavbar() {
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/lost-founds">
-                      <ScrollText className="h-4 w-4" />
+                      <FolderSearch className="h-4 w-4" />
                       Lost Founds
                     </Link>
                   </MenubarItem>
