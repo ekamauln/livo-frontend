@@ -184,10 +184,24 @@ export function OnlineFlowDialog({
 
             {/* Process Steps */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg flex items-center gap-2">
-                <Workflow className="h-4 w-4" />
-                Process Flow
-              </h3>
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Workflow className="h-4 w-4" />
+                  Process Flow
+                </h3>
+                <div>
+                  {onlineFlow.outbound && (
+                    <Badge
+                      className="text-white font-medium"
+                      style={{
+                        backgroundColor: onlineFlow.outbound.expedition_color,
+                      }}
+                    >
+                      {onlineFlow.outbound.expedition}
+                    </Badge>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ProcessStepCard
                   title="QC Online"
@@ -195,61 +209,15 @@ export function OnlineFlowDialog({
                   icon={Package}
                   color="green"
                 />
+
+                <ProcessStepCard
+                  title="Outbound"
+                  step={onlineFlow.outbound}
+                  icon={Truck}
+                  color="green"
+                />
               </div>
             </div>
-
-            <Separator />
-
-            {/* Outbound Information */}
-            {onlineFlow.outbound && (
-              <>
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <Truck className="h-4 w-4" />
-                    Outbound Information
-                  </h3>
-                  <div className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Badge
-                        className="text-white font-medium"
-                        style={{
-                          backgroundColor: onlineFlow.outbound.expedition_color,
-                        }}
-                      >
-                        {onlineFlow.outbound.expedition}
-                      </Badge>
-                    </div>
-                    <div className="border border-border rounded-md">
-                      <Table>
-                        <TableBody>
-                          <TableRow>
-                            <TableCell className="max-w-1/4">
-                              Processed by
-                            </TableCell>
-                            <TableCell>
-                              {onlineFlow.outbound.operator.full_name}
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className="max-w-1/4">
-                              Processed at
-                            </TableCell>
-                            <TableCell>
-                              {onlineFlow.outbound.created_at
-                                ? format(
-                                    new Date(onlineFlow.outbound.created_at),
-                                    "dd MMM yyyy - HH:mm:ss"
-                                  )
-                                : "-"}
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
 
             <Separator />
 
@@ -260,7 +228,7 @@ export function OnlineFlowDialog({
                 Process Timeline
               </h3>
               <div className="space-y-2 border border-border rounded-md p-4">
-                <div className="text-sm text-muted-foreground flex items-center">
+                <div className="text-xs text-muted-foreground flex items-center">
                   <CircleArrowRight className="h-3 w-3 mr-2" />
                   Order created on{" "}
                   {format(
@@ -269,7 +237,7 @@ export function OnlineFlowDialog({
                   )}
                 </div>
                 {onlineFlow.qc_online && (
-                  <div className="text-sm text-muted-foreground flex items-center">
+                  <div className="text-xs text-muted-foreground flex items-center">
                     <CircleArrowRight className="h-3 w-3 mr-2" /> QC Online
                     processed by {onlineFlow.qc_online.operator.full_name} on{" "}
                     {format(
@@ -279,7 +247,7 @@ export function OnlineFlowDialog({
                   </div>
                 )}
                 {onlineFlow.outbound && (
-                  <div className="text-sm text-muted-foreground flex items-center">
+                  <div className="text-xs text-muted-foreground flex items-center">
                     <CircleArrowRight className="h-3 w-3 mr-2" /> Outbound
                     processed by {onlineFlow.outbound.operator.full_name} via{" "}
                     {onlineFlow.outbound.expedition} on{" "}
