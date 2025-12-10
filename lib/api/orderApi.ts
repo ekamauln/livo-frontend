@@ -169,4 +169,38 @@ export const orderApi = {
     apiRequest<ApiResponse<Order>>(`/orders/${id}/duplicate`, {
       method: "POST",
     }),
+
+  getAssignedOrders: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string
+  ): Promise<PaginatedResponse<Order>> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (search) params.append("search", search);
+
+    return apiRequest<PaginatedResponse<Order>>(
+      `/orders/assigned?${params.toString()}`
+    );
+  },
+
+  pendingAssignedOrder: async (id: number): Promise<ApiResponse<Order>> =>
+    apiRequest<ApiResponse<Order>>(`/orders/${id}/pending-pick`, {
+      method: "PUT",
+    }),
+
+  assigningOrder: async (
+    pickerId: number,
+    tracking: string
+  ): Promise<ApiResponse<void>> =>
+    apiRequest<ApiResponse<void>>("/orders/assign-picker", {
+      method: "POST",
+      body: JSON.stringify({
+        picker_id: pickerId,
+        tracking: tracking,
+      }),
+    }),
 };

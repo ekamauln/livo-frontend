@@ -179,12 +179,6 @@ export default function AppNavbar() {
                 </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
-                    <Link href="/orders/lost-founds">
-                      <FolderSearch className="h-4 w-4" />
-                      Lost Founds
-                    </Link>
-                  </MenubarItem>
-                  <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/orders">
                       <ScrollText className="h-4 w-4" />
                       Orders
@@ -194,6 +188,19 @@ export default function AppNavbar() {
                     <Link href="/orders/orders-import">
                       <FolderUp className="h-4 w-4" />
                       Orders Import
+                    </Link>
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem asChild className="cursor-pointer">
+                    <Link href="/orders/assigned-orders">
+                      <FolderSearch className="h-4 w-4" />
+                      Assign Orders
+                    </Link>
+                  </MenubarItem>
+                  <MenubarItem asChild className="cursor-pointer">
+                    <Link href="/orders/lost-founds">
+                      <FolderSearch className="h-4 w-4" />
+                      Lost Founds
                     </Link>
                   </MenubarItem>
                 </MenubarContent>

@@ -27,9 +27,7 @@ import {
   Truck,
   MoreHorizontal,
   Eye,
-  Edit,
   XCircle,
-  Copy,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -51,13 +49,12 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DateRangePicker } from "@/components/custom-ui/date-range-picker";
-import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { orderApi } from "@/lib/api/orderApi";
-import { OrderDialog } from "@/components/dialogs/order-dialog";
+import { OrderDialog } from "@/components/dialogs/assign-orders-dialog";
 import { Separator } from "@/components/ui/separator";
+import { AssignPickerForm } from "@/components/forms/assign-picker-form";
 
 // Status badge color mapping
 const getStatusBadgeStyle = (status: string) => {
@@ -275,13 +272,16 @@ const renderExpandedContent = (order: Order) => {
   );
 };
 
-export default function OrdersTable() {
+export default function AssignedOrdersTable() {
   const [data, setData] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     updated_at: false,
     event_status: false,
+    order_ginee_id: false,
+    channel: false,
+    created_at: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState<Pagination>({
@@ -289,18 +289,14 @@ export default function OrdersTable() {
     limit: 10,
     total: 0,
   });
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of current month
-    to: new Date(), // Today
-  });
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
-  // Order dialog state
-  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  // Dialog state
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-  const [orderDialogTab, setOrderDialogTab] = useState<
-    "details" | "edit" | "add" | "duplicate" | "cancel"
-  >("details");
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [orderDialogTab, setOrderDialogTab] = useState<"details" | "pending">(
+    "details"
+  );
 
   // Toggle row expansion
   const toggleRowExpansion = (rowId: number) => {
@@ -313,65 +309,29 @@ export default function OrdersTable() {
     setExpandedRows(newExpandedRows);
   };
 
-  // Order dialog handlers
-  const handleViewDetails = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setOrderDialogTab("details");
-    setOrderDialogOpen(true);
-  };
-
-  const handleAddDetails = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setOrderDialogTab("add");
-    setOrderDialogOpen(true);
-  };
-
-  const handleDuplicateOrder = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setOrderDialogTab("duplicate");
-    setOrderDialogOpen(true);
-  };
-
-  const handleCancelOrder = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setOrderDialogTab("cancel");
-    setOrderDialogOpen(true);
-  };
-
-  const handleOrderUpdate = () => {
-    // Refresh the orders table when order is updated
-    const params: OrdersQueryParams = {
-      page: pagination.page,
-      limit: pagination.limit,
-    };
-
-    if (dateRange?.from) {
-      params.start_date = format(dateRange.from, "yyyy-MM-dd");
-    }
-    if (dateRange?.to) {
-      params.end_date = format(dateRange.to, "yyyy-MM-dd");
-    }
-
-    fetchOrders(params, searchQuery);
-  };
-
   // Fetch orders data
   const fetchOrders = useCallback(
     async (params: OrdersQueryParams = {}, search: string = "") => {
       try {
         setIsLoading(true);
 
-        const response = await orderApi.getOrders(
+        const response = await orderApi.getAssignedOrders(
           params.page || 1,
           params.limit || 10,
-          search.trim() || undefined,
-          params.start_date,
-          params.end_date
+          search.trim() || undefined
         );
 
-        // The response.data contains orders and pagination from PaginatedResponse
-        setData(response.data.orders as Order[]);
-        setPagination(response.data.pagination);
+        // The response.data is an array of orders directly
+        const orders = Array.isArray(response.data) ? response.data : [];
+        setData(orders as Order[]);
+
+        // Calculate pagination from the response
+        const total = orders.length;
+        setPagination({
+          page: params.page || 1,
+          limit: params.limit || 10,
+          total: total,
+        });
       } catch (error) {
         console.error("Error fetching orders:", error);
         toast.error("Failed to fetch orders", {
@@ -398,14 +358,29 @@ export default function OrdersTable() {
       limit: pagination.limit,
     };
 
-    if (dateRange?.from) {
-      params.start_date = format(dateRange.from, "yyyy-MM-dd");
-    }
-    if (dateRange?.to) {
-      params.end_date = format(dateRange.to, "yyyy-MM-dd");
-    }
+    fetchOrders(params, searchQuery);
+  };
+
+  // Dialog handlers
+  const handleOrderUpdate = useCallback(() => {
+    const params: OrdersQueryParams = {
+      page: pagination.page,
+      limit: pagination.limit,
+    };
 
     fetchOrders(params, searchQuery);
+  }, [pagination.page, pagination.limit, searchQuery, fetchOrders]);
+
+  const handleViewDetails = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDialogTab("details");
+    setOrderDialogOpen(true);
+  };
+
+  const handlePendingOrder = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDialogTab("pending");
+    setOrderDialogOpen(true);
   };
 
   // Initial load and date range changes
@@ -415,17 +390,10 @@ export default function OrdersTable() {
       limit: pagination.limit,
     };
 
-    if (dateRange?.from) {
-      params.start_date = format(dateRange.from, "yyyy-MM-dd");
-    }
-    if (dateRange?.to) {
-      params.end_date = format(dateRange.to, "yyyy-MM-dd");
-    }
-
     setPagination((prev: Pagination) => ({ ...prev, page: 1 }));
     setSearchQuery(""); // Reset search query on date/limit changes
     fetchOrders(params, ""); // Reset search on date/limit changes
-  }, [dateRange, pagination.limit, fetchOrders]);
+  }, [pagination.limit, fetchOrders]);
 
   // Table columns definition
   const columns: ColumnDef<Order>[] = [
@@ -461,6 +429,17 @@ export default function OrdersTable() {
           </div>
         );
       },
+    },
+    {
+      accessorKey: "tracking",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Tracking</div>
+      ),
+      cell: ({ row }) => (
+        <div className="font-mono text-xs text-center">
+          {row.getValue("tracking")}
+        </div>
+      ),
     },
     {
       accessorKey: "order_ginee_id",
@@ -510,6 +489,17 @@ export default function OrdersTable() {
       },
     },
     {
+      accessorKey: "picked_by",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Assign To</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-xs text-center">
+          {row.getValue("picked_by") || "N/A"}
+        </div>
+      ),
+    },
+    {
       accessorKey: "event_status",
       header: () => (
         <div className="text-sm text-center font-semibold">Event Status</div>
@@ -554,17 +544,7 @@ export default function OrdersTable() {
         </div>
       ),
     },
-    {
-      accessorKey: "tracking",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Tracking</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-xs text-center">
-          {row.getValue("tracking")}
-        </div>
-      ),
-    },
+
     {
       accessorKey: "sent_before",
       header: () => (
@@ -647,25 +627,11 @@ export default function OrdersTable() {
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => handleAddDetails(order.id)}
+                  onClick={() => handlePendingOrder(order.id)}
                   className="cursor-pointer"
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Add Details
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleDuplicateOrder(order.id)}
-                  className="cursor-pointer"
-                >
-                  <Copy className="mr-2 h-4 w-4 text-yellow-600" />
-                  <span className="text-yellow-600">Duplicate Order</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleCancelOrder(order.id)}
-                  className="cursor-pointer"
-                >
-                  <XCircle className="mr-2 h-4 w-4 text-destructive" />
-                  <span className="text-destructive">Cancel Order</span>
+                  <XCircle className="mr-2 h-4 w-4 text-yellow-600" />
+                  <span className="text-yellow-600">Pending Picking</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -699,13 +665,6 @@ export default function OrdersTable() {
       limit: pagination.limit,
     };
 
-    if (dateRange?.from) {
-      params.start_date = format(dateRange.from, "yyyy-MM-dd");
-    }
-    if (dateRange?.to) {
-      params.end_date = format(dateRange.to, "yyyy-MM-dd");
-    }
-
     fetchOrders(params, searchQuery);
   };
 
@@ -722,20 +681,29 @@ export default function OrdersTable() {
       limit: newLimitValue,
     };
 
-    if (dateRange?.from) {
-      params.start_date = format(dateRange.from, "yyyy-MM-dd");
-    }
-    if (dateRange?.to) {
-      params.end_date = format(dateRange.to, "yyyy-MM-dd");
-    }
-
     fetchOrders(params, searchQuery);
   };
 
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
+  const handleAssignSuccess = useCallback(() => {
+    // Refresh the data after assigning an order
+    const params: OrdersQueryParams = {
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+
+    fetchOrders(params, searchQuery);
+  }, [pagination.page, pagination.limit, searchQuery, fetchOrders]);
+
   return (
     <div className="w-full space-y-4">
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-2 flex flex-col border p-4 rounded-md">
+          <AssignPickerForm onAssignSuccess={handleAssignSuccess} />
+        </div>
+      </div>
+      <Separator className="mt-0" />
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="flex justify-start gap-2 items-center">
           {/* Filters */}
@@ -748,13 +716,6 @@ export default function OrdersTable() {
                 className="max-w-sm"
               />
             </form>
-          </div>
-          <div className="flex justify-start gap-2 items-center">
-            <DateRangePicker
-              date={dateRange}
-              onDateChange={setDateRange}
-              className="w-auto"
-            />
           </div>
         </div>
 
