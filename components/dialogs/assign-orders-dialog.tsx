@@ -208,23 +208,23 @@ export function OrderDialog({
                                   <Table>
                                     <TableHeader>
                                       <TableRow>
-                                        <TableHead className="text-center font-mono max-w-[100px]">
+                                        <TableHead className="text-center max-w-[100px]">
                                           SKU
                                         </TableHead>
-                                        <TableHead className="text-center font-mono">
+                                        <TableHead className="text-center">
                                           Quantity
                                         </TableHead>
-                                        <TableHead className="text-center font-mono">
+                                        <TableHead className="text-center">
                                           Variant
                                         </TableHead>
-                                        <TableHead className="text-center font-mono">
+                                        <TableHead className="text-center">
                                           Price
                                         </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                       <TableRow>
-                                        <TableCell className="font-mono min-w-[150px] max-w-[150px] truncate">
+                                        <TableCell className="min-w-[100px] max-w-[150px] truncate">
                                           {detail.sku || "N/A"}
                                         </TableCell>
                                         <TableCell className="text-center">

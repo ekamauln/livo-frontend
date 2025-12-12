@@ -243,8 +243,69 @@ export default function OnlineFlowsTable() {
       cell: ({ row }) => {
         const onlineFlow = row.original;
         return (
-          <div className="font-mono text-sm text-center">
-            {onlineFlow.order.order_ginee_id}
+          <div className="space-y-1">
+            <div className="font-mono text-sm text-center">
+              {onlineFlow.order.order_ginee_id}
+            </div>
+
+            {onlineFlow.order.changed_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Changed by: {onlineFlow.order.changed_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Changed at: {formatDateSafely(onlineFlow.order.changed_at)}
+                </div>
+              </div>
+            )}
+
+            {onlineFlow.order.assigned_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Assigned by: {onlineFlow.order.assigned_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Assigned at: {formatDateSafely(onlineFlow.order.assigned_at)}
+                </div>
+              </div>
+            )}
+
+            {onlineFlow.order.pending_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Pending by: {onlineFlow.order.pending_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Pending at: {formatDateSafely(onlineFlow.order.pending_at)}
+                </div>
+              </div>
+            )}
+
+            {onlineFlow.order.picked_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Picked by: {onlineFlow.order.picked_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Picked at:{" "}
+                  {onlineFlow.order.picked_at
+                    ? formatDateSafely(onlineFlow.order.picked_at)
+                    : "Not picked yet"}
+                </div>
+              </div>
+            )}
+
+            {onlineFlow.order.cancelled_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Cancelled by: {onlineFlow.order.cancelled_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Cancelled at:{" "}
+                  {formatDateSafely(onlineFlow.order.cancelled_at)}
+                </div>
+              </div>
+            )}
           </div>
         );
       },
@@ -337,6 +398,7 @@ export default function OnlineFlowsTable() {
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const onlineFlow = row.original;
         return (
@@ -460,13 +522,13 @@ export default function OnlineFlowsTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QcOnline } from "@/types/qc-online";
 import { format, differenceInMinutes } from "date-fns";
 import { Activity, TrendingUp, Clock, Package, Zap, Timer } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface QcOperatorPerformanceProps {
   qcOnlines: QcOnline[];
@@ -130,9 +129,6 @@ export function QcOperatorPerformance({
                     @{stat.username}
                   </p>
                 </div>
-                <Badge variant="outline" className="text-lg font-bold">
-                  {stat.totalOnlines} QC&apos;s
-                </Badge>
               </div>
             </CardHeader>
             <CardContent>

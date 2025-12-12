@@ -57,7 +57,6 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { orderApi } from "@/lib/api/orderApi";
 import { OrderDialog } from "@/components/dialogs/order-dialog";
-import { Separator } from "@/components/ui/separator";
 
 // Status badge color mapping
 const getStatusBadgeStyle = (status: string) => {
@@ -120,64 +119,67 @@ const renderExpandedContent = (order: Order) => {
   return (
     <div className="p-4 bg-muted/30">
       <h4 className="text-sm font-semibold mb-3">Order Details</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {order.order_details.map((detail, index) => (
           <div
             key={detail.id || index}
-            className="border rounded-lg p-4 bg-background overflow-hidden w-full"
+            className="border rounded-lg p-4 bg-background"
           >
             <div className="flex gap-4">
-              <div className="flex flex-col items-center space-y-2">
-                {/* Product Image */}
-                {detail.product?.image && (
-                  <div className="shrink-0">
-                    <Image
-                      src={detail.product.image}
-                      alt={detail.product_name || "Product"}
-                      width={64}
-                      height={64}
-                      className="w-16 h-16 object-cover rounded-md border"
-                      onError={(e) => {
-                        e.currentTarget.src = "/images/placeholder.png";
-                      }}
-                    />
-                  </div>
-                )}
-                {detail.quantity && detail.quantity !== 0 && (
-                  <Badge variant="outline" className="mt-1 text-xs">
-                    Qty: {detail.quantity}
-                  </Badge>
-                )}
-              </div>
+              {/* Product Image */}
+              {detail.product?.image && (
+                <div className="shrink-0">
+                  <Image
+                    src={detail.product.image}
+                    alt={detail.product_name || "Product"}
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-cover rounded-md border"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholder.png";
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Product Details */}
-              <div className="flex justify-between items-start space-y-2">
-                <div>
-                  <div className="font-medium text-sm text-wrap">
-                    {detail.product_name}
-                  </div>
-                  <Separator className="mb-2 mt-2 w-full" />
-                  <div className="text-xs text-muted-foreground font-mono">
-                    Price: {detail.price?.toLocaleString()}
-                  </div>
-                  {detail.sku && (
-                    <div className="text-xs text-muted-foreground font-mono">
-                      SKU: {detail.sku}
+              <div className="flex-1 space-y-2">
+                <div className="flex justify-between items-start space-y-2">
+                  <div>
+                    <div className="font-medium text-sm text-wrap max-w-md">
+                      {detail.product_name}
                     </div>
+
+                    {detail.variant &&
+                      detail.variant !== "-" &&
+                      detail.variant !== "" && (
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                          Variant: {detail.variant}
+                        </div>
+                      )}
+
+                    {detail.product?.location &&
+                      detail.product.location !== "" && (
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                          Location: {detail.product.location}
+                        </div>
+                      )}
+
+                    {detail.sku && (
+                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                        SKU: {detail.sku}
+                      </div>
+                    )}
+
+                    <div className="text-xs text-muted-foreground font-mono mt-1">
+                      Price: {detail.price?.toLocaleString()}
+                    </div>
+                  </div>
+                  {detail.quantity && detail.quantity !== 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      Qty: {detail.quantity}
+                    </Badge>
                   )}
-                  {detail.variant &&
-                    detail.variant !== "-" &&
-                    detail.variant !== "" && (
-                      <div className="text-xs text-muted-foreground font-mono">
-                        Variant: {detail.variant}
-                      </div>
-                    )}
-                  {detail.product?.location &&
-                    detail.product.location !== "" && (
-                      <div className="text-xs text-muted-foreground font-mono">
-                        Location: {detail.product.location}
-                      </div>
-                    )}
                 </div>
               </div>
             </div>
@@ -465,10 +467,10 @@ export default function OrdersTable() {
     {
       accessorKey: "order_ginee_id",
       header: () => (
-        <div className="text-sm text-center font-semibold">Order Ginee ID</div>
+        <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-xs text-center">
+        <div className="font-mono text-sm text-center">
           {row.getValue("order_ginee_id")}
         </div>
       ),
@@ -476,8 +478,9 @@ export default function OrdersTable() {
     {
       accessorKey: "processing_status",
       header: () => (
-        <div className="text-sm text-center font-semibold">
-          Processing Status
+        <div>
+          <div className="text-sm text-center font-semibold">Processing</div>
+          <div className="text-sm text-center font-semibold">Status</div>
         </div>
       ),
       cell: ({ row }) => {
@@ -512,7 +515,10 @@ export default function OrdersTable() {
     {
       accessorKey: "event_status",
       header: () => (
-        <div className="text-sm text-center font-semibold">Event Status</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Event</div>
+          <div className="text-sm text-center font-semibold">Status</div>
+        </div>
       ),
       cell: ({ row }) => (
         <div className="text-xs text-center">
@@ -560,7 +566,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-xs text-center">
+        <div className="font-mono text-sm text-center">
           {row.getValue("tracking")}
         </div>
       ),
@@ -616,7 +622,10 @@ export default function OrdersTable() {
     {
       id: "items_count",
       header: () => (
-        <div className="text-sm text-center font-semibold">Total Items</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Total</div>
+          <div className="text-sm text-center font-semibold">Items</div>
+        </div>
       ),
       cell: ({ row }) => (
         <div className="text-center text-xs">
@@ -814,13 +823,13 @@ export default function OrdersTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

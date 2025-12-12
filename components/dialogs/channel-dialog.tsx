@@ -29,6 +29,7 @@ import { Channel } from "@/types/channel";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 // Form schemas
 const channelSchema = z.object({
@@ -236,23 +237,28 @@ export function ChannelDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">
-                                Channel ID
-                              </TableCell>
-                              <TableCell className="font-mono">
-                                {channel.id}
-                              </TableCell>
+                              <TableCell className="w-32">Channel ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{channel.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Code</TableCell>
-                              <TableCell className="font-mono">
-                                {channel.code}
-                              </TableCell>
+                              <TableCell className="w-32">Code</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{channel.code}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Name</TableCell>
-                              <TableCell className="text-wrap">
-                                {channel.name}
+                              <TableCell className="w-32">Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{channel.name}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
+                                {format(
+                                  channel.created_at,
+                                  "dd MMMM yyyy - HH:mm:ss"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

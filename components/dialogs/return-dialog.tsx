@@ -321,71 +321,80 @@ export function ReturnDialog({
                           <Table>
                             <TableBody>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   New Tracking
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell className="max-w-md">
                                   {returnData.new_tracking}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   Old Tracking
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {returnData.old_tracking || "-"}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">Channel</TableCell>
+                                <TableCell className="w-32">Channel</TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {returnData.channel?.name}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
-                                  Store ID
-                                </TableCell>
+                                <TableCell className="w-32">Store ID</TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>{returnData.store?.name}</TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   Return Type
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {returnData.return_type || "-"}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   Return Reason
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell className="wrap-break-word whitespace-normal max-w-md">
-                                  {returnData.return_reason || "-"}
+                                  <span className="max-w-md text-wrap wrap-break-word">
+                                    {returnData.return_reason || "-"}
+                                  </span>
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   Return Number
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {returnData.return_number || "-"}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">
+                                <TableCell className="w-32">
                                   Scrap Number
                                 </TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {returnData.scrap_number || "-"}
                                 </TableCell>
                               </TableRow>
                               <TableRow>
-                                <TableCell className="w-1/4">Created</TableCell>
+                                <TableCell className="w-32">Created</TableCell>
+                                <TableCell className="w-10">:</TableCell>
                                 <TableCell>
                                   {format(
                                     new Date(returnData.created_at),
-                                    "dd MMMM yyyy - HH:mm"
+                                    "dd MMMM yyyy - HH:mm:ss"
                                   )}
                                 </TableCell>
                               </TableRow>
@@ -407,7 +416,7 @@ export function ReturnDialog({
                                 Return Details ({details.length}{" "}
                                 {details.length === 1 ? "item" : "items"})
                               </h3>
-                              <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-4">
                                 {details.map((detail) => (
                                   <div
                                     key={detail.id}
@@ -437,9 +446,11 @@ export function ReturnDialog({
                                       <div className="flex-1 space-y-2">
                                         <div className="flex justify-between items-start">
                                           <div className="space-y-1">
-                                            <div className="font-medium">
-                                              {detail.product?.name ||
-                                                `Product ID: ${detail.product_id}`}
+                                            <div className="font-medium text-wrap wrap-break-word max-w-md">
+                                              <span className="max-w-md text-wrap wrap-break-word">
+                                                {detail.product?.name ||
+                                                  `Product ID: ${detail.product_id}`}
+                                              </span>
                                             </div>
                                             {detail.product?.sku && (
                                               <div className="text-sm text-muted-foreground font-mono">

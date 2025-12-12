@@ -140,41 +140,43 @@ const renderExpandedContent = (order: Order) => {
                     />
                   </div>
                 )}
-                {detail.quantity && detail.quantity !== 0 && (
-                  <Badge variant="outline" className="mt-1 text-xs">
-                    Qty: {detail.quantity}
-                  </Badge>
-                )}
               </div>
 
               {/* Product Details */}
-              <div className="flex justify-between items-start space-y-2">
-                <div>
-                  <div className="font-medium text-sm text-wrap">
-                    {detail.product_name}
-                  </div>
-                  <Separator className="mb-2 mt-2 w-full" />
-                  <div className="text-xs text-muted-foreground font-mono">
-                    Price: {detail.price?.toLocaleString()}
-                  </div>
-                  {detail.sku && (
-                    <div className="text-xs text-muted-foreground font-mono">
-                      SKU: {detail.sku}
+              <div className="flex-1 space-y-2">
+                <div className="flex justify-between items-start space-y-2">
+                  <div>
+                    <div className="font-medium text-sm text-wrap">
+                      {detail.product_name}
                     </div>
+
+                    {detail.sku && (
+                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                        SKU: {detail.sku}
+                      </div>
+                    )}
+                    {detail.variant &&
+                      detail.variant !== "-" &&
+                      detail.variant !== "" && (
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                          Variant: {detail.variant}
+                        </div>
+                      )}
+                    {detail.product?.location &&
+                      detail.product.location !== "" && (
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                          Location: {detail.product.location}
+                        </div>
+                      )}
+                    <div className="text-xs text-muted-foreground font-mono mt-1">
+                      Price: {detail.price?.toLocaleString()}
+                    </div>
+                  </div>
+                  {detail.quantity && detail.quantity !== 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      Qty: {detail.quantity}
+                    </Badge>
                   )}
-                  {detail.variant &&
-                    detail.variant !== "-" &&
-                    detail.variant !== "" && (
-                      <div className="text-xs text-muted-foreground font-mono">
-                        Variant: {detail.variant}
-                      </div>
-                    )}
-                  {detail.product?.location &&
-                    detail.product.location !== "" && (
-                      <div className="text-xs text-muted-foreground font-mono">
-                        Location: {detail.product.location}
-                      </div>
-                    )}
                 </div>
               </div>
             </div>
@@ -436,7 +438,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-xs text-center">
+        <div className="font-mono text-sm text-center">
           {row.getValue("tracking")}
         </div>
       ),
@@ -444,10 +446,10 @@ export default function AssignedOrdersTable() {
     {
       accessorKey: "order_ginee_id",
       header: () => (
-        <div className="text-sm text-center font-semibold">Order Ginee ID</div>
+        <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-xs text-center">
+        <div className="font-mono text-sm text-center">
           {row.getValue("order_ginee_id")}
         </div>
       ),
@@ -455,8 +457,9 @@ export default function AssignedOrdersTable() {
     {
       accessorKey: "processing_status",
       header: () => (
-        <div className="text-sm text-center font-semibold">
-          Processing Status
+        <div>
+          <div className="text-sm text-center font-semibold">Processing</div>
+          <div className="text-sm text-center font-semibold">Status</div>
         </div>
       ),
       cell: ({ row }) => {
@@ -494,7 +497,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Assign To</div>
       ),
       cell: ({ row }) => (
-        <div className="text-xs text-center">
+        <div className="text-sm text-center">
           {row.getValue("picked_by") || "N/A"}
         </div>
       ),
@@ -502,7 +505,10 @@ export default function AssignedOrdersTable() {
     {
       accessorKey: "event_status",
       header: () => (
-        <div className="text-sm text-center font-semibold">Event Status</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Event</div>
+          <div className="text-sm text-center font-semibold">Status</div>
+        </div>
       ),
       cell: ({ row }) => (
         <div className="text-xs text-center">
@@ -548,7 +554,10 @@ export default function AssignedOrdersTable() {
     {
       accessorKey: "sent_before",
       header: () => (
-        <div className="text-sm text-center font-semibold">Sent Before</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Sent</div>
+          <div className="text-sm text-center font-semibold">Before</div>
+        </div>
       ),
       cell: ({ row }) => {
         const date = new Date(row.getValue("sent_before"));
@@ -596,10 +605,13 @@ export default function AssignedOrdersTable() {
     {
       id: "items_count",
       header: () => (
-        <div className="text-sm text-center font-semibold">Total Items</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Total</div>
+          <div className="text-sm text-center font-semibold">Items</div>
+        </div>
       ),
       cell: ({ row }) => (
-        <div className="text-center text-xs">
+        <div className="text-center text-sm">
           <Badge variant="outline">{row.original.order_details.length}</Badge>
         </div>
       ),
@@ -775,13 +787,13 @@ export default function AssignedOrdersTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

@@ -163,44 +163,89 @@ export default function LostFoundsTable() {
 
           {/* Product Details */}
           <div className="flex-1 space-y-3">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">
-                Product Information
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Product Name</p>
-                  <p className="font-medium text-wrap">{product.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">SKU</p>
-                  <p className="font-mono font-medium">{product.sku}</p>
-                </div>
-                {product.variant && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Variant</p>
-                    <p className="font-medium">{product.variant}</p>
-                  </div>
-                )}
-                {product.location && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Location</p>
-                    <p className="font-medium">{product.location}</p>
-                  </div>
-                )}
-                {product.barcode && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Barcode</p>
-                    <p className="font-mono font-medium">{product.barcode}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Quantity Lost/Found
-                  </p>
-                  <p className="font-semibold text-lg">{lostFound.quantity}</p>
-                </div>
-              </div>
+            <div className="border rounded-md overflow-hidden">
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="w-32 font-medium text-sm">
+                      ID
+                    </TableCell>
+                    <TableCell className="w-10 font-medium text-sm">
+                      :
+                    </TableCell>
+                    <TableCell className="text-sm">{product.id}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="w-32 font-medium text-sm">
+                      Product Name
+                    </TableCell>
+                    <TableCell className="w-10 font-medium text-sm">
+                      :
+                    </TableCell>
+                    <TableCell className="text-sm max-w-md">
+                      <span className="text-wrap wrap-break-word">
+                        {product.name}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="w-32 font-medium text-sm">
+                      SKU
+                    </TableCell>
+                    <TableCell className="w-10 font-medium text-sm">
+                      :
+                    </TableCell>
+                    <TableCell className="text-sm max-w-md">
+                      <span className="text-wrap wrap-break-word">
+                        {product.sku}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                  {product.variant && (
+                    <TableRow>
+                      <TableCell className="w-32 font-medium text-sm">
+                        Variant
+                      </TableCell>
+                      <TableCell className="w-10 font-medium text-sm">
+                        :
+                      </TableCell>
+                      <TableCell className="text-sm max-w-md">
+                        <span className="text-wrap wrap-break-word">
+                          {product.variant}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {product.location && (
+                    <TableRow>
+                      <TableCell className="w-32 font-medium text-sm">
+                        Location
+                      </TableCell>
+                      <TableCell className="w-10 font-medium text-sm">
+                        :
+                      </TableCell>
+                      <TableCell className="text-sm max-w-md">
+                        <span className="text-wrap wrap-break-word">
+                          {product.location}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow>
+                    <TableCell className="w-32 font-medium text-sm">
+                      Quantity
+                    </TableCell>
+                    <TableCell className="w-10 font-medium text-sm">
+                      :
+                    </TableCell>
+                    <TableCell className="text-sm max-w-md">
+                      <span className="text-wrap wrap-break-word">
+                        {lostFound.quantity}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>
@@ -210,7 +255,8 @@ export default function LostFoundsTable() {
 
   const columns: ColumnDef<LostFound>[] = [
     {
-      id: "expander",
+      id: "expand",
+      enableHiding: false,
       header: () => <div className="w-8"></div>,
       cell: ({ row }) => {
         const isExpanded = expandedRows.has(row.original.id);
@@ -311,6 +357,7 @@ export default function LostFoundsTable() {
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const lostFound = row.original;
         return (
@@ -466,13 +513,13 @@ export default function LostFoundsTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

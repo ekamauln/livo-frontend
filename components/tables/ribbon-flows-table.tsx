@@ -243,8 +243,69 @@ export default function RibbonFlowsTable() {
       cell: ({ row }) => {
         const ribbonFlow = row.original;
         return (
-          <div className="font-mono text-sm text-center">
-            {ribbonFlow.order.order_ginee_id}
+          <div className="space-y-1">
+            <div className="font-mono text-sm text-center">
+              {ribbonFlow.order.order_ginee_id}
+            </div>
+
+            {ribbonFlow.order.changed_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Changed by: {ribbonFlow.order.changed_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Changed at: {formatDateSafely(ribbonFlow.order.changed_at)}
+                </div>
+              </div>
+            )}
+
+            {ribbonFlow.order.assigned_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Assigned by: {ribbonFlow.order.assigned_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Assigned at: {formatDateSafely(ribbonFlow.order.assigned_at)}
+                </div>
+              </div>
+            )}
+
+            {ribbonFlow.order.pending_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Pending by: {ribbonFlow.order.pending_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Pending at: {formatDateSafely(ribbonFlow.order.pending_at)}
+                </div>
+              </div>
+            )}
+
+            {ribbonFlow.order.picked_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Picked by: {ribbonFlow.order.picked_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Picked at:{" "}
+                  {ribbonFlow.order.picked_at
+                    ? formatDateSafely(ribbonFlow.order.picked_at)
+                    : "Not picked yet"}
+                </div>
+              </div>
+            )}
+
+            {ribbonFlow.order.cancelled_by && (
+              <div className="border rounded-md p-2">
+                <div className="text-xs text-center text-muted-foreground">
+                  Cancelled by: {ribbonFlow.order.cancelled_by.full_name}
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Cancelled at:{" "}
+                  {formatDateSafely(ribbonFlow.order.cancelled_at)}
+                </div>
+              </div>
+            )}
           </div>
         );
       },
@@ -337,6 +398,7 @@ export default function RibbonFlowsTable() {
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const ribbonFlow = row.original;
         return (
@@ -460,13 +522,13 @@ export default function RibbonFlowsTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

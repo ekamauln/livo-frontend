@@ -41,7 +41,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react";
@@ -51,20 +50,24 @@ import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/custom-ui/date-range-picker";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { Return } from "@/types/return";
-import { returnApi } from "@/lib/api/returnApi";
+import { Complain } from "@/types/complain";
+import { complainApi } from "@/lib/api/complainApi";
 import { ApiError } from "@/lib/api/types";
-import { ReturnCreateDialog } from "@/components/dialogs/return-create-dialog";
-import { ReturnDialog } from "@/components/dialogs/return-dialog";
+import { ComplainCreateDialog } from "@/components/dialogs/complain-create-dialog";
+import { ComplainDialog } from "@/components/dialogs/complain-dialog";
 import React from "react";
 
-export default function ReturnsTable() {
-  const [data, setData] = useState<Return[]>([]);
+export default function ComplainsTable() {
+  const [data, setData] = useState<Complain[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Format number with thousand dot separator
+  const formatCurrency = (amount: number) => {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     updated_at: false,
-    old_tracking: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({
@@ -79,9 +82,11 @@ export default function ReturnsTable() {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Dialog state
-  const [selectedReturnId, setSelectedReturnId] = useState<number | null>(null);
+  const [selectedComplainId, setSelectedComplainId] = useState<number | null>(
+    null
+  );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [complainDialogOpen, setComplainDialogOpen] = useState(false);
   const [dialogTab, setDialogTab] = useState<"detail" | "edit-data">("detail");
 
   // Toggle row expansion
@@ -95,7 +100,7 @@ export default function ReturnsTable() {
     setExpandedRows(newExpandedRows);
   };
 
-  // Fetch returns data
+  // Fetch complains data
   const fetchData = useCallback(
     async (page: number = 1, search: string = "") => {
       try {
@@ -109,35 +114,35 @@ export default function ReturnsTable() {
           ? format(dateRange.to, "yyyy-MM-dd")
           : undefined;
 
-        const response = await returnApi.getReturns(
+        const response = await complainApi.getComplains(
           page,
           pagination.limit,
           search,
           start_date,
           end_date
         );
-        // Extract return array from the response data
-        const returns = response.data.returns as Return[];
-        setData(returns);
+        // Extract complain array from the response data
+        const complains = response.data.complains as Complain[];
+        setData(complains);
         setPagination(response.data.pagination);
       } catch (error) {
         // Only log unexpected errors to console to reduce noise
         if (error instanceof ApiError) {
           if (error.status >= 500 || error.status === 0) {
-            console.error("Server/Network error fetching returns:", error);
+            console.error("Server/Network error fetching complains:", error);
           } else {
             console.debug(
-              "Client error fetching returns:",
+              "Client error fetching complains:",
               error.message,
               "Status:",
               error.status
             );
           }
         } else {
-          console.error("Unexpected error fetching returns:", error);
+          console.error("Unexpected error fetching complains:", error);
         }
 
-        let errorMessage = "Failed to fetch returns. Please try again.";
+        let errorMessage = "Failed to fetch complains. Please try again.";
 
         if (error instanceof ApiError) {
           if (error.status === 401) {
@@ -180,37 +185,41 @@ export default function ReturnsTable() {
   const totalPages = Math.ceil(pagination.total / pagination.limit);
 
   // Render expanded row content
-  const renderExpandedContent = (returnData: Return) => {
-    const details = returnData.return_details || returnData.details || [];
+  const renderExpandedContent = (complain: Complain) => {
+    const product_details = complain.product_details || [];
+    const user_details = complain.user_details || [];
 
-    if (details.length === 0) {
+    if (product_details.length === 0 && user_details.length === 0) {
       return null;
     }
 
     return (
       <div>
         <div className="p-4 bg-muted/30">
-          {/* Return Reason */}
-          {returnData.return_reason && (
-            <div className="border rounded-md">
+          {/* Complain description */}
+          {complain.description && (
+            <div className="border rounded-md overflow-hidden">
               <Table>
                 <TableBody>
                   <TableRow>
-                    <TableCell className="w-32">Return Number</TableCell>
-                    <TableCell className="w-10">:</TableCell>
-                    <TableCell>{returnData.return_number || "NA"}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="w-32">Scrap Number</TableCell>
-                    <TableCell className="w-10">:</TableCell>
-                    <TableCell>{returnData.scrap_number || "NA"}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="w-32">Return Reason</TableCell>
-                    <TableCell className="w-10">:</TableCell>
-                    <TableCell className="max-w-md text-wrap wrap-break-word">
+                    <TableCell className="w-32 font-semibold">
+                      Description
+                    </TableCell>
+                    <TableCell className="w-10 font-semibold">:</TableCell>
+                    <TableCell className="wrap-break-word whitespace-normal max-w-md">
                       <span className="max-w-md text-wrap wrap-break-word">
-                        {returnData.return_reason || "NA"}
+                        {complain.description || "NA"}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="w-32 font-semibold">
+                      Solution
+                    </TableCell>
+                    <TableCell className="w-10 font-semibold">:</TableCell>
+                    <TableCell className="wrap-break-word whitespace-normal max-w-md">
+                      <span className="max-w-md text-wrap wrap-break-word">
+                        {complain.solution || "NA"}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -220,9 +229,11 @@ export default function ReturnsTable() {
           )}
 
           <div className="mt-3 pt-3 border-t">
-            <h4 className="text-sm font-semibold mb-3">Return Details</h4>
-            <div className="grid gap-4 grid-cols-2">
-              {details.map((detail) => (
+            <h4 className="text-sm font-semibold mb-3">
+              Complain Product Details
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {product_details.map((detail) => (
                 <div
                   key={detail.id}
                   className="border rounded-lg p-4 bg-background"
@@ -230,7 +241,7 @@ export default function ReturnsTable() {
                   <div className="flex gap-4">
                     {/* Product Image */}
                     {detail.product?.image && (
-                      <div className="shrink-0 space-y-2">
+                      <div className="shrink-0">
                         <Image
                           src={detail.product.image}
                           alt={detail.product.name || "Product"}
@@ -248,23 +259,27 @@ export default function ReturnsTable() {
                     <div className="flex-1 space-y-2">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div>
-                            <div className="font-medium text-sm text-wrap max-w-md">
-                              {detail.product?.name ||
-                                `Product ID: ${detail.product_id}`}
+                          <div
+                            className="font-medium text-sm text-wrap max-w-md"
+                            title={
+                              detail.product?.name ||
+                              `Product ID: ${detail.product_id}`
+                            }
+                          >
+                            {detail.product?.name ||
+                              `Product ID: ${detail.product_id}`}
+                          </div>
+                          {detail.product?.sku && (
+                            <div className="text-xs text-muted-foreground font-mono">
+                              SKU: {detail.product.sku}
                             </div>
-                            {detail.product?.sku && (
-                              <div className="text-xs text-muted-foreground font-mono mt-2">
-                                SKU: {detail.product.sku}
+                          )}
+                          {detail.product?.variant &&
+                            detail.product.variant !== "-" && (
+                              <div className="text-xs text-muted-foreground">
+                                Variant: {detail.product.variant}
                               </div>
                             )}
-                            {detail.product?.variant &&
-                              detail.product.variant !== "-" && (
-                                <div className="text-xs text-muted-foreground">
-                                  Variant: {detail.product.variant}
-                                </div>
-                              )}
-                          </div>
                         </div>
                         <Badge variant="secondary" className="ml-2">
                           Qty: {detail.quantity}
@@ -291,11 +306,69 @@ export default function ReturnsTable() {
             </div>
           </div>
 
-          {details.length > 0 && (
+          <div className="mt-3 pt-3 border-t">
+            <h4 className="text-sm font-semibold mb-3">
+              Complain User Details
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {user_details.map((detail) => (
+                <div
+                  key={detail.id}
+                  className="border rounded-lg p-4 bg-background"
+                >
+                  <div className="flex gap-4">
+                    {/* Product Details */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-medium text-sm text-wrap max-w-md">
+                            {detail.operator?.full_name ||
+                              `User ID: ${detail.operator_id}`}
+                          </div>
+                          {detail.operator?.username && (
+                            <div className="text-xs text-muted-foreground font-mono">
+                              Username: {detail.operator.username}
+                            </div>
+                          )}
+                          {detail.operator?.roles &&
+                            detail.operator.roles.length > 0 && (
+                              <div className="text-xs text-muted-foreground">
+                                Roles:{" "}
+                                {detail.operator.roles
+                                  .map((role) => role.name)
+                                  .join(", ")}
+                              </div>
+                            )}
+                        </div>
+                        <Badge variant="secondary" className="ml-2">
+                          Personal Cut: Rp.{" "}
+                          {formatCurrency(detail.fee_charge || 0)}
+                        </Badge>
+                      </div>
+
+                      <div className="text-xs text-muted-foreground">
+                        Added:{" "}
+                        {format(
+                          new Date(detail.created_at),
+                          "dd MMM yyyy HH:mm"
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {product_details.length > 0 && (
             <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
               Total items:{" "}
-              {details.reduce((sum, detail) => sum + detail.quantity, 0)} in{" "}
-              {details.length} product{details.length === 1 ? "" : "s"}
+              {product_details.reduce(
+                (sum, detail) => sum + detail.quantity,
+                0
+              )}{" "}
+              in {product_details.length} product
+              {product_details.length === 1 ? "" : "s"}
             </div>
           )}
         </div>
@@ -303,7 +376,7 @@ export default function ReturnsTable() {
     );
   };
 
-  const columns: ColumnDef<Return>[] = [
+  const columns: ColumnDef<Complain>[] = [
     {
       id: "expand",
       enableHiding: false,
@@ -311,10 +384,12 @@ export default function ReturnsTable() {
         <div className="text-sm text-center font-semibold w-12"></div>
       ),
       cell: ({ row }) => {
-        const returnData = row.original;
-        const details = returnData.return_details || returnData.details || [];
-        const hasDetails = details.length > 0;
-        const isExpanded = expandedRows.has(returnData.id);
+        const complain = row.original;
+        const product_details = complain.product_details || [];
+        const user_details = complain.user_details || [];
+        const hasDetails =
+          product_details.length > 0 || user_details.length > 0;
+        const isExpanded = expandedRows.has(complain.id);
 
         if (!hasDetails) {
           return <div className="w-12"></div>;
@@ -324,7 +399,7 @@ export default function ReturnsTable() {
           <div className="flex justify-start">
             <Button
               variant="ghost"
-              onClick={() => toggleRowExpansion(returnData.id)}
+              onClick={() => toggleRowExpansion(complain.id)}
               className="h-8 w-8 p-0"
             >
               {isExpanded ? (
@@ -347,24 +422,13 @@ export default function ReturnsTable() {
       ),
     },
     {
-      accessorKey: "new_tracking",
+      accessorKey: "tracking",
       header: () => (
-        <div className="text-sm text-center font-semibold">New Tracking</div>
+        <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
         <div className="font-mono text-sm text-center">
-          {row.getValue("new_tracking")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "old_tracking",
-      header: () => (
-        <div className="text-sm text-center font-semibold">Old Tracking</div>
-      ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">
-          {row.getValue("old_tracking") || "-"}
+          {row.getValue("tracking")}
         </div>
       ),
     },
@@ -380,19 +444,38 @@ export default function ReturnsTable() {
       ),
     },
     {
+      accessorKey: "creator",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Creator</div>
+      ),
+      cell: ({ row }) => {
+        const complain = row.original;
+        return (
+          <div className="text-sm">
+            <div className="text-center">
+              <div className="font-medium">{complain.creator?.full_name}</div>
+              <div className="text-xs text-muted-foreground">
+                {complain.creator?.username}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "channel_id",
       header: () => (
         <div className="text-sm text-center font-semibold">Channel</div>
       ),
       cell: ({ row }) => {
-        const returnData = row.original;
+        const complain = row.original;
         return (
           <div className="text-sm">
-            {returnData.channel ? (
+            {complain.channel ? (
               <div className="text-center">
-                <div className="font-medium">{returnData.channel.name}</div>
+                <div className="font-medium">{complain.channel.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {returnData.channel.code}
+                  {complain.channel.code}
                 </div>
               </div>
             ) : (
@@ -410,14 +493,14 @@ export default function ReturnsTable() {
         <div className="text-sm text-center font-semibold">Store</div>
       ),
       cell: ({ row }) => {
-        const returnData = row.original;
+        const complain = row.original;
         return (
           <div className="text-sm">
-            {returnData.store ? (
+            {complain.store ? (
               <div className="text-center">
-                <div className="font-medium">{returnData.store.name}</div>
+                <div className="font-medium">{complain.store.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {returnData.store.code}
+                  {complain.store.code}
                 </div>
               </div>
             ) : (
@@ -430,13 +513,47 @@ export default function ReturnsTable() {
       },
     },
     {
-      accessorKey: "return_type",
+      accessorKey: "return_number",
       header: () => (
-        <div className="text-sm text-center font-semibold">Return Type</div>
+        <div>
+          <div className="text-sm text-center font-semibold">Return</div>
+          <div className="text-sm text-center font-semibold">Number</div>
+        </div>
+      ),
+      cell: ({ row }) => {
+        const complain = row.original;
+        return (
+          <div className="font-mono text-xs text-center text-muted-foreground">
+            {complain.return?.return_number || "-"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "scrap_number",
+      header: () => (
+        <div>
+          <div className="text-sm text-center font-semibold">Scrap</div>
+          <div className="text-sm text-center font-semibold">Number</div>
+        </div>
+      ),
+      cell: ({ row }) => {
+        const complain = row.original;
+        return (
+          <div className="font-mono text-xs text-center text-muted-foreground">
+            {complain.return?.scrap_number || "-"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_fee",
+      header: () => (
+        <div className="text-sm text-center font-semibold">Cutting Total</div>
       ),
       cell: ({ row }) => (
-        <div className="text-sm text-center">
-          {row.getValue("return_type") || "-"}
+        <div className="font-mono text-sm text-center">
+          Rp. {formatCurrency(row.getValue("total_fee") || 0)}
         </div>
       ),
     },
@@ -474,7 +591,7 @@ export default function ReturnsTable() {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const returnData = row.original;
+        const complain = row.original;
 
         return (
           <div className="flex justify-end">
@@ -487,25 +604,24 @@ export default function ReturnsTable() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedReturnId(returnData.id);
+                    setSelectedComplainId(complain.id);
                     setDialogTab("detail");
-                    setReturnDialogOpen(true);
+                    setComplainDialogOpen(true);
                   }}
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
 
                 <DropdownMenuItem
                   onClick={() => {
-                    setSelectedReturnId(returnData.id);
+                    setSelectedComplainId(complain.id);
                     setDialogTab("edit-data");
-                    setReturnDialogOpen(true);
+                    setComplainDialogOpen(true);
                   }}
                 >
                   <SquarePen className="mr-2 h-4 w-4" />
-                  Input Data Return
+                  Input Data Solutions
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -538,7 +654,7 @@ export default function ReturnsTable() {
           <div className="flex justify-start gap-2 items-center">
             <form onSubmit={handleSearch} className="flex gap-2 items-center">
               <Input
-                placeholder="Search returns..."
+                placeholder="Search complains..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="max-w-sm"
@@ -557,7 +673,7 @@ export default function ReturnsTable() {
         </div>
 
         <div className="flex justify-start gap-2 items-center">
-          {/* Create New User Button */}
+          {/* Create New Complain Button */}
           <div className="flex justify-start gap-2 items-center">
             <Button
               variant="default"
@@ -565,8 +681,8 @@ export default function ReturnsTable() {
               onClick={() => setCreateDialogOpen(true)}
             >
               <div className="flex items-center gap-2 justify-center">
-                <PackagePlus className="w-4 h-4" />{" "}
-                <span>Create New Return</span>
+                <PackagePlus className="w-4 h-4" />
+                <span>Create New Complain</span>
               </div>
             </Button>
           </div>
@@ -624,7 +740,7 @@ export default function ReturnsTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -632,7 +748,7 @@ export default function ReturnsTable() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="py-2 text-primary-foreground font-bold "
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null
@@ -654,14 +770,14 @@ export default function ReturnsTable() {
                 >
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Loading returns...
+                    Loading complains...
                   </div>
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const returnData = row.original;
-                const isExpanded = expandedRows.has(returnData.id);
+                const complain = row.original;
+                const isExpanded = expandedRows.has(complain.id);
 
                 return (
                   <React.Fragment key={row.id}>
@@ -678,7 +794,7 @@ export default function ReturnsTable() {
                     {isExpanded && (
                       <TableRow>
                         <TableCell colSpan={columns.length} className="p-0">
-                          {renderExpandedContent(returnData)}
+                          {renderExpandedContent(complain)}
                         </TableCell>
                       </TableRow>
                     )}
@@ -691,7 +807,7 @@ export default function ReturnsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No returns found.
+                  No complains found.
                 </TableCell>
               </TableRow>
             )}
@@ -704,7 +820,7 @@ export default function ReturnsTable() {
         <div className="text-sm text-muted-foreground">
           Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
           {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} returns
+          {pagination.total} complains
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -763,24 +879,24 @@ export default function ReturnsTable() {
         </div>
       </div>
 
-      {/* Return Dialog */}
-      <ReturnDialog
-        returnId={selectedReturnId}
-        open={returnDialogOpen}
-        onOpenChange={setReturnDialogOpen}
+      {/* Complain Dialog */}
+      <ComplainDialog
+        complainId={selectedComplainId}
+        open={complainDialogOpen}
+        onOpenChange={setComplainDialogOpen}
         initialTab={dialogTab}
-        onReturnUpdate={() => {
+        onComplainUpdate={() => {
           // Refresh the data to show any updates
           fetchData(pagination.page, searchQuery);
         }}
       />
 
-      {/* Create Return Dialog */}
-      <ReturnCreateDialog
+      {/* Create Complain Dialog */}
+      <ComplainCreateDialog
         isOpen={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onReturnCreated={() => {
-          // Refresh the data to show the new return
+        onComplainCreated={() => {
+          // Refresh the data to show the new complain
           fetchData(pagination.page, searchQuery);
         }}
       />

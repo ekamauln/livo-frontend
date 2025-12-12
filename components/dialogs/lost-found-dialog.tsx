@@ -29,6 +29,7 @@ import { LostFound } from "@/types/lost-found";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 // Form schemas
 const lostFoundSchema = z.object({
@@ -243,25 +244,36 @@ export function LostFoundDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">
-                                Lost Found ID
+                              <TableCell className="w-32">
+                                Lost/Found ID
                               </TableCell>
-                              <TableCell className="font-mono">
-                                {lostFound.id}
-                              </TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{lostFound.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">
+                              <TableCell className="w-32">
                                 Product SKU
                               </TableCell>
-                              <TableCell className="font-mono">
-                                {lostFound.product_sku}
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{lostFound.product_sku}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="w-32">Reason</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell className="max-w-md">
+                                <span className="max-w-md text-wrap wrap-break-word">
+                                  {lostFound.reason}
+                                </span>
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Reason</TableCell>
-                              <TableCell className="text-wrap">
-                                {lostFound.reason}
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
+                                {format(
+                                  new Date(lostFound.created_at),
+                                  "dd MMMM yyyy - HH:mm:ss"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

@@ -218,6 +218,7 @@ export default function ExpeditionsTable() {
     },
     {
       id: "actions",
+      enableHiding: false,
       cell: ({ row }) => {
         const expedition = row.original;
         return (
@@ -374,13 +375,13 @@ export default function ExpeditionsTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

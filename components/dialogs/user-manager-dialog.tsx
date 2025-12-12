@@ -534,15 +534,18 @@ export function UserDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">User ID</TableCell>
+                              <TableCell className="w-32">User ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{user.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Username</TableCell>
+                              <TableCell className="w-32">Username</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{user.username}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Status</TableCell>
+                              <TableCell className="w-32">Status</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {user.is_active ? (
                                   <Badge variant="default">Active</Badge>
@@ -552,24 +555,28 @@ export function UserDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Full Name</TableCell>
+                              <TableCell className="w-32">Full Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{user.full_name}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Email</TableCell>
+                              <TableCell className="w-32">Email</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{user.email}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Created</TableCell>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {format(
                                   user.created_at,
-                                  "dd MMMM yyyy - HH:mm"
+                                  "dd MMMM yyyy - HH:mm:ss"
                                 )}
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Roles</TableCell>
+                              <TableCell className="w-32">Roles</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell className="max-w-md">
                                 <div className="flex flex-wrap gap-2 text-wrap items-center">
                                   {user.roles.map((role) => (

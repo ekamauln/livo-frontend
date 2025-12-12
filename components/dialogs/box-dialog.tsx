@@ -29,6 +29,7 @@ import { Box } from "@/types/box";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 // Form schemas
 const boxSchema = z.object({
@@ -232,21 +233,34 @@ export function BoxDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">Box ID</TableCell>
+                              <TableCell className="w-32">Box ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell className="font-mono">
                                 {box.id}
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Code</TableCell>
+                              <TableCell className="w-32">Code</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell className="font-mono">
                                 {box.code}
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Name</TableCell>
+                              <TableCell className="w-32">Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell className="text-wrap">
                                 {box.name}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
+                                {format(
+                                  box.created_at,
+                                  "dd MMMM yyyy - HH:mm:ss"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

@@ -22,6 +22,16 @@ export interface OnlineFlowOrder {
   order_ginee_id: string;
   complained: boolean;
   created_at: string;
+  assigned_by?: OnlineFlowOperator;
+  assigned_at?: string;
+  picked_by?: OnlineFlowOperator;
+  picked_at?: string;
+  pending_by?: OnlineFlowOperator;
+  pending_at?: string;
+  changed_by?: OnlineFlowOperator;
+  changed_at?: string;
+  cancelled_by?: OnlineFlowOperator;
+  cancelled_at?: string;
 }
 
 export interface OnlineFlow {

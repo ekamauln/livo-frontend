@@ -219,6 +219,7 @@ export default function QcRibbonsTable() {
   const columns: ColumnDef<QcRibbon>[] = [
     {
       id: "expand",
+      enableHiding: false,
       header: () => (
         <div className="text-sm text-center font-semibold w-12"></div>
       ),
@@ -473,13 +474,13 @@ export default function QcRibbonsTable() {
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-primary text-primary-foreground font-bold tracking-wider border-primary border"
+                    className="py-2 text-primary-foreground font-bold"
                   >
                     {header.isPlaceholder
                       ? null

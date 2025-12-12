@@ -31,7 +31,8 @@ export interface Complain {
   order?: {
     id: number;
     order_ginee_id: string;
-    status: string;
+    processing_status: string;
+    event_status: string;
     channel: string;
     store: string;
     buyer: string;
@@ -42,6 +43,8 @@ export interface Complain {
     complained: boolean;
     picked_by: string;
     picked_at: string;
+    changed_by: string;
+    changed_at: string;
     pending_by: string;
     pending_at: string;
     cancelled_by: string;
@@ -54,6 +57,7 @@ export interface Complain {
       product_name: string;
       variant: string;
       quantity: number;
+      price: number;
     }>;
   };
   creator?: {
@@ -71,6 +75,87 @@ export interface Complain {
       assigned_by: string;
       assigned_at: string;
     }>;
+  };
+  return?: {
+    id: number;
+    new_tracking: string;
+    old_tracking: string;
+    order_ginee_id: string;
+    created_by: number;
+    updated_by: number;
+    channel_id: number;
+    store_id: number;
+    return_type: string;
+    return_reason: string;
+    return_number: string;
+    scrap_number: string;
+    created_at: string;
+    updated_at: string;
+    return_details?: Array<{
+      id: number;
+      return_id: number;
+      product_id: number;
+      quantity: number;
+      created_at: string;
+      updated_at: string;
+      product?: {
+        id: number;
+        sku: string;
+        name: string;
+        image: string;
+        variant: string;
+        location: string;
+        barcode: string;
+        created_at: string;
+        updated_at: string;
+      };
+    }>;
+    channel?: {
+      id: number;
+      code: string;
+      name: string;
+      created_at: string;
+      updated_at: string;
+    };
+    store?: {
+      id: number;
+      code: string;
+      name: string;
+      created_at: string;
+      updated_at: string;
+    };
+    create_operator?: {
+      id: number;
+      username: string;
+      email: string;
+      full_name: string;
+      is_active: boolean;
+      created_at: string;
+      updated_at: string;
+      roles?: Array<{
+        id: number;
+        name: string;
+        description: string;
+        assigned_by: string;
+        assigned_at: string;
+      }>;
+    };
+    update_operator?: {
+      id: number;
+      username: string;
+      email: string;
+      full_name: string;
+      is_active: boolean;
+      created_at: string;
+      updated_at: string;
+      roles?: Array<{
+        id: number;
+        name: string;
+        description: string;
+        assigned_by: string;
+        assigned_at: string;
+      }>;
+    };
   };
 }
 
@@ -97,11 +182,11 @@ export interface ComplainProductDetails {
 export interface ComplainUserDetails {
   id: number;
   complain_id: number;
-  user_id: number;
+  operator_id: number;
   fee_charge: number;
   created_at: string;
   updated_at: string;
-  user?: {
+  operator?: {
     id: number;
     username: string;
     email: string;
@@ -131,7 +216,7 @@ export interface UpdateComplain {
   description?: string;
   total_fee?: number;
   user_details?: Array<{
-    user_id: number;
+    operator_id: number;
     fee_charge: number;
   }>;
 }

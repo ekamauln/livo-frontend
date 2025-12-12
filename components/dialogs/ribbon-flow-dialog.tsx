@@ -137,17 +137,18 @@ export function RibbonFlowDialog({
                   <Table>
                     <TableBody>
                       <TableRow>
-                        <TableCell className="max-w-1/4">Tracking</TableCell>
+                        <TableCell className="w-32">Tracking</TableCell>
+                        <TableCell className="w-10">:</TableCell>
                         <TableCell>{ribbonFlow.tracking}</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="max-w-1/4">Order ID</TableCell>
+                        <TableCell className="w-32">Order ID</TableCell>
+                        <TableCell className="w-10">:</TableCell>
                         <TableCell>{ribbonFlow.order.order_ginee_id}</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="max-w-1/4">
-                          Order Created
-                        </TableCell>
+                        <TableCell className="w-32">Order Created</TableCell>
+                        <TableCell className="w-10">:</TableCell>
                         <TableCell>
                           {format(
                             new Date(ribbonFlow.order.created_at),
@@ -156,7 +157,8 @@ export function RibbonFlowDialog({
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="max-w-1/4">Complained</TableCell>
+                        <TableCell className="w-32">Complained</TableCell>
+                        <TableCell className="w-10">:</TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -236,23 +238,128 @@ export function RibbonFlowDialog({
                     "dd MMM yyyy - HH:mm:ss"
                   )}
                 </div>
+                {ribbonFlow.order.changed_by && (
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      Order changed by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.order.changed_by.full_name}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.order.changed_at!),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {ribbonFlow.order.assigned_by && (
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      Assigned by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.order.assigned_by.full_name}
+                      </span>{" "}
+                      to{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.order.picked_by?.full_name}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.order.assigned_at!),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {ribbonFlow.order.pending_by && (
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      Pending by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.order.pending_by.full_name}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.order.pending_at!),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {ribbonFlow.order.picked_at && (
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      Picked by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.order.picked_by?.full_name}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.order.picked_at),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
+                  </div>
+                )}
                 {ribbonFlow.qc_ribbon && (
                   <div className="text-xs text-muted-foreground flex items-center">
-                    <CircleArrowRight className="h-3 w-3 mr-2" /> QC Ribbon
-                    processed by {ribbonFlow.qc_ribbon.operator.full_name} on{" "}
-                    {format(
-                      new Date(ribbonFlow.qc_ribbon.created_at),
-                      "dd MMM yyyy - HH:mm:ss"
-                    )}
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      QC Online processed by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.qc_ribbon.operator.full_name}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.qc_ribbon.created_at),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
                   </div>
                 )}
                 {ribbonFlow.outbound && (
                   <div className="text-xs text-muted-foreground flex items-center">
-                    <CircleArrowRight className="h-3 w-3 mr-2" /> Outbound
-                    processed by {ribbonFlow.outbound.operator.full_name} via{" "}
-                    {ribbonFlow.outbound.expedition} on{" "}
+                    <CircleArrowRight className="h-3 w-3 mr-2" />
+                    <p>
+                      Outbound processed by{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.outbound.operator.full_name}
+                      </span>{" "}
+                      via{" "}
+                      <span className="underline font-bold">
+                        {ribbonFlow.outbound.expedition}
+                      </span>{" "}
+                      on{" "}
+                      <span className="underline font-bold">
+                        {format(
+                          new Date(ribbonFlow.outbound.created_at),
+                          "dd MMM yyyy - HH:mm:ss"
+                        )}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {ribbonFlow.order.cancelled_by && (
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <CircleArrowRight className="h-3 w-3 mr-2" /> Cancelled by{" "}
+                    {ribbonFlow.order.cancelled_by.full_name} on{" "}
                     {format(
-                      new Date(ribbonFlow.outbound.created_at),
+                      new Date(ribbonFlow.order.cancelled_at!),
                       "dd MMM yyyy - HH:mm:ss"
                     )}
                   </div>

@@ -29,6 +29,7 @@ import { Store } from "@/types/store";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
 
 // Form schemas
 const storeSchema = z.object({
@@ -232,21 +233,28 @@ export function StoreDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">Store ID</TableCell>
-                              <TableCell className="font-mono">
-                                {store.id}
-                              </TableCell>
+                              <TableCell className="w-32">Store ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{store.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Code</TableCell>
-                              <TableCell className="font-mono">
-                                {store.code}
-                              </TableCell>
+                              <TableCell className="w-32">Code</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{store.code}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Name</TableCell>
-                              <TableCell className="text-wrap">
-                                {store.name}
+                              <TableCell className="w-32">Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{store.name}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
+                                {format(
+                                  new Date(store.created_at),
+                                  "dd MMMM yyyy - HH:mm:ss"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

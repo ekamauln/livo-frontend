@@ -317,17 +317,18 @@ export function OutboundDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">ID</TableCell>
+                              <TableCell className="w-32">ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{outbound.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Tracking</TableCell>
+                              <TableCell className="w-32">Tracking</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>{outbound.tracking}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">
-                                Expedition
-                              </TableCell>
+                              <TableCell className="w-32">Expedition</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 <Badge
                                   style={{
@@ -340,9 +341,10 @@ export function OutboundDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">
+                              <TableCell className="w-32">
                                 Outbound By
                               </TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 <span>
                                   {outbound.outbound_operator?.full_name}
@@ -353,11 +355,12 @@ export function OutboundDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Created</TableCell>
+                              <TableCell className="w-32">Created At</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {format(
                                   new Date(outbound.created_at),
-                                  "dd MMM yyyy HH:mm:ss"
+                                  "dd MMMM yyyy - HH:mm:ss"
                                 )}
                               </TableCell>
                             </TableRow>

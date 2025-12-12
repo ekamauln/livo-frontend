@@ -41,6 +41,7 @@ import {
   ColorPickerFormat,
   ColorPickerOutput,
 } from "@/components/ui/shadcn-io/color-picker";
+import { format } from "date-fns";
 
 // Form schemas
 const expeditionSchema = z.object({
@@ -262,34 +263,31 @@ export function ExpeditionDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">
+                              <TableCell className="w-32">
                                 Expedition ID
                               </TableCell>
-                              <TableCell className="font-mono">
-                                {expedition.id}
-                              </TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{expedition.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Code</TableCell>
-                              <TableCell className="font-mono">
-                                {expedition.code}
-                              </TableCell>
+                              <TableCell className="w-32">Code</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{expedition.code}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Name</TableCell>
-                              <TableCell className="text-wrap">
-                                {expedition.name}
-                              </TableCell>
+                              <TableCell className="w-32">Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{expedition.name}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Slug</TableCell>
-                              <TableCell className="text-wrap">
-                                {expedition.slug}
-                              </TableCell>
+                              <TableCell className="w-32">Slug</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{expedition.slug}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Color</TableCell>
-                              <TableCell className="text-wrap">
+                              <TableCell className="w-32">Color</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
                                 <div className="flex items-center">
                                   <div
                                     className="w-6 h-6 rounded-full border-2 border-muted-foreground shadow-sm"
@@ -302,6 +300,16 @@ export function ExpeditionDialog({
                                     {expedition.color}
                                   </span>
                                 </div>
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>
+                                {format(
+                                  new Date(expedition.created_at),
+                                  "dd MMMM yyyy - HH:mm:ss"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

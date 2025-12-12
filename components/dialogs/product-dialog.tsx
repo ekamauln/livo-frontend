@@ -413,29 +413,27 @@ export function ProductDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-1/4">
-                                Product ID
-                              </TableCell>
-                              <TableCell className="font-mono">
-                                {product.id}
-                              </TableCell>
+                              <TableCell className="w-32">Product ID</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{product.id}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">SKU</TableCell>
-                              <TableCell className="font-mono">
-                                {product.sku}
-                              </TableCell>
+                              <TableCell className="w-32">SKU</TableCell>
+                              <TableCell className="w-10">:</TableCell>
+                              <TableCell>{product.sku}</TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Name</TableCell>
+                              <TableCell className="w-32">Name</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell className="max-w-md">
-                                <span className="w-3/4 text-wrap wrap-break-word">
+                                <span className="max-w-md text-wrap wrap-break-word">
                                   {product.name}
                                 </span>
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Variant</TableCell>
+                              <TableCell className="w-32">Variant</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 <Badge variant="secondary">
                                   {product.variant}
@@ -443,7 +441,8 @@ export function ProductDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Location</TableCell>
+                              <TableCell className="w-32">Location</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {product.location || (
                                   <span className="text-muted-foreground">
@@ -453,17 +452,19 @@ export function ProductDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Barcode</TableCell>
+                              <TableCell className="w-32">Barcode</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {product.barcode || (
                                   <span className="text-muted-foreground">
-                                    Not specified
+                                    {product.sku}
                                   </span>
                                 )}
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Image</TableCell>
+                              <TableCell className="w-32">Image</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {product.image ? (
                                   <Image
@@ -481,11 +482,12 @@ export function ProductDialog({
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell className="w-1/4">Created</TableCell>
+                              <TableCell className="w-32">Created</TableCell>
+                              <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {format(
                                   new Date(product.created_at),
-                                  "dd MMMM yyyy - HH:mm"
+                                  "dd MMMM yyyy - HH:mm:ss"
                                 )}
                               </TableCell>
                             </TableRow>

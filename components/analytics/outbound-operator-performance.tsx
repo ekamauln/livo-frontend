@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Outbound } from "@/types/outbound";
 import { format, differenceInMinutes } from "date-fns";
 import { Clock, Package, Zap, Timer } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface OutboundOperatorPerformanceProps {
   outbounds: Outbound[];
@@ -113,9 +112,6 @@ export function OutboundOperatorPerformance({
                     @{stat.username}
                   </p>
                 </div>
-                <Badge variant="outline" className="text-lg font-bold">
-                  {stat.totalOutbounds} Outbound&apos;s
-                </Badge>
               </div>
             </CardHeader>
             <CardContent>

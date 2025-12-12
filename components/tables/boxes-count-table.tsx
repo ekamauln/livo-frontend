@@ -831,6 +831,7 @@ export default function BoxesCountTable() {
   const columns: ColumnDef<BoxesCountReport>[] = [
     {
       id: "expand",
+      enableHiding: false,
       header: () => (
         <div className="text-sm text-center font-semibold w-12"></div>
       ),
@@ -1053,11 +1054,14 @@ export default function BoxesCountTable() {
       {/* Table */}
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-primary tracking-wider border-primary border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="py-2  text-primary-foreground font-bold"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
