@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QcRibbon } from "@/types/qc-ribbon";
 import { format, differenceInMinutes } from "date-fns";
 import { Activity, TrendingUp, Clock, Package, Zap, Timer } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface QcOperatorPerformanceProps {
   qcRibbons: QcRibbon[];
@@ -131,9 +130,6 @@ export function QcOperatorPerformance({
                     @{stat.username}
                   </p>
                 </div>
-                <Badge variant="outline" className="text-lg font-bold">
-                  {stat.totalRibbons} QC&apos;s
-                </Badge>
               </div>
             </CardHeader>
             <CardContent>
