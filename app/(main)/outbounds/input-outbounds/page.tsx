@@ -34,7 +34,7 @@ export default function Outbounds() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Outbounds</BreadcrumbLink>
+                  <BreadcrumbLink href="">Outbounds</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="hidden md:block">

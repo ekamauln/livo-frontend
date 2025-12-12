@@ -11,11 +11,13 @@ import { House } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { ProtectedRoute } from "@/contexts/protected-route";
-import UsersManagerTable from "@/components/tables/users-manager-table";
+import ComplainsTable from "@/components/tables/complains-data-table";
 
-export default function UsersManager() {
+export default function DataComplains() {
   return (
-    <ProtectedRoute requiredRoles={["superadmin", "coordinator"]}>
+    <ProtectedRoute
+      requiredRoles={["superadmin", "admin", "coordinator", "admin-retur"]}
+    >
       <div>
         <header className="flex h-16 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
@@ -34,11 +36,11 @@ export default function UsersManager() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="">Components</BreadcrumbLink>
+                  <BreadcrumbLink href="">Complains</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="hidden md:block">
-                  Users Manager
+                  Data Complains
                 </BreadcrumbPage>
               </BreadcrumbList>
             </Breadcrumb>
@@ -47,9 +49,9 @@ export default function UsersManager() {
 
         <div className="w-full p-4 pt-0">
           <Card className="p-6 space-y-2">
-            <h1 className="text-2xl font-semibold">Users Data List</h1>
+            <h1 className="text-2xl font-semibold">Complains Data List</h1>
             <Separator className="mt-0" />
-            <UsersManagerTable />
+            <ComplainsTable />
           </Card>
         </div>
       </div>
