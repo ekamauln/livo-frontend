@@ -127,7 +127,7 @@ export function OrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-[900px] max-w-5xl max-h-[90vh] flex flex-col overflow-y-auto">
+      <DialogContent className="min-w-[900px] max-w-5xl max-h-[90vh] flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -139,7 +139,9 @@ export function OrderDialog({
             {orderStatus && (
               <Badge
                 variant="default"
-                className={getStatusBadgeStyle(orderStatus)}
+                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getStatusBadgeStyle(
+                  orderStatus
+                )}`}
               >
                 {orderStatus}
               </Badge>
@@ -183,205 +185,207 @@ export function OrderDialog({
                 </TabsTrigger>
               </TabsList>
 
-              <div>
-                <div className="flex-1 overflow-y-auto">
-                  {/* Details Tab */}
-                  <TabsContent value="details" className="space-y-6">
-                    <div className="h-full overflow-y-auto">
-                      <div className="space-y-4">
-                        {orderDetails.length > 0 ? (
-                          orderDetails.map((detail) => (
-                            <Card
-                              key={detail.id}
-                              className="grid gap-6 rounded-md border mt-4"
-                            >
-                              <CardHeader>
-                                <CardTitle className="flex items-center gap-2 truncate">
-                                  {detail.product_name}
-                                </CardTitle>
-                                <Separator
-                                  orientation="horizontal"
-                                  className="mt-2 data-[orientation=horizontal]"
-                                />
-                              </CardHeader>
-                              <CardContent className="pt-0">
-                                <div className="rounded-md border">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead className="text-center max-w-[100px]">
-                                          SKU
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Quantity
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Variant
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Price
-                                        </TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      <TableRow>
-                                        <TableCell className="min-w-[100px] max-w-[150px] truncate">
-                                          {detail.sku || "N/A"}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          <Badge variant="outline">
-                                            {detail.quantity}
-                                          </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          {detail.variant || "N/A"}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          {detail.price.toLocaleString() || 0}
-                                        </TableCell>
-                                      </TableRow>
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))
-                        ) : (
-                          <div className="text-center py-8 text-muted-foreground">
-                            No order details found.
-                          </div>
-                        )}
+              <div className="flex-1 min-h-0 mt-4">
+                {/* Details Tab */}
+                <TabsContent
+                  value="details"
+                  className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]"
+                >
+                  <div className="space-y-4">
+                    {orderDetails.length > 0 ? (
+                      orderDetails.map((detail) => (
+                        <Card
+                          key={detail.id}
+                          className="grid gap-6 rounded-md border"
+                        >
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 truncate">
+                              {detail.product_name}
+                            </CardTitle>
+                            <Separator
+                              orientation="horizontal"
+                              className="mt-2 data-[orientation=horizontal]"
+                            />
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <div className="rounded-md border">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="text-center max-w-[100px]">
+                                      SKU
+                                    </TableHead>
+                                    <TableHead className="text-center">
+                                      Quantity
+                                    </TableHead>
+                                    <TableHead className="text-center">
+                                      Variant
+                                    </TableHead>
+                                    <TableHead className="text-center">
+                                      Price
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="min-w-[100px] max-w-[150px] truncate">
+                                      {detail.sku || "N/A"}
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      <Badge
+                                        variant="outline"
+                                        className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                                      >
+                                        {detail.quantity}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      {detail.variant || "N/A"}
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      {detail.price.toLocaleString() || 0}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No order details found.
                       </div>
-                    </div>
-                  </TabsContent>
+                    )}
+                  </div>
+                </TabsContent>
 
-                  {/* Pending Order Tab */}
-                  <TabsContent value="pending" className="space-y-6">
-                    <div className="h-full overflow-y-auto">
-                      <Card className="grid gap-6 rounded-md border mt-4">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 truncate">
-                            <XCircle className="h-5 w-5 text-yellow-600" />
-                            <span className="text-yellow-600">
-                              Pending Order
+                {/* Pending Order Tab */}
+                <TabsContent
+                  value="pending"
+                  className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]"
+                >
+                  <div className="space-y-4">
+                    <Card className="w-full">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 truncate">
+                          <XCircle className="h-5 w-5 text-yellow-600" />
+                          <span className="text-yellow-600">Pending Order</span>
+                        </CardTitle>
+                        <Separator
+                          orientation="horizontal"
+                          className="mt-2 data-[orientation=horizontal]"
+                        />
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {/* Order Information */}
+                        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Status:</span>
+                            <Badge
+                              className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getStatusBadgeStyle(
+                                orderStatus
+                              )}`}
+                            >
+                              {orderStatus}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Order ID:
                             </span>
-                          </CardTitle>
-                          <Separator
-                            orientation="horizontal"
-                            className="mt-2 data-[orientation=horizontal]"
-                          />
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Order Information */}
-                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Order ID:
-                              </span>
-                              <span className="text-sm">
-                                {orderIdString || orderId}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Tracking:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.tracking || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Status:
-                              </span>
-                              <Badge
-                                className={getStatusBadgeStyle(orderStatus)}
-                              >
-                                {orderStatus}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Store:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.store || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Total Items:
-                              </span>
-                              <span className="text-sm">
-                                {orderDetails.length}
-                              </span>
-                            </div>
+                            <span className="text-sm">
+                              {orderIdString || orderId}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Tracking:
+                            </span>
+                            <span className="text-sm">
+                              {orderData?.tracking || "-"}
+                            </span>
                           </div>
 
-                          {/* Warning Message */}
-                          <div className="bg-yellow-50 dark:bg-red-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                            <div className="flex gap-3">
-                              <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">
-                                  Warning: This action cannot be undone
-                                </h4>
-                              </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Store:</span>
+                            <span className="text-sm">
+                              {orderData?.store || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Total Items:
+                            </span>
+                            <span className="text-sm">
+                              {orderDetails.length}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Warning Message */}
+                        <div className="bg-yellow-50 dark:bg-red-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                          <div className="flex gap-3">
+                            <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">
+                                Warning: This action cannot be undone
+                              </h4>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Confirmation Section */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                id="pending-confirm"
-                                checked={pendingConfirming}
-                                onChange={(e) =>
-                                  setPendingConfirming(e.target.checked)
-                                }
-                                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
-                              />
-                              <label
-                                htmlFor="pending-confirm"
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                I understand this action cannot be undone
-                              </label>
-                            </div>
-
-                            <div className="flex justify-end gap-2 pt-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setPendingConfirming(false);
-                                  setActiveTab("details");
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Go Back
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="default"
-                                onClick={handlePendingOrder}
-                                disabled={!pendingConfirming || updating}
-                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700"
-                              >
-                                {updating && (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Pending Order
-                              </Button>
-                            </div>
+                        {/* Confirmation Section */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="pending-confirm"
+                              checked={pendingConfirming}
+                              onChange={(e) =>
+                                setPendingConfirming(e.target.checked)
+                              }
+                              className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            />
+                            <label
+                              htmlFor="pending-confirm"
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              I understand this action cannot be undone
+                            </label>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </TabsContent>
-                </div>
+
+                          <div className="flex justify-end gap-2 pt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setPendingConfirming(false);
+                                setActiveTab("details");
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Go Back
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="default"
+                              onClick={handlePendingOrder}
+                              disabled={!pendingConfirming || updating}
+                              className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700"
+                            >
+                              {updating && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              <XCircle className="mr-2 h-4 w-4" />
+                              Pending Order
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
               </div>
             </Tabs>
           </div>

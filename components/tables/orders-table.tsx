@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/table";
 import {
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   ChevronRight as ChevronRightIcon,
   Truck,
@@ -33,20 +31,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { Order, OrdersQueryParams, Pagination } from "@/types/order";
+import { Order, OrdersQueryParams } from "@/types/order";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -57,6 +48,12 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { orderApi } from "@/lib/api/orderApi";
 import { OrderDialog } from "@/components/dialogs/order-dialog";
+import { PaginationLimit } from "@/components/custom-ui/pagination-limit";
+import { Pagination } from "@/components/custom-ui/pagination";
+import { PaginationStatus } from "@/components/custom-ui/pagination-status";
+
+// Local type for pagination state
+type Pagination = { page: number; limit: number; total: number };
 
 // Status badge color mapping
 const getStatusBadgeStyle = (status: string) => {
@@ -107,7 +104,7 @@ const formatDateAt = (
     if (isNaN(date.getTime())) {
       return "-";
     }
-    return format(date, "dd MMMM yyyy - HH:mm:ss");
+    return format(date, "dd MMM yyyy - HH:mm:ss");
   } catch {
     return "-";
   }
@@ -179,10 +176,7 @@ const renderExpandedContent = (order: Order) => {
                     </div>
                   </div>
                   {detail.quantity && detail.quantity !== 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ml-2"
-                    >
+                    <Badge className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ml-2">
                       Qty: {detail.quantity}
                     </Badge>
                   )}
@@ -292,7 +286,7 @@ export default function OrdersTable() {
     event_status: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
@@ -502,7 +496,7 @@ export default function OrdersTable() {
 
         return (
           <div className="flex justify-center items-center flex-wrap text-center text-xs">
-            <div
+            <Badge
               className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
                 isCancelled
                   ? "bg-destructive text-white hover:bg-destructive/90"
@@ -512,7 +506,7 @@ export default function OrdersTable() {
               }`}
             >
               {displayStatus}
-            </div>
+            </Badge>
           </div>
         );
       },
@@ -655,14 +649,20 @@ export default function OrdersTable() {
                   onClick={() => handleViewDetails(order.id)}
                   className="cursor-pointer"
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleAddDetails(order.id)}
                   className="cursor-pointer"
                 >
-                  <Edit className="mr-2 h-4 w-4" />
+                  <Edit
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   Add Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -770,56 +770,34 @@ export default function OrdersTable() {
           </div>
         </div>
 
+        {/* Column visibility */}
         <div className="flex justify-start items-center gap-2">
-          {/* Pagination limit */}
-          <div className="flex justify-start items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show:</span>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Column visibility */}
-          <div className="flex justify-start items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Show / Hide
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Show / Hide
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -899,68 +877,30 @@ export default function OrdersTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} orders
+      <div className="flex justify-between gap-2 items-center">
+        <div className="flex justify-start gap-2 items-center">
+          {/* Pagination limit */}
+          <PaginationLimit
+            value={pagination.limit}
+            onValueChange={handleLimitChange}
+          />
+
+          {/* Pagination Status */}
+          <PaginationStatus
+            currentPage={pagination.page}
+            limit={pagination.limit}
+            total={pagination.total}
+            itemName="boxes"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1 || isLoading}
-            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNumber;
 
-              if (totalPages <= 5) {
-                // If total pages is 5 or less, show all pages
-                pageNumber = i + 1;
-              } else if (pagination.page <= 3) {
-                // If current page is in first 3 pages, show 1,2,3,4,5
-                pageNumber = i + 1;
-              } else if (pagination.page >= totalPages - 2) {
-                // If current page is in last 3 pages, show last 5 pages
-                pageNumber = totalPages - 4 + i;
-              } else {
-                // Otherwise, center the current page
-                pageNumber = pagination.page - 2 + i;
-              }
-
-              if (pageNumber < 1 || pageNumber > totalPages) return null;
-
-              return (
-                <Button
-                  key={pageNumber}
-                  variant={
-                    pageNumber === pagination.page ? "default" : "outline"
-                  }
-                  onClick={() => handlePageChange(pageNumber)}
-                  disabled={isLoading}
-                  className="w-10 cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-                >
-                  {pageNumber}
-                </Button>
-              );
-            })}
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page >= totalPages || isLoading}
-            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Pagination */}
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Order Dialog */}

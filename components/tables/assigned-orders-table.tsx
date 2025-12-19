@@ -285,8 +285,6 @@ export default function AssignedOrdersTable() {
     updated_at: false,
     event_status: false,
     order_ginee_id: false,
-    channel: false,
-    created_at: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({
@@ -635,7 +633,10 @@ export default function AssignedOrdersTable() {
                   onClick={() => handleViewDetails(order.id)}
                   className="cursor-pointer"
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem

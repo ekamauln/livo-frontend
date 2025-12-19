@@ -511,7 +511,7 @@ export function OrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-[900px] max-w-5xl max-h-[90vh] flex flex-col overflow-y-auto">
+      <DialogContent className="min-w-[900px] max-w-5xl max-h-[90vh] flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -593,120 +593,334 @@ export function OrderDialog({
               </TabsList>
 
               <div className="flex-1 min-h-0 mt-4">
-                <div className="flex-1 overflow-y-auto">
                   {/* Details Tab */}
-                  <TabsContent value="details" className="h-full m-0">
-                    <div className="h-full overflow-y-auto">
-                      <div className="space-y-4">
-                        {orderDetails.length > 0 ? (
-                          orderDetails.map((detail) => (
-                            <Card key={detail.id} className="w-full">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <CardTitle className="text-sm max-w-[680px] text-wrap">
-                                    {detail.product_name}
-                                  </CardTitle>
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      variant="outline"
-                                      onClick={() => handleEditDetail(detail)}
-                                      disabled={!isOperationAllowed()}
-                                      className="h-8 w-8 p-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                      <Edit className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      variant={
-                                        deleteConfirmingId === detail.id
-                                          ? "destructive"
-                                          : "outline"
-                                      }
-                                      onClick={() =>
-                                        detail.id &&
-                                        handleDeleteClick(detail.id)
-                                      }
-                                      disabled={
-                                        updating || !isOperationAllowed()
-                                      }
-                                      className={cn(
-                                        "h-8 w-8 p-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
-                                        deleteConfirmingId === detail.id &&
-                                          "animate-pulse border-red-500 bg-red-500 text-white"
-                                      )}
-                                      title={
-                                        deleteConfirmingId === detail.id
-                                          ? "Click again to confirm delete"
-                                          : "Delete order detail"
-                                      }
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </div>
+                  <TabsContent value="details" className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]">
+                    <div className="space-y-4">
+                      {orderDetails.length > 0 ? (
+                        orderDetails.map((detail) => (
+                          <Card key={detail.id} className="w-full">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <CardTitle className="text-sm max-w-[680px] text-wrap">
+                                  {detail.product_name}
+                                </CardTitle>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => handleEditDetail(detail)}
+                                    disabled={!isOperationAllowed()}
+                                    className="h-8 w-8 p-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant={
+                                      deleteConfirmingId === detail.id
+                                        ? "destructive"
+                                        : "outline"
+                                    }
+                                    onClick={() =>
+                                      detail.id && handleDeleteClick(detail.id)
+                                    }
+                                    disabled={updating || !isOperationAllowed()}
+                                    className={cn(
+                                      "h-8 w-8 p-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
+                                      deleteConfirmingId === detail.id &&
+                                        "animate-pulse border-red-500 bg-red-500 text-white"
+                                    )}
+                                    title={
+                                      deleteConfirmingId === detail.id
+                                        ? "Click again to confirm delete"
+                                        : "Delete order detail"
+                                    }
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
                                 </div>
-                                <Separator
-                                  orientation="horizontal"
-                                  className="mt-2 data-[orientation=horizontal]"
-                                />
-                              </CardHeader>
-                              <CardContent className="pt-0">
-                                <div className="rounded-md border">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead className="text-center min-w-[100px] max-w-[150px]">
-                                          SKU
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Quantity
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Variant
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                          Price
-                                        </TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      <TableRow>
-                                        <TableCell className="min-w-[100px] max-w-[150px] truncate">
-                                          {detail.sku || "N/A"}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          <Badge variant="outline">
-                                            {detail.quantity}
-                                          </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          {detail.variant || "N/A"}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                          {detail.price.toLocaleString() || 0}
-                                        </TableCell>
-                                      </TableRow>
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))
-                        ) : (
-                          <div className="text-center py-8 text-muted-foreground">
-                            No order details found.
-                          </div>
-                        )}
-                      </div>
+                              </div>
+                              <Separator
+                                orientation="horizontal"
+                                className="mt-2 data-[orientation=horizontal]"
+                              />
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              <div className="rounded-md border">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead className="text-center min-w-[100px] max-w-[150px]">
+                                        SKU
+                                      </TableHead>
+                                      <TableHead className="text-center">
+                                        Quantity
+                                      </TableHead>
+                                      <TableHead className="text-center">
+                                        Variant
+                                      </TableHead>
+                                      <TableHead className="text-center">
+                                        Price
+                                      </TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    <TableRow>
+                                      <TableCell className="min-w-[100px] max-w-[150px] truncate">
+                                        {detail.sku || "N/A"}
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        <Badge variant="outline">
+                                          {detail.quantity}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {detail.variant || "N/A"}
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {detail.price.toLocaleString() || 0}
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No order details found.
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
 
                   {/* Add Detail Tab */}
-                  <TabsContent value="add" className="h-full m-0">
-                    <div className="h-full overflow-y-auto">
+                  <TabsContent value="add" className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Plus className="h-5 w-5" />
+                          Add New Order Detail
+                        </CardTitle>
+                        <Separator
+                          orientation="horizontal"
+                          className="mt-2 data-[orientation=horizontal]"
+                        />
+                      </CardHeader>
+                      <CardContent>
+                        <Form {...form}>
+                          <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-6"
+                          >
+                            {/* Product Search */}
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">
+                                Search Products
+                              </label>
+                              <Popover
+                                open={productSearchOpen}
+                                onOpenChange={setProductSearchOpen}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={productSearchOpen}
+                                    className="w-full justify-between"
+                                  >
+                                    <div className="flex items-center">
+                                      <Search className="mr-2 h-4 w-4" />
+                                      Search products to auto-fill details...
+                                    </div>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-0">
+                                  <Command>
+                                    <CommandInput
+                                      placeholder="Search products..."
+                                      value={productSearch}
+                                      onValueChange={setProductSearch}
+                                    />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        {productsLoading
+                                          ? "Searching..."
+                                          : "No products found."}
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {products.map((product) => (
+                                          <CommandItem
+                                            key={product.id}
+                                            value={`${product.sku}-${product.name}`}
+                                            onSelect={() =>
+                                              handleProductSelect(product)
+                                            }
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                "opacity-0"
+                                              )}
+                                            />
+                                            <div className="flex flex-col">
+                                              <span>SKU: {product.sku}</span>
+                                              <span className="text-xs truncate">
+                                                {product.name}
+                                              </span>
+                                              {product.variant && (
+                                                <span className="text-xs">
+                                                  Variant: {product.variant}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="sku"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>SKU</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Enter SKU"
+                                        {...field}
+                                        readOnly
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="product_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Product Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Enter product name"
+                                        {...field}
+                                        readOnly
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="variant"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Variant (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="e.g., Red - Size M"
+                                        {...field}
+                                        readOnly
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="quantity"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Quantity</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="1"
+                                        placeholder="Enter quantity"
+                                        {...field}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseInt(e.target.value) || 1
+                                          )
+                                        }
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Price</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="1"
+                                        placeholder="Enter price"
+                                        {...field}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseInt(e.target.value) || 1
+                                          )
+                                        }
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => form.reset()}
+                                className="cursor-pointer"
+                              >
+                                Reset Form
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={updating || !isOperationAllowed()}
+                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {updating && (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Add Detail
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Edit Detail Tab */}
+                  <TabsContent value="edit" className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]">
+                    {isEditing ? (
                       <Card>
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
-                            <Plus className="h-5 w-5" />
-                            Add New Order Detail
+                            <Edit className="h-5 w-5" />
+                            Edit Order Detail
                           </CardTitle>
                           <Separator
                             orientation="horizontal"
@@ -719,87 +933,16 @@ export function OrderDialog({
                               onSubmit={form.handleSubmit(onSubmit)}
                               className="space-y-6"
                             >
-                              {/* Product Search */}
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                  Search Products
-                                </label>
-                                <Popover
-                                  open={productSearchOpen}
-                                  onOpenChange={setProductSearchOpen}
-                                >
-                                  <PopoverTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      role="combobox"
-                                      aria-expanded={productSearchOpen}
-                                      className="w-full justify-between"
-                                    >
-                                      <div className="flex items-center">
-                                        <Search className="mr-2 h-4 w-4" />
-                                        Search products to auto-fill details...
-                                      </div>
-                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-full p-0">
-                                    <Command>
-                                      <CommandInput
-                                        placeholder="Search products..."
-                                        value={productSearch}
-                                        onValueChange={setProductSearch}
-                                      />
-                                      <CommandList>
-                                        <CommandEmpty>
-                                          {productsLoading
-                                            ? "Searching..."
-                                            : "No products found."}
-                                        </CommandEmpty>
-                                        <CommandGroup>
-                                          {products.map((product) => (
-                                            <CommandItem
-                                              key={product.id}
-                                              value={`${product.sku}-${product.name}`}
-                                              onSelect={() =>
-                                                handleProductSelect(product)
-                                              }
-                                            >
-                                              <Check
-                                                className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  "opacity-0"
-                                                )}
-                                              />
-                                              <div className="flex flex-col">
-                                                <span>SKU: {product.sku}</span>
-                                                <span className="text-xs truncate">
-                                                  {product.name}
-                                                </span>
-                                                {product.variant && (
-                                                  <span className="text-xs">
-                                                    Variant: {product.variant}
-                                                  </span>
-                                                )}
-                                              </div>
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-
                               <div className="grid grid-cols-3 gap-4">
                                 <FormField
                                   control={form.control}
-                                  name="sku"
+                                  name="product_name"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>SKU</FormLabel>
+                                      <FormLabel>Product Name</FormLabel>
                                       <FormControl>
                                         <Input
-                                          placeholder="Enter SKU"
+                                          placeholder="Enter product name"
                                           {...field}
                                           readOnly
                                         />
@@ -811,13 +954,13 @@ export function OrderDialog({
 
                                 <FormField
                                   control={form.control}
-                                  name="product_name"
+                                  name="sku"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Product Name</FormLabel>
+                                      <FormLabel>SKU</FormLabel>
                                       <FormControl>
                                         <Input
-                                          placeholder="Enter product name"
+                                          placeholder="Enter SKU"
                                           {...field}
                                           readOnly
                                         />
@@ -898,10 +1041,14 @@ export function OrderDialog({
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  onClick={() => form.reset()}
+                                  onClick={() => {
+                                    form.reset();
+                                    setEditingDetailId(null);
+                                    setActiveTab("details");
+                                  }}
                                   className="cursor-pointer"
                                 >
-                                  Reset Form
+                                  Cancel
                                 </Button>
                                 <Button
                                   type="submit"
@@ -911,444 +1058,262 @@ export function OrderDialog({
                                   {updating && (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                   )}
-                                  Add Detail
+                                  Update Detail
                                 </Button>
                               </div>
                             </form>
                           </Form>
                         </CardContent>
                       </Card>
-                    </div>
-                  </TabsContent>
-
-                  {/* Edit Detail Tab */}
-                  <TabsContent value="edit" className="h-full m-0">
-                    <div className="h-full overflow-y-auto">
-                      {isEditing ? (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <Edit className="h-5 w-5" />
-                              Edit Order Detail
-                            </CardTitle>
-                            <Separator
-                              orientation="horizontal"
-                              className="mt-2 data-[orientation=horizontal]"
-                            />
-                          </CardHeader>
-                          <CardContent>
-                            <Form {...form}>
-                              <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-6"
-                              >
-                                <div className="grid grid-cols-3 gap-4">
-                                  <FormField
-                                    control={form.control}
-                                    name="product_name"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Product Name</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            placeholder="Enter product name"
-                                            {...field}
-                                            readOnly
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-
-                                  <FormField
-                                    control={form.control}
-                                    name="sku"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>SKU</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            placeholder="Enter SKU"
-                                            {...field}
-                                            readOnly
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-
-                                  <FormField
-                                    control={form.control}
-                                    name="variant"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>
-                                          Variant (Optional)
-                                        </FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            placeholder="e.g., Red - Size M"
-                                            {...field}
-                                            readOnly
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-
-                                  <FormField
-                                    control={form.control}
-                                    name="quantity"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Quantity</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            placeholder="Enter quantity"
-                                            {...field}
-                                            onChange={(e) =>
-                                              field.onChange(
-                                                parseInt(e.target.value) || 1
-                                              )
-                                            }
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-
-                                  <FormField
-                                    control={form.control}
-                                    name="price"
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormLabel>Price</FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            placeholder="Enter price"
-                                            {...field}
-                                            onChange={(e) =>
-                                              field.onChange(
-                                                parseInt(e.target.value) || 1
-                                              )
-                                            }
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </div>
-
-                                <div className="flex justify-end gap-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                      form.reset();
-                                      setEditingDetailId(null);
-                                      setActiveTab("details");
-                                    }}
-                                    className="cursor-pointer"
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    type="submit"
-                                    disabled={updating || !isOperationAllowed()}
-                                    className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {updating && (
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    )}
-                                    Update Detail
-                                  </Button>
-                                </div>
-                              </form>
-                            </Form>
-                          </CardContent>
-                        </Card>
-                      ) : (
-                        <div className="text-center py-8 text-muted-foreground">
-                          Select an order detail to edit from the Details tab.
-                        </div>
-                      )}
-                    </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Select an order detail to edit from the Details tab.
+                      </div>
+                    )}
                   </TabsContent>
 
                   {/* Duplicate Order Tab */}
-                  <TabsContent value="duplicate" className="h-full m-0">
-                    <div className="h-full overflow-y-auto">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Copy className="h-5 w-5 text-yellow-600" />
-                            <span className="text-yellow-600">
-                              Duplicate Order
+                  <TabsContent value="duplicate" className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Copy className="h-5 w-5 text-yellow-600" />
+                          <span className="text-yellow-600">
+                            Duplicate Order
+                          </span>
+                        </CardTitle>
+                        <Separator
+                          orientation="horizontal"
+                          className="mt-2 data-[orientation=horizontal]"
+                        />
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {/* Order Information */}
+                        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Order ID:
                             </span>
-                          </CardTitle>
-                          <Separator
-                            orientation="horizontal"
-                            className="mt-2 data-[orientation=horizontal]"
-                          />
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Order Information */}
-                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Order ID:
-                              </span>
-                              <span className="text-sm">
-                                {orderIdString || orderId}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Status:
-                              </span>
-                              <Badge
-                                className={getStatusBadgeStyle(orderStatus)}
-                              >
-                                {orderStatus}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Store:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.store || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Buyer:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.buyer || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Total Items:
-                              </span>
-                              <span className="text-sm">
-                                {orderDetails.length}
-                              </span>
+                            <span className="text-sm">
+                              {orderIdString || orderId}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Status:</span>
+                            <Badge className={getStatusBadgeStyle(orderStatus)}>
+                              {orderStatus}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Store:</span>
+                            <span className="text-sm">
+                              {orderData?.store || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Buyer:</span>
+                            <span className="text-sm">
+                              {orderData?.buyer || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Total Items:
+                            </span>
+                            <span className="text-sm">
+                              {orderDetails.length}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Warning Message */}
+                        <div className="bg-yellow-50 dark:bg-red-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                          <div className="flex gap-3">
+                            <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <h4 className="font-semibold text-yellow-900 dark:text-red-100">
+                                Warning: This action cannot be undone
+                              </h4>
+                              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                Duplicating this order will permanently change
+                                tracking and order details and duplicating to
+                                new order. The old order will no longer be
+                                available for processing or modification.
+                              </p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Warning Message */}
-                          <div className="bg-yellow-50 dark:bg-red-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                            <div className="flex gap-3">
-                              <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <h4 className="font-semibold text-yellow-900 dark:text-red-100">
-                                  Warning: This action cannot be undone
-                                </h4>
-                                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                  Duplicating this order will permanently change
-                                  tracking and order details and duplicating to
-                                  new order. The old order will no longer be
-                                  available for processing or modification.
-                                </p>
-                              </div>
-                            </div>
+                        {/* Confirmation Section */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="duplicate-confirm"
+                              checked={duplicateConfirming}
+                              onChange={(e) =>
+                                setDuplicateConfirming(e.target.checked)
+                              }
+                              className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            />
+                            <label
+                              htmlFor="duplicate-confirm"
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              I understand this action cannot be undone
+                            </label>
                           </div>
 
-                          {/* Confirmation Section */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                id="duplicate-confirm"
-                                checked={duplicateConfirming}
-                                onChange={(e) =>
-                                  setDuplicateConfirming(e.target.checked)
-                                }
-                                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
-                              />
-                              <label
-                                htmlFor="duplicate-confirm"
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                I understand this action cannot be undone
-                              </label>
-                            </div>
-
-                            <div className="flex justify-end gap-2 pt-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setCancelConfirming(false);
-                                  setActiveTab("details");
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Go Back
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="default"
-                                onClick={handleDuplicateOrder}
-                                disabled={!duplicateConfirming || updating}
-                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700"
-                              >
-                                {updating && (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Duplicate Order
-                              </Button>
-                            </div>
+                          <div className="flex justify-end gap-2 pt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setCancelConfirming(false);
+                                setActiveTab("details");
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Go Back
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="default"
+                              onClick={handleDuplicateOrder}
+                              disabled={!duplicateConfirming || updating}
+                              className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700"
+                            >
+                              {updating && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              <XCircle className="mr-2 h-4 w-4" />
+                              Duplicate Order
+                            </Button>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </TabsContent>
 
                   {/* Cancel Order Tab */}
-                  <TabsContent value="cancel" className="h-full m-0">
-                    <div className="h-full overflow-y-auto">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <XCircle className="h-5 w-5 text-destructive" />
-                            <span className="text-destructive">
-                              Cancel Order
+                  <TabsContent value="cancel" className="h-full m-0 overflow-y-auto max-h-[calc(90vh-280px)]">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <XCircle className="h-5 w-5 text-destructive" />
+                          <span className="text-destructive">Cancel Order</span>
+                        </CardTitle>
+                        <Separator
+                          orientation="horizontal"
+                          className="mt-2 data-[orientation=horizontal]"
+                        />
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {/* Order Information */}
+                        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Order ID:
                             </span>
-                          </CardTitle>
-                          <Separator
-                            orientation="horizontal"
-                            className="mt-2 data-[orientation=horizontal]"
-                          />
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Order Information */}
-                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Order ID:
-                              </span>
-                              <span className="text-sm">
-                                {orderIdString || orderId}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Status:
-                              </span>
-                              <Badge
-                                className={getStatusBadgeStyle(orderStatus)}
-                              >
-                                {orderStatus}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Store:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.store || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Buyer:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.buyer || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
-                                Total Items:
-                              </span>
-                              <span className="text-sm">
-                                {orderDetails.length}
-                              </span>
+                            <span className="text-sm">
+                              {orderIdString || orderId}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Status:</span>
+                            <Badge className={getStatusBadgeStyle(orderStatus)}>
+                              {orderStatus}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Store:</span>
+                            <span className="text-sm">
+                              {orderData?.store || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">Buyer:</span>
+                            <span className="text-sm">
+                              {orderData?.buyer || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">
+                              Total Items:
+                            </span>
+                            <span className="text-sm">
+                              {orderDetails.length}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Warning Message */}
+                        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                          <div className="flex gap-3">
+                            <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <h4 className="font-semibold text-red-900 dark:text-red-100">
+                                Warning: This action cannot be undone
+                              </h4>
+                              <p className="text-sm text-red-800 dark:text-red-200">
+                                Cancelling this order will permanently mark it
+                                as cancelled. The order will no longer be
+                                available for processing or modification.
+                              </p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Warning Message */}
-                          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                            <div className="flex gap-3">
-                              <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <h4 className="font-semibold text-red-900 dark:text-red-100">
-                                  Warning: This action cannot be undone
-                                </h4>
-                                <p className="text-sm text-red-800 dark:text-red-200">
-                                  Cancelling this order will permanently mark it
-                                  as cancelled. The order will no longer be
-                                  available for processing or modification.
-                                </p>
-                              </div>
-                            </div>
+                        {/* Confirmation Section */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="cancel-confirm"
+                              checked={cancelConfirming}
+                              onChange={(e) =>
+                                setCancelConfirming(e.target.checked)
+                              }
+                              className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            />
+                            <label
+                              htmlFor="cancel-confirm"
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              I understand this action cannot be undone
+                            </label>
                           </div>
 
-                          {/* Confirmation Section */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                id="cancel-confirm"
-                                checked={cancelConfirming}
-                                onChange={(e) =>
-                                  setCancelConfirming(e.target.checked)
-                                }
-                                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
-                              />
-                              <label
-                                htmlFor="cancel-confirm"
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                I understand this action cannot be undone
-                              </label>
-                            </div>
-
-                            <div className="flex justify-end gap-2 pt-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setCancelConfirming(false);
-                                  setActiveTab("details");
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Go Back
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                onClick={handleCancelOrder}
-                                disabled={!cancelConfirming || updating}
-                                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                {updating && (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                )}
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Cancel Order
-                              </Button>
-                            </div>
+                          <div className="flex justify-end gap-2 pt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setCancelConfirming(false);
+                                setActiveTab("details");
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Go Back
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={handleCancelOrder}
+                              disabled={!cancelConfirming || updating}
+                              className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {updating && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              <XCircle className="mr-2 h-4 w-4" />
+                              Cancel Order
+                            </Button>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </TabsContent>
-                </div>
               </div>
             </Tabs>
           </div>

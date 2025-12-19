@@ -312,7 +312,7 @@ export function QcRibbonForm({
                 </div>
                 <div>
                   <span className="font-medium">Status:</span>{" "}
-                  <Badge className="bg-green-500 text-white">
+                  <Badge className="bg-green-500 text-white hover:bg-green-600 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium">
                     {order.processing_status}
                   </Badge>
                 </div>

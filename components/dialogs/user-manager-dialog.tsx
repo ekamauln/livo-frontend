@@ -44,6 +44,7 @@ import { userManagerApi } from "@/lib/api/userManagerApi";
 import { ApiError } from "@/lib/api/types";
 import { User, Role } from "@/types/auth";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { getRoleBadgeStyle } from "@/components/custom-ui/role-badge-style";
 import {
   Select,
   SelectContent,
@@ -53,32 +54,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "../ui/separator";
-
-// Role-specific badge styling
-const getRoleBadgeStyle = (roleName: string) => {
-  const roleStyles: Record<string, string> = {
-    superadmin:
-      "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
-    coordinator: "bg-blue-600 text-white hover:bg-blue-700 border-blue-600",
-    admin: "bg-red-600 text-white hover:bg-red-700 border-red-600",
-    finance: "bg-green-600 text-white hover:bg-green-700 border-green-600",
-    picker: "bg-orange-500 text-white hover:bg-orange-600 border-orange-500",
-    outbound: "bg-cyan-500 text-white hover:bg-cyan-600 border-cyan-500",
-    "qc-ribbon":
-      "bg-indigo-500 text-white hover:bg-indigo-600 border-indigo-500",
-    "qc-online":
-      "bg-violet-500 text-white hover:bg-violet-600 border-violet-500",
-    "mb-ribbon": "bg-pink-500 text-white hover:bg-pink-600 border-pink-500",
-    "mb-online": "bg-rose-500 text-white hover:bg-rose-600 border-rose-500",
-    packing: "bg-amber-500 text-white hover:bg-amber-600 border-amber-500",
-    guest: "bg-gray-500 text-white hover:bg-gray-600 border-gray-500",
-  };
-
-  return (
-    roleStyles[roleName.toLowerCase()] ||
-    "bg-gray-500 text-white hover:bg-gray-600 border-gray-500"
-  );
-};
 
 // Form schemas
 const profileSchema = z.object({
@@ -534,11 +509,6 @@ export function UserDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-32">User ID</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{user.id}</TableCell>
-                            </TableRow>
-                            <TableRow>
                               <TableCell className="w-32">Username</TableCell>
                               <TableCell className="w-10">:</TableCell>
                               <TableCell>{user.username}</TableCell>
@@ -548,9 +518,19 @@ export function UserDialog({
                               <TableCell className="w-10">:</TableCell>
                               <TableCell>
                                 {user.is_active ? (
-                                  <Badge variant="default">Active</Badge>
+                                  <Badge
+                                    variant="default"
+                                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                                  >
+                                    Active
+                                  </Badge>
                                 ) : (
-                                  <Badge variant="destructive">Inactive</Badge>
+                                  <Badge
+                                    variant="destructive"
+                                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                                  >
+                                    Inactive
+                                  </Badge>
                                 )}
                               </TableCell>
                             </TableRow>
@@ -583,7 +563,7 @@ export function UserDialog({
                                     <Badge
                                       key={role.id}
                                       variant="default"
-                                      className={`font-bold ${getRoleBadgeStyle(
+                                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
                                         role.name
                                       )}`}
                                     >
@@ -842,6 +822,7 @@ export function UserDialog({
                               className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted cursor-pointer"
                             />
                             <Badge
+                              className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
                               variant={
                                 user.is_active ? "default" : "destructive"
                               }
@@ -884,11 +865,11 @@ export function UserDialog({
                               user.roles.map((role) => (
                                 <div
                                   key={role.id}
-                                  className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-md"
+                                  className="flex items-center gap-2 border p-2 rounded-md"
                                 >
                                   <Badge
                                     variant="default"
-                                    className={`font-bold ${getRoleBadgeStyle(
+                                    className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
                                       role.name
                                     )}`}
                                   >

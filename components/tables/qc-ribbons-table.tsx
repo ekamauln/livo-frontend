@@ -17,14 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -46,6 +39,9 @@ import { QcRibbonCreateDialog } from "@/components/dialogs/qc-ribbon-create-dial
 import type { Order } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
 import { QcOperatorPerformance } from "@/components/analytics/qc-ribbon-operator-performance";
+import { PaginationLimit } from "@/components/custom-ui/pagination-limit";
+import { Pagination } from "@/components/custom-ui/pagination";
+import { PaginationStatus } from "@/components/custom-ui/pagination-status";
 
 export default function QcRibbonsTable() {
   const [data, setData] = useState<QcRibbon[]>([]);
@@ -278,7 +274,7 @@ export default function QcRibbonsTable() {
             {order ? (
               <div className="space-y-1">
                 <div className=" text-xs">{order.order_ginee_id}</div>
-                <Badge className="bg-green-500 text-white hover:bg-green-600">
+                <Badge className="bg-green-500 text-white hover:bg-green-600 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium">
                   {order.processing_status}
                 </Badge>
                 <div className="text-xs text-muted-foreground">
@@ -414,56 +410,34 @@ export default function QcRibbonsTable() {
           </div>
         </div>
 
+        {/* Column visibility */}
         <div className="flex justify-start items-center gap-2">
-          {/* Pagination limit */}
-          <div className="flex justify-start items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show:</span>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Column visibility */}
-          <div className="flex justify-start items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Show / Hide
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Show / Hide
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -543,68 +517,30 @@ export default function QcRibbonsTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} qc-ribbons
+      <div className="flex justify-between gap-2 items-center">
+        <div className="flex justify-start gap-2 items-center">
+          {/* Pagination limit */}
+          <PaginationLimit
+            value={pagination.limit}
+            onValueChange={handleLimitChange}
+          />
+
+          {/* Pagination Status */}
+          <PaginationStatus
+            currentPage={pagination.page}
+            limit={pagination.limit}
+            total={pagination.total}
+            itemName="qc-ribbons"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1 || isLoading}
-            className="cursor-pointer"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNumber;
 
-              if (totalPages <= 5) {
-                // If total pages is 5 or less, show all pages
-                pageNumber = i + 1;
-              } else if (pagination.page <= 3) {
-                // If current page is in first 3 pages, show 1,2,3,4,5
-                pageNumber = i + 1;
-              } else if (pagination.page >= totalPages - 2) {
-                // If current page is in last 3 pages, show last 5 pages
-                pageNumber = totalPages - 4 + i;
-              } else {
-                // Otherwise, center the current page
-                pageNumber = pagination.page - 2 + i;
-              }
-
-              if (pageNumber < 1 || pageNumber > totalPages) return null;
-
-              return (
-                <Button
-                  key={pageNumber}
-                  variant={
-                    pageNumber === pagination.page ? "default" : "outline"
-                  }
-                  onClick={() => handlePageChange(pageNumber)}
-                  disabled={isLoading}
-                  className="w-10 cursor-pointer"
-                >
-                  {pageNumber}
-                </Button>
-              );
-            })}
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page >= totalPages || isLoading}
-            className="cursor-pointer"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Pagination */}
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* QC Ribbon Dialog */}

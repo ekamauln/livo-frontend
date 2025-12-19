@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Package, Settings, PackageOpen } from "lucide-react";
+import { Loader2, Package, Settings, PackageOpen, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -30,6 +30,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
+import Image from "next/image";
 
 // Form schemas
 const lostFoundSchema = z.object({
@@ -240,44 +241,57 @@ export function LostFoundDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <div className="border rounded-md">
-                        <Table>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className="w-32">
-                                Lost/Found ID
-                              </TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{lostFound.id}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">
-                                Product SKU
-                              </TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{lostFound.product_sku}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Reason</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell className="max-w-md">
-                                <span className="max-w-md text-wrap wrap-break-word">
-                                  {lostFound.reason}
-                                </span>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Created</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                {format(
-                                  new Date(lostFound.created_at),
-                                  "dd MMMM yyyy - HH:mm:ss"
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
+                      <div className="flex justify-between items-start gap-4">
+                        <Image
+                          src={lostFound.product?.image || "N/A"}
+                          alt={lostFound.product_sku}
+                          width={180}
+                          height={180}
+                          className="rounded-lg object-cover border"
+                        />
+                        <div className="border rounded-md w-100">
+                          <Table>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="w-32">
+                                  Product SKU
+                                </TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell className="max-w-md">
+                                  <span className="max-w-md text-wrap wrap-break-word">
+                                    {lostFound.product_sku}
+                                  </span>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Reason</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell className="max-w-md">
+                                  <span className="max-w-md text-wrap wrap-break-word">
+                                    {lostFound.reason}
+                                  </span>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Quantity</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>{lostFound.quantity}</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Created</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell className="max-w-md">
+                                  <span className="max-w-md text-wrap wrap-break-word">
+                                    {format(
+                                      new Date(lostFound.created_at),
+                                      "dd MMMM yyyy - HH:mm:ss"
+                                    )}
+                                  </span>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -401,11 +415,24 @@ export function LostFoundDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Are you sure you want to delete this lost found? This
-                        action cannot be undone.
+                      {/* Warning Message */}
+                      <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <div className="flex gap-3">
+                          <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <h4 className="font-semibold text-red-900 dark:text-red-100">
+                              Warning: This action cannot be undone
+                            </h4>
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                              Deleting this will permanently remove it from
+                              database. Daleted data will no longer be available
+                              for processing or modification.
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-end gap-2">
+
+                      <div className="flex justify-end gap-2 mt-4">
                         <Button
                           type="button"
                           variant="outline"
