@@ -5,6 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
+import { getRoleBadgeStyle } from "@/components/custom-ui/role-badge-style";
 import {
   Item,
   ItemActions,
@@ -18,7 +19,6 @@ import Link from "next/link";
 import { ProtectedRoute } from "@/contexts/protected-route";
 import { useAuth } from "@/contexts/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 // import { UserChargeFeeWidget } from "@/components/widgets/user-charge-fee-widget";
 // import { MbOnlinesChartWidget } from "@/components/widgets/mb-onlines-chart-widget";
 // import { OutboundsChartWidget } from "@/components/widgets/outbounds-chart-widget";
@@ -28,32 +28,6 @@ import { Badge } from "@/components/ui/badge";
 // import { QcRibbonsChartWidget } from "@/components/widgets/qc-ribbons-chart-widget";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns/format";
-
-// Role-specific badge styling
-const getRoleBadgeStyle = (roleName: string) => {
-  const roleStyles: Record<string, string> = {
-    superadmin:
-      "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
-    coordinator: "bg-blue-600 text-white hover:bg-blue-700 border-blue-600",
-    admin: "bg-red-600 text-white hover:bg-red-700 border-red-600",
-    finance: "bg-green-600 text-white hover:bg-green-700 border-green-600",
-    picker: "bg-orange-500 text-white hover:bg-orange-600 border-orange-500",
-    outbound: "bg-cyan-500 text-white hover:bg-cyan-600 border-cyan-500",
-    "qc-ribbon":
-      "bg-indigo-500 text-white hover:bg-indigo-600 border-indigo-500",
-    "qc-online":
-      "bg-violet-500 text-white hover:bg-violet-600 border-violet-500",
-    "mb-ribbon": "bg-pink-500 text-white hover:bg-pink-600 border-pink-500",
-    "mb-online": "bg-rose-500 text-white hover:bg-rose-600 border-rose-500",
-    packing: "bg-amber-500 text-white hover:bg-amber-600 border-amber-500",
-    guest: "bg-gray-500 text-white hover:bg-gray-600 border-gray-500",
-  };
-
-  return (
-    roleStyles[roleName.toLowerCase()] ||
-    "bg-gray-500 text-white hover:bg-gray-600 border-gray-500"
-  );
-};
 
 export default function Page() {
   const { user } = useAuth();
@@ -125,11 +99,15 @@ export default function Page() {
                       <TableRow>
                         <TableCell className="w-1/4">Status</TableCell>
                         <TableCell className="w-3/4 text-wrap">
-                          <Badge
-                            variant={user?.is_active ? "default" : "secondary"}
+                          <div
+                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                              user?.is_active
+                                ? "bg-green-500 hover:bg-green-600 text-white"
+                                : "bg-red-500 hover:bg-red-600 text-white"
+                            }`}
                           >
                             {user?.is_active ? "Active" : "Inactive"}
-                          </Badge>
+                          </div>
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -162,14 +140,13 @@ export default function Page() {
                         <ItemDescription>{role.description}</ItemDescription>
                       </ItemContent>
                       <ItemActions>
-                        <Badge
-                          variant="secondary"
-                          className={`font-bold ${getRoleBadgeStyle(
+                        <div
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
                             role.name
                           )}`}
                         >
                           {role.name}
-                        </Badge>
+                        </div>
                       </ItemActions>
                     </Item>
                   ))}

@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useRef } from "react";
-import * as XLSX from "xlsx";
+import * as ExcelJS from "exceljs";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -193,11 +193,13 @@ export default function OrdersBulkImport() {
 
       // Read workbook to get sheet names
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
-          const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: "array" });
-          setAvailableSheets(workbook.SheetNames);
+          const buffer = e.target?.result as ArrayBuffer;
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.load(buffer);
+          const sheetNames = workbook.worksheets.map((sheet) => sheet.name);
+          setAvailableSheets(sheetNames);
         } catch (error) {
           console.error("Error reading Excel file:", error);
         }
@@ -217,28 +219,53 @@ export default function OrdersBulkImport() {
 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const data = new Uint8Array(arrayBuffer);
-      const workbook = XLSX.read(data, { type: "array" });
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
 
       // Determine which sheet to use
-      let targetSheet: string;
+      let targetSheet: ExcelJS.Worksheet;
       const sheetIndex = parseInt(sheetName);
       if (!isNaN(sheetIndex)) {
-        targetSheet = workbook.SheetNames[sheetIndex] || workbook.SheetNames[0];
+        targetSheet = workbook.worksheets[sheetIndex];
       } else {
-        targetSheet = sheetName;
+        const foundSheet = workbook.worksheets.find(
+          (sheet) => sheet.name === sheetName
+        );
+        if (!foundSheet) {
+          throw new Error(`Sheet "${sheetName}" not found`);
+        }
+        targetSheet = foundSheet;
       }
 
-      if (!workbook.Sheets[targetSheet]) {
-        throw new Error(`Sheet "${targetSheet}" not found`);
+      if (!targetSheet) {
+        throw new Error(`Sheet not found`);
       }
 
-      const worksheet = workbook.Sheets[targetSheet];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1,
-        defval: "",
-        raw: false,
-      }) as WorksheetData;
+      // Convert worksheet to array of arrays
+      const jsonData: WorksheetData = [];
+      targetSheet.eachRow((row) => {
+        const rowData: (string | number | boolean | null | undefined)[] = [];
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          // Get cell value, handling different types
+          let value: string | number | boolean | null | undefined;
+          if (cell.value === null || cell.value === undefined) {
+            value = "";
+          } else if (typeof cell.value === "object" && "text" in cell.value) {
+            // Handle rich text
+            value = cell.value.text;
+          } else if (typeof cell.value === "object" && "result" in cell.value) {
+            // Handle formula
+            value = cell.value.result as string | number | boolean;
+          } else if (cell.value instanceof Date) {
+            // Handle dates - format as string
+            value = cell.value.toISOString();
+          } else {
+            value = cell.value as string | number | boolean;
+          }
+          rowData.push(value);
+        });
+        jsonData.push(rowData);
+      });
 
       if (jsonData.length === 0) {
         throw new Error("No data found in the Excel sheet");

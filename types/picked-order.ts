@@ -18,6 +18,7 @@ export interface OrderDetail {
   product_name: string;
   variant: string;
   quantity: number;
+  price: number;
 }
 
 // Role interface
@@ -45,15 +46,26 @@ export interface Picker {
 export interface Order {
   id: number;
   order_ginee_id: string;
-  status: string;
+  processing_status: string;
+  event_status: string | null;
   channel: string;
   store: string;
   buyer: string;
+  address: string;
   courier: string;
   tracking: string;
+  sent_before: string;
   complained: boolean;
+  assigned_by: string;
+  assigned_at: string;
   picked_by: string;
   picked_at: string;
+  pending_by: string;
+  pending_at: string;
+  changed_by: string;
+  changed_at: string;
+  cancelled_by: string;
+  cancelled_at: string;
   created_at: string;
   updated_at: string;
   order_details: OrderDetail[];
@@ -75,13 +87,12 @@ export interface PickedOrderDetail {
 // Pick Order interface
 export interface PickedOrder {
   id: number;
-  order_ginee_id: number;
-  picker_id: number;
+  order_id: number;
+  picked_by: number;
   created_at: string;
   updated_at: string;
   order: Order;
   picker: Picker;
-  picked_order_details: PickedOrderDetail[];
 }
 
 // Pagination interface
@@ -96,7 +107,7 @@ export interface PickedOrderResponse {
   success: boolean;
   message: string;
   data: {
-    picked_orders: PickedOrder[];
+    pick_orders: PickedOrder[];
     pagination: Pagination;
   };
 }

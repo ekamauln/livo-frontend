@@ -50,38 +50,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { User, Role } from "@/types/auth";
 import { userManagerApi } from "@/lib/api/userManagerApi";
 import { UserCreateDialog } from "@/components/dialogs/user-manager-create-dialog";
 import { UserDialog } from "@/components/dialogs/user-manager-dialog";
 import React from "react";
-
-// Role-specific badge styling
-const getRoleBadgeStyle = (roleName: string) => {
-  const roleStyles: Record<string, string> = {
-    superadmin:
-      "bg-purple-600 text-white hover:bg-purple-700 border-purple-600",
-    coordinator: "bg-blue-600 text-white hover:bg-blue-700 border-blue-600",
-    admin: "bg-red-600 text-white hover:bg-red-700 border-red-600",
-    finance: "bg-green-600 text-white hover:bg-green-700 border-green-600",
-    picker: "bg-orange-500 text-white hover:bg-orange-600 border-orange-500",
-    outbound: "bg-cyan-500 text-white hover:bg-cyan-600 border-cyan-500",
-    "qc-ribbon":
-      "bg-indigo-500 text-white hover:bg-indigo-600 border-indigo-500",
-    "qc-online":
-      "bg-violet-500 text-white hover:bg-violet-600 border-violet-500",
-    "mb-ribbon": "bg-pink-500 text-white hover:bg-pink-600 border-pink-500",
-    "mb-online": "bg-rose-500 text-white hover:bg-rose-600 border-rose-500",
-    packing: "bg-amber-500 text-white hover:bg-amber-600 border-amber-500",
-    guest: "bg-gray-500 text-white hover:bg-gray-600 border-gray-500",
-  };
-
-  return (
-    roleStyles[roleName.toLowerCase()] ||
-    "bg-gray-500 text-white hover:bg-gray-600 border-gray-500"
-  );
-};
+import { getRoleBadgeStyle } from "@/components/custom-ui/role-badge-style";
 
 export default function UsersManagerTable() {
   const [data, setData] = useState<User[]>([]);
@@ -210,13 +184,14 @@ export default function UsersManagerTable() {
         return (
           <div className="flex gap-1 flex-wrap text-wrap justify-center">
             {roles.map((role) => (
-              <Badge
+              <div
                 key={role.id}
-                variant="secondary"
-                className={`text-xs font-bold ${getRoleBadgeStyle(role.name)}`}
+                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
+                  role.name
+                )}`}
               >
                 {role.name}
-              </Badge>
+              </div>
             ))}
           </div>
         );
