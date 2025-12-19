@@ -65,7 +65,7 @@ export function Slideshow({ className = "" }: SlideshowProps) {
 
       {/* Digital Clock Overlay */}
       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-lg p-3 text-white">
-        <div className="text-lg font-mono font-bold tracking-wider text-right">
+        <div className="text-lg font-bold tracking-wider text-right">
           {format(currentTime, "HH:mm:ss")}
         </div>
         <div className="text-xs text-white/80 mt-1 text-right">

@@ -254,7 +254,7 @@ export default function ReturnsTable() {
                                 `Product ID: ${detail.product_id}`}
                             </div>
                             {detail.product?.sku && (
-                              <div className="text-xs text-muted-foreground font-mono mt-2">
+                              <div className="text-xs text-muted-foreground  mt-2">
                                 SKU: {detail.product.sku}
                               </div>
                             )}
@@ -341,9 +341,7 @@ export default function ReturnsTable() {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("id")}</div>
       ),
     },
     {
@@ -352,7 +350,7 @@ export default function ReturnsTable() {
         <div className="text-sm text-center font-semibold">New Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className=" text-sm text-center">
           {row.getValue("new_tracking")}
         </div>
       ),
@@ -363,9 +361,7 @@ export default function ReturnsTable() {
         <div className="text-sm text-center font-semibold">Old Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm">
-          {row.getValue("old_tracking") || "-"}
-        </div>
+        <div className=" text-sm">{row.getValue("old_tracking") || "-"}</div>
       ),
     },
     {
@@ -374,7 +370,7 @@ export default function ReturnsTable() {
         <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className=" text-sm text-center">
           {row.getValue("order_ginee_id") || "-"}
         </div>
       ),

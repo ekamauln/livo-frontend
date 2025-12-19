@@ -562,7 +562,7 @@ export function ComplainDialog({
                                                 `Product ID: ${detail.product_id}`}
                                             </div>
                                             {detail.product?.sku && (
-                                              <div className="text-sm text-muted-foreground font-mono">
+                                              <div className="text-sm text-muted-foreground">
                                                 SKU: {detail.product.sku}
                                               </div>
                                             )}
@@ -636,7 +636,7 @@ export function ComplainDialog({
                                                 `User ID: ${detail.operator_id}`}
                                             </div>
                                             {detail.operator?.username && (
-                                              <div className="text-sm text-muted-foreground font-mono">
+                                              <div className="text-sm text-muted-foreground">
                                                 Username:{" "}
                                                 {detail.operator.username}
                                               </div>

@@ -183,21 +183,22 @@ export function OrderDialog({
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex-1 min-h-0 mt-4">
+              <div>
                 <div className="flex-1 overflow-y-auto">
                   {/* Details Tab */}
-                  <TabsContent value="details" className="h-full m-0">
+                  <TabsContent value="details" className="space-y-6">
                     <div className="h-full overflow-y-auto">
                       <div className="space-y-4">
                         {orderDetails.length > 0 ? (
                           orderDetails.map((detail) => (
-                            <Card key={detail.id} className="w-full">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <CardTitle className="text-sm max-w-[680px] text-wrap">
-                                    {detail.product_name}
-                                  </CardTitle>
-                                </div>
+                            <Card
+                              key={detail.id}
+                              className="grid gap-6 rounded-md border mt-4"
+                            >
+                              <CardHeader>
+                                <CardTitle className="flex items-center gap-2 truncate">
+                                  {detail.product_name}
+                                </CardTitle>
                                 <Separator
                                   orientation="horizontal"
                                   className="mt-2 data-[orientation=horizontal]"
@@ -255,11 +256,11 @@ export function OrderDialog({
                   </TabsContent>
 
                   {/* Pending Order Tab */}
-                  <TabsContent value="pending" className="h-full m-0">
+                  <TabsContent value="pending" className="space-y-6">
                     <div className="h-full overflow-y-auto">
-                      <Card>
+                      <Card className="grid gap-6 rounded-md border mt-4">
                         <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
+                          <CardTitle className="flex items-center gap-2 truncate">
                             <XCircle className="h-5 w-5 text-yellow-600" />
                             <span className="text-yellow-600">
                               Pending Order
@@ -283,6 +284,14 @@ export function OrderDialog({
                             </div>
                             <div className="flex justify-between">
                               <span className="text-sm font-medium">
+                                Tracking:
+                              </span>
+                              <span className="text-sm">
+                                {orderData?.tracking || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
                                 Status:
                               </span>
                               <Badge
@@ -301,14 +310,6 @@ export function OrderDialog({
                             </div>
                             <div className="flex justify-between">
                               <span className="text-sm font-medium">
-                                Buyer:
-                              </span>
-                              <span className="text-sm">
-                                {orderData?.buyer || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium">
                                 Total Items:
                               </span>
                               <span className="text-sm">
@@ -322,14 +323,9 @@ export function OrderDialog({
                             <div className="flex gap-3">
                               <XCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
                               <div className="space-y-1">
-                                <h4 className="font-semibold text-yellow-900 dark:text-red-100">
+                                <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">
                                   Warning: This action cannot be undone
                                 </h4>
-                                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                  Pending this order will permanently change
-                                  status of the order. The old order will be on
-                                  pending picking status.
-                                </p>
                               </div>
                             </div>
                           </div>

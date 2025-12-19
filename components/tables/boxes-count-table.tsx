@@ -868,9 +868,7 @@ export default function BoxesCountTable() {
         <div className="text-sm text-center font-semibold">Box Code</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("box_code")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("box_code")}</div>
       ),
     },
     {
@@ -1145,13 +1143,13 @@ export default function BoxesCountTable() {
                                 <TableBody>
                                   {details.map((detail, idx) => (
                                     <TableRow key={idx}>
-                                      <TableCell className="text-center font-mono text-sm">
+                                      <TableCell className="text-center  text-sm">
                                         {detail.tracking}
                                       </TableCell>
-                                      <TableCell className="text-center font-mono text-sm">
+                                      <TableCell className="text-center  text-sm">
                                         {detail.order_ginee_id}
                                       </TableCell>
-                                      <TableCell className="text-center font-mono text-sm">
+                                      <TableCell className="text-center  text-sm">
                                         {detail.quantity}
                                       </TableCell>
                                       <TableCell className="text-center text-sm">
@@ -1168,7 +1166,7 @@ export default function BoxesCountTable() {
                                           </span>
                                         )}
                                       </TableCell>
-                                      <TableCell className="text-center font-mono text-xs text-muted-foreground">
+                                      <TableCell className="text-center  text-xs text-muted-foreground">
                                         <div>
                                           {format(
                                             new Date(detail.created_at),

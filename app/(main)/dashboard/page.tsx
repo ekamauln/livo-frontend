@@ -19,6 +19,7 @@ import Link from "next/link";
 import { ProtectedRoute } from "@/contexts/protected-route";
 import { useAuth } from "@/contexts/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 // import { UserChargeFeeWidget } from "@/components/widgets/user-charge-fee-widget";
 // import { MbOnlinesChartWidget } from "@/components/widgets/mb-onlines-chart-widget";
 // import { OutboundsChartWidget } from "@/components/widgets/outbounds-chart-widget";
@@ -38,7 +39,7 @@ export default function Page() {
         <header className="flex h-16 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
             <Link href="/">
-              <House className="h-4 w-4" />
+              <House size="16" className="text-muted-foreground" />
             </Link>
             {/* Icon */}
             <Separator
@@ -47,7 +48,7 @@ export default function Page() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbPage className="hidden md:block">
+                <BreadcrumbPage className="text-muted-foreground">
                   Dashboard
                 </BreadcrumbPage>
               </BreadcrumbList>
@@ -57,16 +58,20 @@ export default function Page() {
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <p className="mt-2">
-            Welcome back, {user?.full_name || user?.username}
+            Welcome back,{" "}
+            <span className="underline">
+              {user?.full_name || user?.username}
+            </span>
+            .
           </p>
         </div>
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-2">
+          <div className="grid auto-rows-min gap-4 grid-cols-2">
             {/* User Information */}
             <Card>
               <CardHeader>
-                <CardTitle>User Information</CardTitle>
+                <CardTitle className="underline">User Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="border rounded-md gap-4">
@@ -99,7 +104,7 @@ export default function Page() {
                       <TableRow>
                         <TableCell className="w-1/4">Status</TableCell>
                         <TableCell className="w-3/4 text-wrap">
-                          <div
+                          <Badge
                             className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
                               user?.is_active
                                 ? "bg-green-500 hover:bg-green-600 text-white"
@@ -107,7 +112,7 @@ export default function Page() {
                             }`}
                           >
                             {user?.is_active ? "Active" : "Inactive"}
-                          </div>
+                          </Badge>
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -127,7 +132,7 @@ export default function Page() {
             {/* Assigned Roles */}
             <Card>
               <CardHeader>
-                <CardTitle>Assigned Roles</CardTitle>
+                <CardTitle className="underline">Assigned Roles</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -140,13 +145,13 @@ export default function Page() {
                         <ItemDescription>{role.description}</ItemDescription>
                       </ItemContent>
                       <ItemActions>
-                        <div
+                        <Badge
                           className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
                             role.name
                           )}`}
                         >
                           {role.name}
-                        </div>
+                        </Badge>
                       </ItemActions>
                     </Item>
                   ))}

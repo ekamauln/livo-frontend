@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/table";
 import {
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   ChevronRight as ChevronRightIcon,
   Truck,
@@ -31,20 +29,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { Order, OrdersQueryParams, Pagination } from "@/types/order";
+import { Order, OrdersQueryParams } from "@/types/order";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +46,15 @@ import { orderApi } from "@/lib/api/orderApi";
 import { OrderDialog } from "@/components/dialogs/assign-orders-dialog";
 import { Separator } from "@/components/ui/separator";
 import { AssignPickerForm } from "@/components/forms/assign-picker-form";
+import { PaginationLimit } from "@/components/custom-ui/pagination-limit";
+import { Pagination } from "@/components/custom-ui/pagination";
+import { PaginationStatus } from "@/components/custom-ui/pagination-status";
+
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+};
 
 // Status badge color mapping
 const getStatusBadgeStyle = (status: string) => {
@@ -151,29 +151,32 @@ const renderExpandedContent = (order: Order) => {
                     </div>
 
                     {detail.sku && (
-                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         SKU: {detail.sku}
                       </div>
                     )}
                     {detail.variant &&
                       detail.variant !== "-" &&
                       detail.variant !== "" && (
-                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           Variant: {detail.variant}
                         </div>
                       )}
                     {detail.product?.location &&
                       detail.product.location !== "" && (
-                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           Location: {detail.product.location}
                         </div>
                       )}
-                    <div className="text-xs text-muted-foreground font-mono mt-1">
+                    <div className="text-xs text-muted-foreground mt-1">
                       Price: {detail.price?.toLocaleString()}
                     </div>
                   </div>
                   {detail.quantity && detail.quantity !== 0 && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge
+                      variant="secondary"
+                      className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ml-2"
+                    >
                       Qty: {detail.quantity}
                     </Badge>
                   )}
@@ -286,7 +289,7 @@ export default function AssignedOrdersTable() {
     created_at: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
@@ -438,9 +441,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("tracking")}
-        </div>
+        <div className="text-sm text-center">{row.getValue("tracking")}</div>
       ),
     },
     {
@@ -449,7 +450,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className="text-sm text-center">
           {row.getValue("order_ginee_id")}
         </div>
       ),
@@ -476,14 +477,13 @@ export default function AssignedOrdersTable() {
         return (
           <div className="flex justify-center items-center flex-wrap text-center text-xs">
             <Badge
-              variant="default"
-              className={
+              className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
                 isCancelled
                   ? "bg-destructive text-white hover:bg-destructive/90"
                   : isOldDuplicated
                   ? "bg-destructive text-white hover:bg-destructive/90"
                   : getStatusBadgeStyle(processingStatus)
-              }
+              }`}
             >
               {displayStatus}
             </Badge>
@@ -511,7 +511,7 @@ export default function AssignedOrdersTable() {
         </div>
       ),
       cell: ({ row }) => (
-        <div className="text-xs text-center">
+        <div className="text-sm text-center">
           {row.getValue("event_status") || "N/A"}
         </div>
       ),
@@ -522,7 +522,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Channel</div>
       ),
       cell: ({ row }) => (
-        <div className="max-w-32 truncate text-xs text-center">
+        <div className="max-w-32 truncate text-sm text-center">
           {row.getValue("channel") || "N/A"}
         </div>
       ),
@@ -533,7 +533,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Store</div>
       ),
       cell: ({ row }) => (
-        <div className="max-w-32 truncate text-xs text-center">
+        <div className="max-w-32 truncate text-sm text-center">
           {row.getValue("store") || "N/A"}
         </div>
       ),
@@ -544,7 +544,7 @@ export default function AssignedOrdersTable() {
         <div className="text-sm text-center font-semibold">Courier</div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center text-xs text-center justify-center">
+        <div className="flex items-center text-sm text-center justify-center">
           <Truck className="h-4 w-4 text-muted-foreground mr-1" />
           <div>{row.getValue("courier") || "N/A"}</div>
         </div>
@@ -732,26 +732,6 @@ export default function AssignedOrdersTable() {
         </div>
 
         <div className="flex justify-start items-center gap-2">
-          {/* Pagination limit */}
-          <div className="flex justify-start items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show:</span>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Column visibility */}
           <div className="flex justify-start items-center gap-2">
             <DropdownMenu>
@@ -860,68 +840,30 @@ export default function AssignedOrdersTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} orders
+      <div className="flex justify-between gap-2 items-center">
+        <div className="flex justify-start gap-2 items-center">
+          {/* Pagination limit */}
+          <PaginationLimit
+            value={pagination.limit}
+            onValueChange={handleLimitChange}
+          />
+
+          {/* Pagination Status */}
+          <PaginationStatus
+            currentPage={pagination.page}
+            limit={pagination.limit}
+            total={pagination.total}
+            itemName="assigned orders"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1 || isLoading}
-            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNumber;
 
-              if (totalPages <= 5) {
-                // If total pages is 5 or less, show all pages
-                pageNumber = i + 1;
-              } else if (pagination.page <= 3) {
-                // If current page is in first 3 pages, show 1,2,3,4,5
-                pageNumber = i + 1;
-              } else if (pagination.page >= totalPages - 2) {
-                // If current page is in last 3 pages, show last 5 pages
-                pageNumber = totalPages - 4 + i;
-              } else {
-                // Otherwise, center the current page
-                pageNumber = pagination.page - 2 + i;
-              }
-
-              if (pageNumber < 1 || pageNumber > totalPages) return null;
-
-              return (
-                <Button
-                  key={pageNumber}
-                  variant={
-                    pageNumber === pagination.page ? "default" : "outline"
-                  }
-                  onClick={() => handlePageChange(pageNumber)}
-                  disabled={isLoading}
-                  className="w-10 cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-                >
-                  {pageNumber}
-                </Button>
-              );
-            })}
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page >= totalPages || isLoading}
-            className="cursor-pointer hover:translate-y-1 transition duration-300 ease-in-out"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Pagination */}
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Order Dialog */}

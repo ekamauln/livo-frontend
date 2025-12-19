@@ -453,7 +453,7 @@ export function ReturnDialog({
                                               </span>
                                             </div>
                                             {detail.product?.sku && (
-                                              <div className="text-sm text-muted-foreground font-mono">
+                                              <div className="text-sm text-muted-foreground">
                                                 SKU: {detail.product.sku}
                                               </div>
                                             )}
@@ -466,7 +466,7 @@ export function ReturnDialog({
                                                 </div>
                                               )}
                                             {detail.product?.barcode && (
-                                              <div className="text-sm text-muted-foreground font-mono">
+                                              <div className="text-sm text-muted-foreground">
                                                 Barcode:{" "}
                                                 {detail.product.barcode}
                                               </div>

@@ -167,7 +167,6 @@ export function ExpeditionCreateDialog({
                             placeholder="Enter hex color (e.g., #FF0000)"
                             value={field.value || ""}
                             onChange={(e) => field.onChange(e.target.value)}
-                            className="font-mono"
                           />
                         </div>
                         <Popover>

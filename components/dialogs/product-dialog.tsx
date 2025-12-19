@@ -26,6 +26,7 @@ import {
   Upload,
   PackageOpen,
   ScanQrCode,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,18 +164,18 @@ export function ProductDialog({
     }
   };
 
-  // Generate Data Matrix Barcode using bwip-js
+  // Generate QR Code using bwip-js
   const generate2DBarcode = useCallback(async (sku: string) => {
     try {
-      // Create a canvas for the Data Matrix barcode
+      // Create a canvas for the QR Code
       const barcodeCanvas = document.createElement("canvas");
 
-      // Generate Data Matrix barcode
+      // Generate QR Code
       bwipjs.toCanvas(barcodeCanvas, {
-        bcid: "datamatrix", // Barcode type
+        bcid: "qrcode", // Barcode type
         text: sku,
         scale: 3,
-        height: 12,
+        height: 15,
         includetext: false,
         textxalign: "center",
       });
@@ -409,90 +410,75 @@ export function ProductDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <div className="border rounded-md">
-                        <Table>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className="w-32">Product ID</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{product.id}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">SKU</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{product.sku}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Name</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell className="max-w-md">
-                                <span className="max-w-md text-wrap wrap-break-word">
-                                  {product.name}
-                                </span>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Variant</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                <Badge variant="secondary">
-                                  {product.variant}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Location</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                {product.location || (
-                                  <span className="text-muted-foreground">
-                                    Not specified
+                      <div className="flex justify-between items-start gap-4">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={248}
+                          height={248}
+                          className="rounded-md"
+                        />
+                        <div className="border rounded-md">
+                          <Table>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="w-32">SKU</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>{product.sku}</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Name</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell className="max-w-md">
+                                  <span className="max-w-md text-wrap wrap-break-word">
+                                    {product.name}
                                   </span>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Barcode</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                {product.barcode || (
-                                  <span className="text-muted-foreground">
-                                    {product.sku}
-                                  </span>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Image</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                {product.image ? (
-                                  <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    width={64}
-                                    height={64}
-                                    className="rounded-md"
-                                  />
-                                ) : (
-                                  <span className="text-muted-foreground">
-                                    No image
-                                  </span>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="w-32">Created</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>
-                                {format(
-                                  new Date(product.created_at),
-                                  "dd MMMM yyyy - HH:mm:ss"
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Variant</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>
+                                  <Badge className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary text-primary-foreground">
+                                    {product.variant}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Location</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>
+                                  {product.location || (
+                                    <span className="text-muted-foreground">
+                                      Not specified
+                                    </span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Barcode</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>
+                                  {product.barcode || (
+                                    <span className="text-muted-foreground">
+                                      {product.sku}
+                                    </span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="w-32">Created</TableCell>
+                                <TableCell className="w-10">:</TableCell>
+                                <TableCell>
+                                  {format(
+                                    new Date(product.created_at),
+                                    "dd MMMM yyyy - HH:mm:ss"
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -664,14 +650,14 @@ export function ProductDialog({
                         {generatingBarcodes ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                            Generating Data Matrix...
+                            Generating QR Code...
                           </div>
                         ) : barcode2D ? (
                           <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={barcode2D}
-                              alt="Data Matrix Barcode"
+                              alt="QR Code"
                               className="border"
                             />
                             <Button
@@ -713,11 +699,23 @@ export function ProductDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Deleting a product is irreversible. Please ensure that
-                        this product is not associated with any active orders or
-                        inventory records before proceeding.
+                      {/* Warning Message */}
+                      <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <div className="flex gap-3">
+                          <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <h4 className="font-semibold text-red-900 dark:text-red-100">
+                              Warning: This action cannot be undone
+                            </h4>
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                              Deleting this will permanently remove it from
+                              database. Daleted data will no longer be available
+                              for processing or modification.
+                            </p>
+                          </div>
+                        </div>
                       </div>
+
                       <div className="flex justify-end gap-2 mt-4">
                         <Button
                           type="button"

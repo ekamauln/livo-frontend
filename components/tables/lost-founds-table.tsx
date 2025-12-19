@@ -282,7 +282,7 @@ export default function LostFoundsTable() {
         <div className="text-sm text-center font-semibold">SKU</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className=" text-sm text-center">
           {row.getValue("product_sku")}
         </div>
       ),
@@ -309,9 +309,7 @@ export default function LostFoundsTable() {
         <div className="text-sm text-center font-semibold">Reason</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-center text-sm">
-          {row.getValue("reason")}
-        </div>
+        <div className=" text-center text-sm">{row.getValue("reason")}</div>
       ),
     },
     {
@@ -320,9 +318,7 @@ export default function LostFoundsTable() {
         <div className="text-sm text-center font-semibold">Quantity</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-center text-sm">
-          {row.getValue("quantity")}
-        </div>
+        <div className=" text-center text-sm">{row.getValue("quantity")}</div>
       ),
     },
     {

@@ -19,21 +19,12 @@ import {
 } from "@/components/ui/table";
 import {
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   MoreHorizontal,
   Eye,
   Edit,
   PackagePlus,
   Trash,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -52,6 +43,9 @@ import { boxApi } from "@/lib/api/boxApi";
 import { BoxCreateDialog } from "@/components/dialogs/box-create-dialog";
 import { BoxDialog } from "@/components/dialogs/box-dialog";
 import React from "react";
+import { PaginationLimit } from "@/components/custom-ui/pagination-limit";
+import { Pagination } from "@/components/custom-ui/pagination";
+import { PaginationStatus } from "@/components/custom-ui/pagination-status";
 
 export default function BoxesTable() {
   const [data, setData] = useState<Box[]>([]);
@@ -118,23 +112,12 @@ export default function BoxesTable() {
 
   const columns: ColumnDef<Box>[] = [
     {
-      accessorKey: "id",
-      header: () => <div className="text-sm text-center font-semibold">ID</div>,
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
-      ),
-    },
-    {
       accessorKey: "code",
       header: () => (
         <div className="text-sm text-center font-semibold">Code</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("code")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("code")}</div>
       ),
     },
     {
@@ -143,9 +126,7 @@ export default function BoxesTable() {
         <div className="text-sm text-center font-semibold">Name</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("name")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("name")}</div>
       ),
     },
     {
@@ -157,7 +138,7 @@ export default function BoxesTable() {
         const date = new Date(row.getValue("created_at"));
         return (
           <div className="text-xs text-muted-foreground text-center">
-            {format(date, "dd MMMM yyyy")}
+            {format(date, "dd MMM yyyy")}
             <br />
             {format(date, "HH:mm:ss")}
           </div>
@@ -199,7 +180,7 @@ export default function BoxesTable() {
                     setBoxDialogOpen(true);
                   }}
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye size="16" className="hover:text-primary-foreground" />
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -209,7 +190,7 @@ export default function BoxesTable() {
                     setBoxDialogOpen(true);
                   }}
                 >
-                  <Edit className="mr-2 h-4 w-4" />
+                  <Edit size="16" className="hover:text-primary-foreground" />
                   Edit Box
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -220,7 +201,7 @@ export default function BoxesTable() {
                     setBoxDialogOpen(true);
                   }}
                 >
-                  <Trash className="mr-2 h-4 w-4 text-destructive" />
+                  <Trash size="16" className="text-destructive" />
                   <span className="text-destructive">Delete Box</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -278,26 +259,6 @@ export default function BoxesTable() {
                 <PackagePlus className="w-4 h-4" /> <span>Create New Box</span>
               </div>
             </Button>
-          </div>
-
-          {/* Pagination limit */}
-          <div className="flex justify-start items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show:</span>
-            <Select
-              value={pagination.limit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Column visibility */}
@@ -396,68 +357,30 @@ export default function BoxesTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-          {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-          {pagination.total} boxes
+      <div className="flex justify-between gap-2 items-center">
+        <div className="flex justify-start gap-2 items-center">
+          {/* Pagination limit */}
+          <PaginationLimit
+            value={pagination.limit}
+            onValueChange={handleLimitChange}
+          />
+
+          {/* Pagination Status */}
+          <PaginationStatus
+            currentPage={pagination.page}
+            limit={pagination.limit}
+            total={pagination.total}
+            itemName="boxes"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1 || isLoading}
-            className="cursor-pointer"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNumber;
 
-              if (totalPages <= 5) {
-                // If total pages is 5 or less, show all pages
-                pageNumber = i + 1;
-              } else if (pagination.page <= 3) {
-                // If current page is in first 3 pages, show 1,2,3,4,5
-                pageNumber = i + 1;
-              } else if (pagination.page >= totalPages - 2) {
-                // If current page is in last 3 pages, show last 5 pages
-                pageNumber = totalPages - 4 + i;
-              } else {
-                // Otherwise, center the current page
-                pageNumber = pagination.page - 2 + i;
-              }
-
-              if (pageNumber < 1 || pageNumber > totalPages) return null;
-
-              return (
-                <Button
-                  key={pageNumber}
-                  variant={
-                    pageNumber === pagination.page ? "default" : "outline"
-                  }
-                  onClick={() => handlePageChange(pageNumber)}
-                  disabled={isLoading}
-                  className="w-10 cursor-pointer"
-                >
-                  {pageNumber}
-                </Button>
-              );
-            })}
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page >= totalPages || isLoading}
-            className="cursor-pointer"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Pagination */}
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Box Dialog */}

@@ -73,6 +73,9 @@ const getStatusBadgeStyle = (status: string) => {
       return "bg-cyan-500 text-white hover:bg-cyan-600";
     case "qc completed":
       return "bg-emerald-500 text-white hover:bg-emerald-600";
+    case "outbound completed":
+      return "bg-teal-500 text-white hover:bg-teal-600";
+
     default:
       return "bg-gray-500 text-white hover:bg-gray-600";
   }
@@ -104,7 +107,7 @@ const formatDateAt = (
     if (isNaN(date.getTime())) {
       return "-";
     }
-    return format(date, "dd MMM yyyy, HH:mm:ss");
+    return format(date, "dd MMMM yyyy - HH:mm:ss");
   } catch {
     return "-";
   }
@@ -153,30 +156,33 @@ const renderExpandedContent = (order: Order) => {
                     {detail.variant &&
                       detail.variant !== "-" &&
                       detail.variant !== "" && (
-                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                        <div className="text-xs text-muted-foreground  mt-1">
                           Variant: {detail.variant}
                         </div>
                       )}
 
                     {detail.product?.location &&
                       detail.product.location !== "" && (
-                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                        <div className="text-xs text-muted-foreground  mt-1">
                           Location: {detail.product.location}
                         </div>
                       )}
 
                     {detail.sku && (
-                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                      <div className="text-xs text-muted-foreground  mt-1">
                         SKU: {detail.sku}
                       </div>
                     )}
 
-                    <div className="text-xs text-muted-foreground font-mono mt-1">
+                    <div className="text-xs text-muted-foreground  mt-1">
                       Price: {detail.price?.toLocaleString()}
                     </div>
                   </div>
                   {detail.quantity && detail.quantity !== 0 && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge
+                      variant="secondary"
+                      className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ml-2"
+                    >
                       Qty: {detail.quantity}
                     </Badge>
                   )}
@@ -470,7 +476,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Order ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className=" text-sm text-center">
           {row.getValue("order_ginee_id")}
         </div>
       ),
@@ -496,18 +502,17 @@ export default function OrdersTable() {
 
         return (
           <div className="flex justify-center items-center flex-wrap text-center text-xs">
-            <Badge
-              variant="default"
-              className={
+            <div
+              className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
                 isCancelled
                   ? "bg-destructive text-white hover:bg-destructive/90"
                   : isOldDuplicated
                   ? "bg-destructive text-white hover:bg-destructive/90"
                   : getStatusBadgeStyle(processingStatus)
-              }
+              }`}
             >
               {displayStatus}
-            </Badge>
+            </div>
           </div>
         );
       },
@@ -532,7 +537,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Channel</div>
       ),
       cell: ({ row }) => (
-        <div className="max-w-32 truncate text-xs text-center">
+        <div className="max-w-32 truncate text-sm text-center">
           {row.getValue("channel") || "N/A"}
         </div>
       ),
@@ -543,7 +548,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Store</div>
       ),
       cell: ({ row }) => (
-        <div className="max-w-32 truncate text-xs text-center">
+        <div className="max-w-32 truncate text-sm text-center">
           {row.getValue("store") || "N/A"}
         </div>
       ),
@@ -554,7 +559,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Courier</div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center text-xs text-center justify-center">
+        <div className="flex items-center text-sm text-center justify-center">
           <Truck className="h-4 w-4 text-muted-foreground mr-1" />
           <div>{row.getValue("courier") || "N/A"}</div>
         </div>
@@ -566,9 +571,7 @@ export default function OrdersTable() {
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("tracking")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("tracking")}</div>
       ),
     },
     {

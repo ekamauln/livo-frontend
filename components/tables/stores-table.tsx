@@ -125,9 +125,7 @@ export default function StoresTable() {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("id")}</div>
       ),
     },
     {
@@ -136,9 +134,7 @@ export default function StoresTable() {
         <div className="text-sm text-center font-semibold">Code</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("code")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("code")}</div>
       ),
     },
     {
@@ -147,9 +143,7 @@ export default function StoresTable() {
         <div className="text-sm text-center font-semibold">Name</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("name")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("name")}</div>
       ),
     },
     {

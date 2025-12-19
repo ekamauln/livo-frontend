@@ -321,7 +321,7 @@ export default function ComplainsTable() {
                               `Product ID: ${detail.product_id}`}
                           </div>
                           {detail.product?.sku && (
-                            <div className="text-xs text-muted-foreground font-mono">
+                            <div className="text-xs text-muted-foreground ">
                               SKU: {detail.product.sku}
                             </div>
                           )}
@@ -377,7 +377,7 @@ export default function ComplainsTable() {
                               `User ID: ${detail.operator_id}`}
                           </div>
                           {detail.operator?.username && (
-                            <div className="text-xs text-muted-foreground font-mono">
+                            <div className="text-xs text-muted-foreground ">
                               Username: {detail.operator.username}
                             </div>
                           )}
@@ -489,9 +489,7 @@ export default function ComplainsTable() {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("id")}</div>
       ),
     },
     {
@@ -501,11 +499,7 @@ export default function ComplainsTable() {
       ),
       cell: ({ row }) => {
         const complain = row.original;
-        return (
-          <div className="font-mono text-sm text-center">
-            {complain.tracking}
-          </div>
-        );
+        return <div className=" text-sm text-center">{complain.tracking}</div>;
       },
     },
     {
@@ -516,9 +510,7 @@ export default function ComplainsTable() {
       cell: ({ row }) => {
         const complain = row.original;
         return (
-          <div className="font-mono text-sm text-center">
-            {complain.order_ginee_id}
-          </div>
+          <div className=" text-sm text-center">{complain.order_ginee_id}</div>
         );
       },
     },
@@ -603,7 +595,7 @@ export default function ComplainsTable() {
         <div className="text-sm text-center font-semibold">Cutting Total</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
+        <div className=" text-sm text-center">
           Rp. {formatCurrency(row.getValue("total_fee") || 0)}
         </div>
       ),

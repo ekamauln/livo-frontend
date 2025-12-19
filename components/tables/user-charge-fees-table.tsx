@@ -288,25 +288,23 @@ export default function UserChargeFeesTable() {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Code:</span>
-                    <p className="font-mono">{detail.complain_code}</p>
+                    <p className="">{detail.complain_code}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Tracking:</span>
-                    <p className="font-mono">{detail.tracking}</p>
+                    <p className="">{detail.tracking}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Order ID:</span>
-                    <p className="font-mono">{detail.order_ginee_id}</p>
+                    <p className="">{detail.order_ginee_id}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Fee Charge:</span>
-                    <p className="font-mono">
-                      Rp. {formatCurrency(detail.fee_charge)}
-                    </p>
+                    <p className="">Rp. {formatCurrency(detail.fee_charge)}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Updated:</span>
-                    <p className="font-mono">
+                    <p className="">
                       {format(
                         new Date(detail.complain_updated_at),
                         "dd MMM yyyy HH:mm:ss"
@@ -1011,9 +1009,7 @@ export default function UserChargeFeesTable() {
         <div className="text-sm text-center font-semibold">User ID</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("user_id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("user_id")}</div>
       ),
     },
     {
@@ -1064,7 +1060,7 @@ export default function UserChargeFeesTable() {
         </div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center font-medium">
+        <div className=" text-sm text-center font-medium">
           Rp. {formatCurrency(row.getValue("total_fee_charge") || 0)}
         </div>
       ),

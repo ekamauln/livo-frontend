@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Package, Settings, PackageOpen } from "lucide-react";
+import { Loader2, Package, Settings, PackageOpen, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -237,11 +237,6 @@ export function ChannelDialog({
                         <Table>
                           <TableBody>
                             <TableRow>
-                              <TableCell className="w-32">Channel ID</TableCell>
-                              <TableCell className="w-10">:</TableCell>
-                              <TableCell>{channel.id}</TableCell>
-                            </TableRow>
-                            <TableRow>
                               <TableCell className="w-32">Code</TableCell>
                               <TableCell className="w-10">:</TableCell>
                               <TableCell>{channel.code}</TableCell>
@@ -361,10 +356,23 @@ export function ChannelDialog({
                       />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Are you sure you want to delete this channel? This
-                        action cannot be undone.
+                      {/* Warning Message */}
+                      <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <div className="flex gap-3">
+                          <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <h4 className="font-semibold text-red-900 dark:text-red-100">
+                              Warning: This action cannot be undone
+                            </h4>
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                              Deleting this will permanently remove it from
+                              database. Daleted data will no longer be available
+                              for processing or modification.
+                            </p>
+                          </div>
+                        </div>
                       </div>
+
                       <div className="flex justify-end gap-2 mt-4">
                         <Button
                           type="button"

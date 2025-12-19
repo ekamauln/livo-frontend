@@ -224,10 +224,8 @@ export default function RibbonFlowsTable() {
       ),
       cell: ({ row }) => (
         <div className="space-y-1">
-          <div className="font-mono text-sm text-center">
-            {row.getValue("tracking")}
-          </div>
-          <div className="font-mono text-sm text-center">
+          <div className=" text-sm text-center">{row.getValue("tracking")}</div>
+          <div className=" text-sm text-center">
             <Badge className="bg-green-600 text-white hover:bg-green-700">
               {row.original.order.processing_status}
             </Badge>
@@ -244,7 +242,7 @@ export default function RibbonFlowsTable() {
         const ribbonFlow = row.original;
         return (
           <div className="space-y-1">
-            <div className="font-mono text-sm text-center">
+            <div className=" text-sm text-center">
               {ribbonFlow.order.order_ginee_id}
             </div>
 

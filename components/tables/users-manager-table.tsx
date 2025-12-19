@@ -129,9 +129,7 @@ export default function UsersManagerTable() {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("id")}</div>
       ),
     },
     {

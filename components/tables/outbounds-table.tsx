@@ -165,9 +165,7 @@ export default function OutboundsTable() {
       accessorKey: "id",
       header: () => <div className="text-sm text-center font-semibold">ID</div>,
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("id")}</div>
       ),
     },
     {
@@ -176,9 +174,7 @@ export default function OutboundsTable() {
         <div className="text-sm text-center font-semibold">Tracking</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("tracking")}
-        </div>
+        <div className=" text-sm text-center">{row.getValue("tracking")}</div>
       ),
     },
     {
@@ -192,7 +188,7 @@ export default function OutboundsTable() {
           <div className="text-sm text-center">
             {order ? (
               <div className="space-y-1">
-                <div className="font-mono text-xs">{order.order_ginee_id}</div>
+                <div className=" text-xs">{order.order_ginee_id}</div>
                 <Badge className="bg-green-500 text-white hover:bg-green-600">
                   {order.processing_status}
                 </Badge>
@@ -224,7 +220,7 @@ export default function OutboundsTable() {
                     color: "white",
                   }}
                 >
-                  <div className="font-mono text-xs">{outbound.expedition}</div>
+                  <div className=" text-xs">{outbound.expedition}</div>
                 </Badge>
               </div>
             ) : (

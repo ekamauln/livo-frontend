@@ -11,10 +11,13 @@ import {
 import {
   BookCheck,
   BookOpenCheck,
+  CalendarCheck,
   FileCheck,
   FolderSearch,
   FolderUp,
   Globe,
+  Hand,
+  Handshake,
   LogOut,
   Package,
   PackageOpen,
@@ -22,16 +25,19 @@ import {
   ScrollText,
   SquareUser,
   Store,
+  TramFront,
   Truck,
   Tv,
   User,
+  Workflow,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   ThemeToggleButton,
@@ -95,7 +101,10 @@ export default function AppNavbar() {
         <div className="font-bold">
           <Link href="/dashboard">LIVOTECH</Link>
         </div>
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        <Separator
+          orientation="vertical"
+          className="mx-2 data-[orientation=vertical]:h-6"
+        />
         <div>
           <Menubar>
             {/* Components - visible to superadmin, coordinator, admin */}
@@ -107,37 +116,52 @@ export default function AppNavbar() {
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/boxes">
-                      <PackageOpen className="h-4 w-4" />
+                      <PackageOpen
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Boxes
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/channels">
-                      <Tv className="h-4 w-4" />
+                      <Tv size="16" className="hover:text-primary-foreground" />
                       Channels
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/expeditions">
-                      <Truck className="h-4 w-4" />
+                      <Truck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Expeditions
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/products">
-                      <Package className="h-4 w-4" />
+                      <Package
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Products
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/stores">
-                      <Store className="h-4 w-4" />
+                      <Store
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Stores
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/components/users-manager">
-                      <SquareUser className="h-4 w-4" />
+                      <SquareUser
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Users Manager
                     </Link>
                   </MenubarItem>
@@ -154,26 +178,38 @@ export default function AppNavbar() {
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/orders">
-                      <ScrollText className="h-4 w-4" />
+                      <ScrollText
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Orders
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/orders-import">
-                      <FolderUp className="h-4 w-4" />
+                      <FolderUp
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Orders Import
                     </Link>
                   </MenubarItem>
                   <MenubarSeparator />
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/assigned-orders">
-                      <FolderSearch className="h-4 w-4" />
+                      <Handshake
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Assign Orders
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/orders/lost-founds">
-                      <FolderSearch className="h-4 w-4" />
+                      <FolderSearch
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Lost Founds
                     </Link>
                   </MenubarItem>
@@ -197,7 +233,10 @@ export default function AppNavbar() {
                   {hasAnyRole(["superadmin", "coordinator", "qc-ribbon"]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/ribbons/qc-ribbons">
-                        <Ribbon className="h-4 w-4" />
+                        <Ribbon
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         QC Ribbons
                       </Link>
                     </MenubarItem>
@@ -213,7 +252,10 @@ export default function AppNavbar() {
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/ribbons/ribbon-flows">
-                        <Ribbon className="h-4 w-4" />
+                        <Workflow
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         Ribbon Flows
                       </Link>
                     </MenubarItem>
@@ -238,7 +280,10 @@ export default function AppNavbar() {
                   {hasAnyRole(["superadmin", "coordinator", "qc-online"]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/onlines/qc-onlines">
-                        <Globe className="h-4 w-4" />
+                        <Globe
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         QC Onlines
                       </Link>
                     </MenubarItem>
@@ -254,7 +299,10 @@ export default function AppNavbar() {
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/onlines/online-flows">
-                        <Globe className="h-4 w-4" />
+                        <Workflow
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         Online Flows
                       </Link>
                     </MenubarItem>
@@ -279,7 +327,10 @@ export default function AppNavbar() {
                   {hasAnyRole(["superadmin", "coordinator", "outbound"]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/outbounds/input-outbounds">
-                        <Truck className="h-4 w-4" />
+                        <Truck
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         Input Outbounds
                       </Link>
                     </MenubarItem>
@@ -295,7 +346,10 @@ export default function AppNavbar() {
                   ]) && (
                     <MenubarItem asChild className="cursor-pointer">
                       <Link href="/outbounds/handout-outbounds">
-                        <Truck className="h-4 w-4" />
+                        <TramFront
+                          size="16"
+                          className="hover:text-primary-foreground"
+                        />
                         Handout Outbounds
                       </Link>
                     </MenubarItem>
@@ -319,13 +373,19 @@ export default function AppNavbar() {
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/complains/input-complains">
-                      <BookOpenCheck className="h-4 w-4" />
+                      <BookOpenCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Input Complains
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/complains/input-returns">
-                      <BookCheck className="h-4 w-4" />
+                      <BookCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Input Returns
                     </Link>
                   </MenubarItem>
@@ -333,7 +393,10 @@ export default function AppNavbar() {
 
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/complains/data-complains">
-                      <BookOpenCheck className="h-4 w-4" />
+                      <CalendarCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Data Complains
                     </Link>
                   </MenubarItem>
@@ -341,13 +404,16 @@ export default function AppNavbar() {
                   <MenubarSeparator />
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/complains/handout-complains">
-                      <BookOpenCheck className="h-4 w-4" />
+                      <Hand
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Handout Complains
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/complains/handout-returns">
-                      <BookCheck className="h-4 w-4" />
+                      <Hand className="h-4 w-4" />
                       Handout Returns
                     </Link>
                   </MenubarItem>
@@ -370,19 +436,28 @@ export default function AppNavbar() {
                 <MenubarContent>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/reports/boxes-count-reports">
-                      <FileCheck className="h-4 w-4" />
+                      <FileCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Boxes Count Reports
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/reports/pick-order-reports">
-                      <FileCheck className="h-4 w-4" />
+                      <FileCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       Pick Order Reports
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild className="cursor-pointer">
                     <Link href="/reports/user-charge-fee-reports">
-                      <FileCheck className="h-4 w-4" />
+                      <FileCheck
+                        size="16"
+                        className="hover:text-primary-foreground"
+                      />
                       User Charge Fee Reports
                     </Link>
                   </MenubarItem>
@@ -421,14 +496,14 @@ export default function AppNavbar() {
             {user?.roles && user.roles.length > 0 && (
               <div className="flex gap-1">
                 {user.roles.map((role, index) => (
-                  <div
+                  <Badge
                     key={role.id || index}
                     className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRoleBadgeStyle(
                       role.name
                     )}`}
                   >
                     {role.name}
-                  </div>
+                  </Badge>
                 ))}
               </div>
             )}

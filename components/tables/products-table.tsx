@@ -129,15 +129,6 @@ export default function ProductsTable() {
 
   const columns: ColumnDef<Product>[] = [
     {
-      accessorKey: "id",
-      header: () => <div className="text-sm text-center font-semibold">ID</div>,
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          {row.getValue("id")}
-        </div>
-      ),
-    },
-    {
       accessorKey: "image",
       header: () => (
         <div className="flex justify-center items-center">Image</div>
@@ -159,9 +150,7 @@ export default function ProductsTable() {
       header: () => (
         <div className="text-sm text-center font-semibold">SKU</div>
       ),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("sku")}</div>
-      ),
+      cell: ({ row }) => <div className=" text-sm">{row.getValue("sku")}</div>,
     },
     {
       accessorKey: "name",
@@ -171,7 +160,7 @@ export default function ProductsTable() {
         </div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm min-w-[300px] max-w-[500px] text-wrap">
+        <div className=" text-sm min-w-[300px] max-w-[600px] text-wrap">
           {row.getValue("name")}
         </div>
       ),
@@ -182,8 +171,10 @@ export default function ProductsTable() {
         <div className="text-sm text-center font-semibold">Variant</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-center">
-          <Badge variant="secondary">{row.getValue("variant")}</Badge>
+        <div className=" text-sm text-center">
+          <Badge className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary text-primary-foreground">
+            {row.getValue("variant")}
+          </Badge>
         </div>
       ),
     },
@@ -193,7 +184,7 @@ export default function ProductsTable() {
         <div className="text-sm text-center font-semibold">Location</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("location")}</div>
+        <div className=" text-sm">{row.getValue("location")}</div>
       ),
     },
     {
@@ -202,7 +193,7 @@ export default function ProductsTable() {
         <div className="text-sm text-center font-semibold">Barcode</div>
       ),
       cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.getValue("barcode")}</div>
+        <div className=" text-sm">{row.getValue("barcode")}</div>
       ),
     },
     {
@@ -258,7 +249,10 @@ export default function ProductsTable() {
                     setProductDialogOpen(true);
                   }}
                 >
-                  <Eye className="mr-2 h-4 w-4" />
+                  <Eye
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   View Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -268,7 +262,10 @@ export default function ProductsTable() {
                     setProductDialogOpen(true);
                   }}
                 >
-                  <Edit className="mr-2 h-4 w-4" />
+                  <Edit
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   Edit Product
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -278,7 +275,10 @@ export default function ProductsTable() {
                     setProductDialogOpen(true);
                   }}
                 >
-                  <KeyRound className="mr-2 h-4 w-4" />
+                  <KeyRound
+                    size="16"
+                    className="mr-2 hover:text-primary-foreground"
+                  />
                   Generate 2D Barcode
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
